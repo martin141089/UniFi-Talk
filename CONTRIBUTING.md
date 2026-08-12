@@ -1,10 +1,10 @@
-# Contributing to TalkAnchor
+# Beitragen zu TalkAnchor
 
-Thanks for considering a contribution! TalkAnchor is built around a small
-plugin architecture on purpose, so most contributions don't need to touch
-the core reconcile loop at all.
+Danke, dass du einen Beitrag in Erwägung ziehst! TalkAnchor ist bewusst um
+eine schlanke Plugin-Architektur herum gebaut, sodass die meisten Beiträge
+den Kern-Reconcile-Loop gar nicht anfassen müssen.
 
-## Development setup
+## Entwicklungsumgebung einrichten
 
 ```sh
 git clone https://github.com/martin141089/UniFi-Talk.git talkanchor
@@ -15,71 +15,72 @@ uv venv .venv && uv pip install -e ".[dev]" --python .venv/bin/python
 .venv/bin/mypy src
 ```
 
-(Any standard `venv`/`pip install -e ".[dev]"` works too — `uv` is just
-faster.)
+(Ein normales `venv`/`pip install -e ".[dev]"` funktioniert genauso —
+`uv` ist nur schneller.)
 
-## Project layout
+## Projektstruktur
 
 ```
 src/talkanchor/
-├── core/       # polling loop, state, reconcile/diff logic — protocol-only, no I/O adapters
-├── sources/    # IP-source adapters (implement IPSource)
-├── targets/    # config-target adapters (implement ConfigTarget)
-├── notify/     # notification adapters (implement Notifier)
-├── wizard/     # interactive setup CLI
-└── web/        # FastAPI dashboard
+├── core/       # Polling-Loop, State, Reconcile-/Diff-Logik — nur Protokolle, keine I/O-Adapter
+├── sources/    # IP-Quellen-Adapter (implementieren IPSource)
+├── targets/    # Config-Ziel-Adapter (implementieren ConfigTarget)
+├── notify/     # Benachrichtigungs-Adapter (implementieren Notifier)
+├── wizard/     # interaktive Setup-CLI
+└── web/        # FastAPI-Dashboard
 ```
 
-## Adding a new IP source adapter
+## Einen neuen IP-Quellen-Adapter hinzufügen
 
-Implement the `IPSource` protocol from `talkanchor.sources.base`:
+Das `IPSource`-Protokoll aus `talkanchor.sources.base` implementieren:
 
 ```python
 class MySource:
     name = "my_source"
 
     async def check(self) -> str:
-        """Return the current public IP as a string, or raise IPSourceError."""
+        """Gibt die aktuelle öffentliche IP als String zurück, oder wirft IPSourceError."""
 ```
 
-Register it in `talkanchor.core.factory.build_sources` behind its own config
-section in `talkanchor.config`, and add tests mirroring
-`tests/test_sources.py` (mock the HTTP layer, don't hit real endpoints in
-CI).
+In `talkanchor.core.factory.build_sources` hinter einem eigenen
+Config-Abschnitt in `talkanchor.config` registrieren und Tests nach dem
+Vorbild von `tests/test_sources.py` ergänzen (HTTP-Schicht mocken, in der
+CI keine echten Endpunkte ansprechen).
 
-## Adding a new config-target adapter
+## Einen neuen Config-Ziel-Adapter hinzufügen
 
-Implement the `ConfigTarget` protocol from `talkanchor.targets.base`:
+Das `ConfigTarget`-Protokoll aus `talkanchor.targets.base` implementieren:
 `apply(new_ip, *, dry_run) -> ApplyResult`,
 `health_check() -> HealthCheckResult`, `rollback(backup_path, *, dry_run) ->
-RollbackResult`. `unifi_talk.py` is the reference implementation — look
-there for the expected shape (dry-run never touches the network, apply()
-always backs up before writing, health_check() polls with a timeout).
+RollbackResult`. `unifi_talk.py` ist die Referenzimplementierung — dort
+lässt sich die erwartete Form ablesen (Dry-Run fasst nie das Netzwerk an,
+apply() sichert immer vor dem Schreiben, health_check() fragt mit Timeout
+ab).
 
-Non-negotiables for any new target adapter, matching TalkAnchor's safety
-model (see [SECURITY.md](SECURITY.md)):
+Nicht verhandelbar für jeden neuen Ziel-Adapter, passend zum
+Sicherheitskonzept von TalkAnchor (siehe [SECURITY.md](SECURITY.md)):
 
-- Key-based auth only — no plaintext password fields.
-- Back up before every write, with a way to roll back.
-- `dry_run=True` must be a true no-op (no connection at all, ideally).
+- Nur Key-basierte Authentifizierung — keine Klartext-Passwort-Felder.
+- Backup vor jedem Schreibzugriff, mit einem Weg zum Zurückrollen.
+- `dry_run=True` muss ein echtes No-op sein (im Idealfall überhaupt keine Verbindung).
 
-## Adding a new notification adapter
+## Einen neuen Benachrichtigungs-Adapter hinzufügen
 
-Implement the `Notifier` protocol from `talkanchor.notify.base`
-(`async def send(self, notification: Notification) -> None`) and wire it
-into `talkanchor.notify.build_notifier`.
+Das `Notifier`-Protokoll aus `talkanchor.notify.base` implementieren
+(`async def send(self, notification: Notification) -> None`) und in
+`talkanchor.notify.build_notifier` einbinden.
 
-## Code style
+## Code-Stil
 
-- Ruff for linting (`ruff check`), mypy for type checking — both run in CI
-  and must pass.
-- Prefer small, focused adapters over configuration flags inside existing
-  ones.
-- Tests use fakes (see `tests/fakes.py`) for the core loop — no real
-  network/SSH calls in unit tests.
+- Ruff fürs Linting (`ruff check`), mypy für die Typprüfung — beides läuft
+  in der CI und muss bestehen.
+- Kleine, fokussierte Adapter bevorzugen statt Konfigurations-Flags in
+  bestehenden Adaptern.
+- Tests verwenden Fakes (siehe `tests/fakes.py`) für den Kern-Loop — keine
+  echten Netzwerk-/SSH-Aufrufe in Unit-Tests.
 
-## Pull requests
+## Pull Requests
 
-- Keep PRs focused on one adapter/feature at a time.
-- Include tests for new adapters.
-- Update `CHANGELOG.md` under "Unreleased".
+- PRs auf jeweils einen Adapter/eine Funktion fokussieren.
+- Tests für neue Adapter beilegen.
+- `CHANGELOG.md` unter „Unreleased" aktualisieren.

@@ -1,63 +1,65 @@
-# Configuration Reference
+# Konfigurationsreferenz
 
-TalkAnchor reads settings from `config.yaml`, then lets environment
-variables override any value in it (see `.env.example`). The easiest way to
-generate a first `config.yaml` is `talkanchor setup` (see the
-[README quickstart](README.md#quickstart)) — this document is the reference
-for every field once you want to tune something by hand.
+TalkAnchor liest Einstellungen aus `config.yaml` und lässt Umgebungsvariablen
+anschließend jeden Wert darin überschreiben (siehe `.env.example`). Der
+einfachste Weg, eine erste `config.yaml` zu erzeugen, ist `talkanchor setup`
+(siehe [README-Schnellstart](README.md#schnellstart)) — dieses Dokument ist
+die Referenz für jedes Feld, wenn du etwas von Hand nachjustieren willst.
 
-Environment variables use the prefix `TALKANCHOR_` and a double underscore
-(`__`) for nested fields, e.g. `TALKANCHOR_CLOUDFLARE__API_TOKEN`.
+Umgebungsvariablen verwenden das Präfix `TALKANCHOR_` und einen doppelten
+Unterstrich (`__`) für verschachtelte Felder, z. B.
+`TALKANCHOR_CLOUDFLARE__API_TOKEN`.
 
-## Top-level
+## Oberste Ebene
 
-| Key | Env var | Default | Description |
+| Schlüssel | Env-Var | Standard | Beschreibung |
 |---|---|---|---|
-| `dry_run` | `TALKANCHOR_DRY_RUN` | `true` | When true, TalkAnchor computes and logs what it *would* do but never opens an SSH connection or writes anything. Keep this on until you've reviewed a few cycles. |
-| `poll_interval_seconds` | `TALKANCHOR_POLL_INTERVAL_SECONDS` | `300` | How often the scheduler checks the IP sources. |
-| `min_seconds_between_changes` | `TALKANCHOR_MIN_SECONDS_BETWEEN_CHANGES` | `300` | Minimum time between two live changes (rate limit / anti-flapping). A change detected sooner is deferred and retried next cycle, not dropped. |
-| `data_dir` | `TALKANCHOR_DATA_DIR` | `./data` | Local directory for the SQLite state DB, local backup copies, and the log file. |
-| `web_host` / `web_port` | `TALKANCHOR_WEB_HOST` / `TALKANCHOR_WEB_PORT` | `0.0.0.0` / `8420` | Dashboard bind address/port. Not meant to be exposed to the internet — put it behind your own VPN/reverse proxy if you need remote access. |
+| `dry_run` | `TALKANCHOR_DRY_RUN` | `true` | Wenn true, berechnet und protokolliert TalkAnchor, was es *tun würde*, öffnet aber nie eine SSH-Verbindung und schreibt nichts. So lange aktiviert lassen, bis du ein paar Zyklen geprüft hast. |
+| `poll_interval_seconds` | `TALKANCHOR_POLL_INTERVAL_SECONDS` | `300` | Wie oft der Scheduler die IP-Quellen prüft. |
+| `min_seconds_between_changes` | `TALKANCHOR_MIN_SECONDS_BETWEEN_CHANGES` | `300` | Mindestabstand zwischen zwei scharfen Änderungen (Rate-Limit / Anti-Flapping). Eine früher erkannte Änderung wird zurückgestellt und im nächsten Zyklus erneut versucht, nicht verworfen. |
+| `data_dir` | `TALKANCHOR_DATA_DIR` | `./data` | Lokales Verzeichnis für die SQLite-State-DB, lokale Backup-Kopien und die Log-Datei. |
+| `web_host` / `web_port` | `TALKANCHOR_WEB_HOST` / `TALKANCHOR_WEB_PORT` | `0.0.0.0` / `8420` | Bind-Adresse/Port des Dashboards. Nicht für die direkte Veröffentlichung im Internet gedacht — bei Fernzugriff hinter ein eigenes VPN/Reverse-Proxy stellen. |
 
-## `cloudflare` — primary IP source
+## `cloudflare` — primäre IP-Quelle
 
-| Key | Description |
+| Schlüssel | Beschreibung |
 |---|---|
-| `api_token` | Cloudflare API token. Minimal scope: **Account → Cloudflare Tunnel → Read**. |
-| `account_id` | Your Cloudflare account ID. |
-| `tunnel_id` | The ID of the tunnel whose connector IP you want to track. |
+| `api_token` | Cloudflare-API-Token. Minimaler Scope: **Account → Cloudflare Tunnel → Read**. |
+| `account_id` | Deine Cloudflare-Account-ID. |
+| `tunnel_id` | Die ID des Tunnels, dessen Connector-IP verfolgt werden soll. |
 
-TalkAnchor calls `GET /accounts/{account_id}/cfd_tunnel/{tunnel_id}/connections`
-and reads each active connector's `origin_ip`. If connectors disagree
-(can happen mid-failover), TalkAnchor refuses to act that cycle rather than
-guess.
+TalkAnchor ruft `GET /accounts/{account_id}/cfd_tunnel/{tunnel_id}/connections`
+auf und liest die `origin_ip` jedes aktiven Connectors aus. Wenn sich
+Connectors uneinig sind (kann während eines Failovers passieren),
+verweigert TalkAnchor in diesem Zyklus eine Aktion, statt zu raten.
 
-## `http_echo` — fallback IP source
+## `http_echo` — Fallback-IP-Quelle
 
-| Key | Default | Description |
+| Schlüssel | Standard | Beschreibung |
 |---|---|---|
-| `url` | `https://api.ipify.org?format=json` | Any "what's my IP" HTTP endpoint. |
-| `json_field` | `ip` | JSON field holding the IP. Leave empty to treat the whole response body as plain text. |
+| `url` | `https://api.ipify.org?format=json` | Beliebiger „Was ist meine IP"-HTTP-Endpunkt. |
+| `json_field` | `ip` | JSON-Feld, das die IP enthält. Leer lassen, um den gesamten Antworttext als Klartext zu behandeln. |
 
-Both sources must agree on the current IP before TalkAnchor acts — this is
-the plausibility check that guards against a single source glitching.
+Beide Quellen müssen bei der aktuellen IP übereinstimmen, bevor TalkAnchor
+handelt — das ist die Plausibilitätsprüfung, die vor einer einzelnen
+fehlerhaften Quelle schützt.
 
-## `unifi_talk` — SSH target
+## `unifi_talk` — SSH-Ziel
 
-| Key | Default | Description |
+| Schlüssel | Standard | Beschreibung |
 |---|---|---|
-| `host` | — | UDM hostname or IP. |
+| `host` | — | UDM-Hostname oder IP. |
 | `ssh_port` | `22` | |
 | `ssh_user` | `root` | |
-| `ssh_key_path` | `~/.ssh/id_ed25519` | Private key path. **Key auth only — there is no password field.** |
-| `sofia_profile` | `external_talk` | The FreeSWITCH Sofia profile name to patch/restart. |
-| `config_path` | — | Absolute path to the Sofia profile XML on the UDM. Use `talkanchor setup`'s SSH discovery to find it, since the path is firmware-dependent and undocumented by Ubiquiti. |
-| `ext_sip_ip_param` / `ext_rtp_ip_param` | `ext-sip-ip` / `ext-rtp-ip` | The XML `<param name="...">` attributes patched to the new IP. |
-| `backup_dir_remote` | `/root/talkanchor-backups` | Remote directory backups are copied into before every write. |
-| `health_check_timeout_seconds` | `30` | How long to poll `sofia status profile <profile> reg` for a healthy `REGED` state after a live change before giving up and rolling back. |
-| `expected_registrations` | `[]` | Optional list of strings (e.g. gateway names) that must all show `REGED` for the health check to pass. If empty, TalkAnchor just checks that *some* registration is `REGED`. |
+| `ssh_key_path` | `~/.ssh/id_ed25519` | Pfad zum privaten Key. **Nur Key-Auth — es gibt kein Passwort-Feld.** |
+| `sofia_profile` | `external_talk` | Name des FreeSWITCH-Sofia-Profils, das gepatcht/neu gestartet wird. |
+| `config_path` | — | Absoluter Pfad zur Sofia-Profil-XML auf dem UDM. Über die SSH-Discovery von `talkanchor setup` ermitteln lassen, da der Pfad firmwareabhängig und von Ubiquiti nicht dokumentiert ist. |
+| `ext_sip_ip_param` / `ext_rtp_ip_param` | `ext-sip-ip` / `ext-rtp-ip` | Die XML-`<param name="...">`-Attribute, die auf die neue IP gepatcht werden. |
+| `backup_dir_remote` | `/root/talkanchor-backups` | Remote-Verzeichnis, in das vor jedem Schreibzugriff Backups kopiert werden. |
+| `health_check_timeout_seconds` | `30` | Wie lange `sofia status profile <profile> reg` nach einer scharfen Änderung auf einen gesunden `REGED`-Status abgefragt wird, bevor aufgegeben und zurückgerollt wird. |
+| `expected_registrations` | `[]` | Optionale Liste von Strings (z. B. Gateway-Namen), die alle `REGED` zeigen müssen, damit der Health-Check besteht. Wenn leer, prüft TalkAnchor nur, ob *irgendeine* Registrierung `REGED` ist. |
 
-Before the first SSH connection, add the UDM's host key:
+Vor der ersten SSH-Verbindung den Host-Key des UDM hinzufügen:
 
 ```sh
 ssh-keyscan -H <host> >> ~/.ssh/known_hosts
@@ -65,17 +67,17 @@ ssh-keyscan -H <host> >> ~/.ssh/known_hosts
 
 ## `notify`
 
-| Key | Description |
+| Schlüssel | Beschreibung |
 |---|---|
-| `channel` | One of `none`, `ntfy`, `webhook`, `email`. |
-| `ntfy_topic_url` | e.g. `https://ntfy.sh/my-private-topic`. |
-| `webhook_url` | Any endpoint accepting a JSON POST of `{title, body, level}` — Home Assistant, a Discord-compatible relay, Slack Incoming Webhooks, etc. |
-| `email_to`, `email_smtp_host`, `email_smtp_port`, `email_smtp_user`, `email_smtp_password` | SMTP settings for the email adapter. |
+| `channel` | Einer von `none`, `ntfy`, `webhook`, `email`. |
+| `ntfy_topic_url` | z. B. `https://ntfy.sh/mein-privates-topic`. |
+| `webhook_url` | Beliebiger Endpunkt, der einen JSON-POST von `{title, body, level}` akzeptiert — Home Assistant, ein Discord-kompatibles Relay, Slack Incoming Webhooks usw. |
+| `email_to`, `email_smtp_host`, `email_smtp_port`, `email_smtp_user`, `email_smtp_password` | SMTP-Einstellungen für den E-Mail-Adapter. |
 
-TalkAnchor notifies on every apply, health-check, and rollback outcome —
-success, failure, or deferred — never silently.
+TalkAnchor benachrichtigt bei jedem Apply-, Health-Check- und
+Rollback-Ergebnis — Erfolg, Fehler oder Zurückstellung — niemals stillschweigend.
 
-## Example `config.yaml`
+## Beispiel `config.yaml`
 
 ```yaml
 dry_run: true
@@ -105,7 +107,7 @@ unifi_talk:
 
 notify:
   channel: ntfy
-  ntfy_topic_url: https://ntfy.sh/my-private-topic
+  ntfy_topic_url: https://ntfy.sh/mein-privates-topic
 
 web_host: 0.0.0.0
 web_port: 8420

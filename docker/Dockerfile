@@ -11,7 +11,7 @@ RUN pip install --no-cache-dir --root-user-action=ignore build && \
 FROM python:3.12-slim
 
 LABEL org.opencontainers.image.title="TalkAnchor" \
-      org.opencontainers.image.description="Keeps UniFi Talk anchored to your current dynamic public IP." \
+      org.opencontainers.image.description="Hält UniFi Talk verankert an der aktuellen dynamischen öffentlichen IP." \
       org.opencontainers.image.licenses="MIT" \
       org.opencontainers.image.source="https://github.com/martin141089/UniFi-Talk"
 

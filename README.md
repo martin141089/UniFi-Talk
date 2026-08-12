@@ -16,88 +16,96 @@
 
 ---
 
-**TalkAnchor** keeps a self-hosted [UniFi Talk](https://ui.com/talk) install
-anchored to your current dynamic public IP. It watches your Cloudflare
-Tunnel connector's IP, cross-checks it against a fallback source, and — only
-when both agree something actually changed — safely patches the FreeSWITCH
-Sofia SIP profile over SSH, backs up first, restarts the profile, and
-verifies the trunk re-registers before calling it done.
+**TalkAnchor** hält eine selbst gehostete [UniFi Talk](https://ui.com/talk)-
+Installation verankert an deiner aktuellen dynamischen öffentlichen IP. Es
+beobachtet die IP deines Cloudflare-Tunnel-Connectors, gleicht sie
+gegen eine Fallback-Quelle ab und patcht — nur wenn beide übereinstimmen und
+sich tatsächlich etwas geändert hat — sicher das FreeSWITCH-Sofia-SIP-Profil
+per SSH, erstellt vorher ein Backup, startet das Profil neu und prüft, ob
+sich der Trunk erfolgreich neu registriert, bevor der Vorgang als
+abgeschlossen gilt.
 
-## Why TalkAnchor?
+## Warum TalkAnchor?
 
-UniFi Talk registers with your SIP trunk (Telekom, etc.) using an external
-IP baked into its Sofia profile config (`ext-sip-ip` / `ext-rtp-ip`,
-`auto-nat: false`). On connections with a **dynamic public IP**, that value
-goes stale the moment your provider rotates it (forced disconnect, DHCP
-lease renewal, ...) — audio breaks, calls drop, registration fails. The
-UniFi Talk UI has no toggle for this; the value is managed internally by the
-app and gets reset on every app update.
+UniFi Talk registriert sich bei deinem SIP-Trunk (Telekom o. Ä.) mit einer
+externen IP, die fest in der Sofia-Profil-Konfiguration hinterlegt ist
+(`ext-sip-ip` / `ext-rtp-ip`, `auto-nat: false`). Bei Anschlüssen mit
+**dynamischer öffentlicher IP** wird dieser Wert veraltet, sobald der
+Provider die IP wechselt (Zwangstrennung, DHCP-Lease-Erneuerung, ...) —
+Audio bricht ab, Anrufe werden getrennt, die Registrierung schlägt fehl.
+Die UniFi-Talk-UI bietet dafür keinen Schalter; der Wert wird intern von
+der App verwaltet und bei jedem App-Update zurückgesetzt.
 
-There's no first-party fix, and only scattered manual community
-workarounds that get wiped out on the next update. TalkAnchor is a small,
-self-hosted service that closes that gap — and re-corrects automatically
-the next cycle even after an app update resets things, which is the actual
-point, not just a limitation to work around.
+Es gibt dafür keine offizielle Lösung, nur vereinzelte manuelle
+Community-Workarounds, die beim nächsten Update wieder verloren gehen.
+TalkAnchor ist ein schlanker, selbst gehosteter Dienst, der genau diese
+Lücke schließt — und im nächsten Zyklus automatisch nachkorrigiert, selbst
+wenn ein App-Update die Einstellung zurückgesetzt hat. Das ist der
+eigentliche Clou, nicht nur eine Einschränkung, mit der man leben muss.
 
 ## Screenshot
 
-![TalkAnchor dashboard](docs/screenshots/dashboard.png)
+![TalkAnchor Dashboard](docs/screenshots/dashboard.png)
 
-**[Live demo →](https://martin141089.github.io/UniFi-Talk/)** (static,
-fake data — no backend, deployed from `web-demo/`; requires GitHub Pages to
-be enabled once under *Settings → Pages → Source: GitHub Actions*).
+**[Live-Demo →](https://martin141089.github.io/UniFi-Talk/)** (statisch,
+Beispieldaten — kein Backend, wird aus `web-demo/` deployed; setzt voraus,
+dass GitHub Pages einmalig unter *Settings → Pages → Source: GitHub
+Actions* aktiviert wurde).
 
-## Features
+## Funktionen
 
-- **Dual-source IP detection** — Cloudflare Tunnel connector IP as the
-  primary source, a configurable HTTP echo service as a fallback; both must
-  agree before anything happens.
-- **Dry-run by default** — review exactly what TalkAnchor *would* do before
-  it ever opens an SSH connection.
-- **Backup before every write**, locally and on the UDM, with a documented
-  manual restore path (see [SECURITY.md](SECURITY.md)).
-- **Health-checked changes** — polls `sofia status` after a live change and
-  automatically rolls back (with a clear notification either way) if
-  registration doesn't come back healthy.
-- **Rate-limited** — a flapping IP signal gets logged and deferred, not
-  acted on repeatedly.
-- **Pluggable notifications** — ntfy, generic webhook (Home Assistant,
-  Discord relay, Slack), or email.
-- **Guided setup wizard** — interactive CLI that walks through Cloudflare,
-  SSH, and notification setup, with SSH-based discovery of the (otherwise
-  undocumented) Sofia config path.
-- **Local dashboard** — current IP, change history, live log, health
-  status, manual check/rollback buttons.
-- **Plugin architecture** — UniFi Talk is the reference target adapter, not
-  the only one; see [CONTRIBUTING.md](CONTRIBUTING.md) to add another SIP
-  system or IP source.
+- **IP-Erkennung aus zwei Quellen** — Cloudflare-Tunnel-Connector-IP als
+  primäre Quelle, ein konfigurierbarer HTTP-Echo-Dienst als Fallback; beide
+  müssen übereinstimmen, bevor irgendetwas passiert.
+- **Dry-Run als Standard** — genau nachvollziehen, was TalkAnchor tun
+  *würde*, bevor überhaupt eine SSH-Verbindung aufgebaut wird.
+- **Backup vor jedem Schreibzugriff**, lokal und auf dem UDM, mit
+  dokumentiertem manuellem Wiederherstellungsweg (siehe
+  [SECURITY.md](SECURITY.md)).
+- **Health-Check nach jeder Änderung** — fragt `sofia status` nach einer
+  scharfen Änderung ab und rollt automatisch zurück (mit klarer
+  Benachrichtigung in beiden Fällen), falls die Registrierung nicht wieder
+  gesund wird.
+- **Rate-Limiting** — ein flatterndes IP-Signal wird protokolliert und
+  zurückgestellt, nicht wiederholt scharf ausgeführt.
+- **Austauschbare Benachrichtigungen** — ntfy, generischer Webhook (Home
+  Assistant, Discord-Relay, Slack) oder E-Mail.
+- **Geführter Setup-Wizard** — interaktive CLI, die durch Cloudflare-,
+  SSH- und Benachrichtigungs-Einrichtung führt, inklusive SSH-basierter
+  Erkennung des (sonst undokumentierten) Sofia-Config-Pfads.
+- **Lokales Dashboard** — aktuelle IP, Änderungshistorie, Live-Log,
+  Health-Status, manuelle Prüfen-/Rollback-Buttons.
+- **Plugin-Architektur** — UniFi Talk ist der Referenz-Zieladapter, nicht
+  der einzig mögliche; siehe [CONTRIBUTING.md](CONTRIBUTING.md), um ein
+  weiteres SIP-System oder eine weitere IP-Quelle zu ergänzen.
 
-## Quickstart
+## Schnellstart
 
 ```sh
 git clone https://github.com/martin141089/UniFi-Talk.git talkanchor
 cd talkanchor
-cp .env.example .env   # fill in Cloudflare + UniFi SSH details, or run the wizard instead
+cp .env.example .env   # Cloudflare- + UniFi-SSH-Details eintragen, oder stattdessen den Wizard nutzen
 docker compose -f docker/docker-compose.yml up -d
 ```
 
-Or run the interactive setup wizard first (recommended — it can discover
-the Sofia config path for you over SSH):
+Oder zuerst den interaktiven Setup-Wizard ausführen (empfohlen — er kann
+den Sofia-Config-Pfad selbstständig per SSH ermitteln):
 
 ```sh
 uv venv .venv && uv pip install -e . --python .venv/bin/python
 .venv/bin/talkanchor setup
 ```
 
-The wizard always writes `dry_run: true` first, offers to run a test cycle
-immediately, and only flips to a live run after a second, explicit
-confirmation. See [CONFIGURATION.md](CONFIGURATION.md) for every setting
-and [docs/architecture.md](docs/architecture.md) for how the reconcile loop
-and plugin adapters fit together.
+Der Wizard schreibt zuerst immer `dry_run: true`, bietet an, sofort einen
+Testlauf auszuführen, und schaltet erst nach einer zweiten, expliziten
+Bestätigung scharf. Siehe [CONFIGURATION.md](CONFIGURATION.md) für jede
+Einstellung und [docs/architecture.md](docs/architecture.md) dafür, wie
+Reconcile-Loop und Plugin-Adapter zusammenspielen.
 
-Once running, the dashboard is at `http://<host>:8420`.
+Sobald der Dienst läuft, ist das Dashboard unter `http://<host>:8420`
+erreichbar.
 
-## Disclaimer
+## Haftungsausschluss
 
 > ⚠️ **Kein offizielles Ubiquiti-Produkt.** TalkAnchor verändert eine von
 > der UniFi-Talk-Anwendung verwaltete, nicht offiziell dokumentierte
@@ -105,17 +113,17 @@ Once running, the dashboard is at `http://<host>:8420`.
 > Vor dem ersten produktiven Einsatz unbedingt den Dry-Run-Modus nutzen und
 > ein aktuelles Backup deines UniFi-Systems vorhalten.
 
-See [SECURITY.md](SECURITY.md) for the full safety model (key-only SSH,
-host-key verification, backups, health checks, rate limiting).
+Das vollständige Sicherheitskonzept (SSH nur per Key, Host-Key-Prüfung,
+Backups, Health-Checks, Rate-Limiting) steht in [SECURITY.md](SECURITY.md).
 
-## Documentation
+## Dokumentation
 
-- [CONFIGURATION.md](CONFIGURATION.md) — every config field, env var, and a full example
-- [docs/architecture.md](docs/architecture.md) — reconcile loop, plugin protocols, deployment
-- [SECURITY.md](SECURITY.md) — safety model, disclaimer, manual restore
-- [CONTRIBUTING.md](CONTRIBUTING.md) — adding new source/target/notify adapters
-- [homeassistant-addon/](homeassistant-addon/) — Home Assistant add-on wrapper
+- [CONFIGURATION.md](CONFIGURATION.md) — jedes Config-Feld, jede Umgebungsvariable, ein vollständiges Beispiel
+- [docs/architecture.md](docs/architecture.md) — Reconcile-Loop, Plugin-Protokolle, Deployment
+- [SECURITY.md](SECURITY.md) — Sicherheitskonzept, Haftungsausschluss, manuelle Wiederherstellung
+- [CONTRIBUTING.md](CONTRIBUTING.md) — neue Source-/Target-/Notify-Adapter beisteuern
+- [homeassistant-addon/](homeassistant-addon/) — Home-Assistant-Add-on-Wrapper
 
-## License
+## Lizenz
 
 [MIT](LICENSE)

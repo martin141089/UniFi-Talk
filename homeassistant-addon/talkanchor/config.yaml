@@ -1,7 +1,7 @@
 name: TalkAnchor
 version: "0.1.0"
 slug: talkanchor
-description: Keeps UniFi Talk anchored to your current dynamic public IP.
+description: Hält UniFi Talk verankert an deiner aktuellen dynamischen öffentlichen IP.
 url: https://github.com/martin141089/UniFi-Talk
 image: ghcr.io/martin141089/unifi-talk-addon
 arch:

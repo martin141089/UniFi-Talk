@@ -1,24 +1,25 @@
-# TalkAnchor — Home Assistant Add-on
+# TalkAnchor — Home-Assistant-Add-on
 
-This directory is a [Home Assistant add-on repository](https://developers.home-assistant.io/docs/add-ons/repository).
-It's a thin wrapper around the standalone TalkAnchor Docker image (see the
-[repo root](..)) for users who already run Home Assistant on their network
-and would rather manage TalkAnchor through the Supervisor than a separate
-`docker compose` deployment.
+Dieses Verzeichnis ist ein [Home-Assistant-Add-on-Repository](https://developers.home-assistant.io/docs/add-ons/repository).
+Es ist ein schlanker Wrapper um das eigenständige TalkAnchor-Docker-Image
+(siehe die [Repo-Wurzel](..)) für alle, die bereits Home Assistant im
+Netzwerk betreiben und TalkAnchor lieber über den Supervisor verwalten
+möchten als über ein separates `docker compose`-Deployment.
 
-## Add this repository
+## Dieses Repository hinzufügen
 
 In Home Assistant: **Settings → Add-ons → Add-on Store → ⋮ → Repositories**,
-then add:
+dann hinzufügen:
 
 ```
 https://github.com/martin141089/UniFi-Talk
 ```
 
-The **TalkAnchor** add-on will show up in the store. See
-[talkanchor/DOCS.md](talkanchor/DOCS.md) for configuration details.
+Das **TalkAnchor**-Add-on erscheint dann im Store. Konfigurationsdetails
+stehen in [talkanchor/DOCS.md](talkanchor/DOCS.md).
 
-Not sure whether you want the add-on or the standalone Docker/Compose
-deployment? Either works — they run the exact same core; the add-on just
-maps its options UI onto the same `config.yaml` the CLI uses. Pick whichever
-fits how you already manage the rest of your network.
+Unsicher, ob das Add-on oder das eigenständige Docker-/Compose-Deployment
+die richtige Wahl ist? Beides funktioniert — sie laufen mit demselben
+Kern; das Add-on bildet seine Options-UI nur auf dieselbe `config.yaml` ab,
+die auch die CLI nutzt. Wähle, was besser zur restlichen Verwaltung deines
+Netzwerks passt.

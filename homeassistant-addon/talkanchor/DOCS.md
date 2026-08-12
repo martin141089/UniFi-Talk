@@ -1,38 +1,40 @@
-# TalkAnchor Home Assistant Add-on
+# TalkAnchor Home-Assistant-Add-on
 
-Thin wrapper around the standalone [TalkAnchor](https://github.com/martin141089/UniFi-Talk)
-Docker image for users who already run Home Assistant on their network. It
-translates this add-on's configuration UI into the same `config.yaml`
-the CLI/Compose deployment uses, then runs the identical polling
-loop + dashboard.
+Schlanker Wrapper um das eigenständige
+[TalkAnchor](https://github.com/martin141089/UniFi-Talk)-Docker-Image für
+alle, die bereits Home Assistant im Netzwerk betreiben. Er übersetzt die
+Konfigurations-UI dieses Add-ons in dieselbe `config.yaml`, die auch das
+CLI-/Compose-Deployment nutzt, und startet dann denselben Polling-Loop +
+Dashboard.
 
 ## Installation
 
-1. Settings → Add-ons → Add-on Store → ⋮ → **Repositories** → add
-   `https://github.com/martin141089/UniFi-Talk`.
-2. Find **TalkAnchor** in the store and install it.
-3. Fill in the configuration (see below), start the add-on, and open it
-   via the sidebar (ingress) or `http://<ha-host>:8420`.
+1. Settings → Add-ons → Add-on Store → ⋮ → **Repositories** →
+   `https://github.com/martin141089/UniFi-Talk` hinzufügen.
+2. **TalkAnchor** im Store finden und installieren.
+3. Konfiguration ausfüllen (siehe unten), Add-on starten und über die
+   Seitenleiste (Ingress) oder `http://<ha-host>:8420` öffnen.
 
-## Configuration
+## Konfiguration
 
-| Option | Description |
+| Option | Beschreibung |
 |---|---|
-| `dry_run` | Keep `true` until you've reviewed a few cycles in the log. |
-| `poll_interval_seconds` / `min_seconds_between_changes` | Same as the standalone config — see [CONFIGURATION.md](../../CONFIGURATION.md). |
-| `cloudflare_api_token` / `cloudflare_account_id` / `cloudflare_tunnel_id` | Cloudflare Tunnel connector IP source. Token scope: Account → Cloudflare Tunnel → Read. |
-| `http_echo_url` | Fallback IP source. |
-| `unifi_host` / `unifi_ssh_port` / `unifi_ssh_user` | UDM SSH connection details. |
-| `unifi_ssh_private_key` | Paste the **private** key contents directly (multi-line). Key-only auth — there is no password option. |
-| `unifi_ssh_known_hosts_entry` | The UDM's SSH host key line, e.g. the output of `ssh-keyscan -H <host>` run from your own machine. Required — unknown host keys are rejected, not trusted on first use. |
-| `unifi_sofia_profile` / `unifi_config_path` | Sofia profile name and the path to its XML on the UDM. Since the add-on can't run the interactive wizard's SSH discovery, find the path once via `talkanchor setup` on a workstation, or SSH in manually and run `find / -iname "sofia*.xml"`. |
-| `unifi_backup_dir_remote` | Remote backup directory on the UDM. |
-| `notify_channel` / `notify_ntfy_topic_url` / `notify_webhook_url` | Optional notifications. For Home Assistant automations, point `notify_webhook_url` at a `webhook` trigger and react to it from HA itself. |
+| `dry_run` | Auf `true` lassen, bis ein paar Zyklen im Log geprüft wurden. |
+| `poll_interval_seconds` / `min_seconds_between_changes` | Wie in der eigenständigen Konfiguration — siehe [CONFIGURATION.md](../../CONFIGURATION.md). |
+| `cloudflare_api_token` / `cloudflare_account_id` / `cloudflare_tunnel_id` | Cloudflare-Tunnel-Connector-IP-Quelle. Token-Scope: Account → Cloudflare Tunnel → Read. |
+| `http_echo_url` | Fallback-IP-Quelle. |
+| `unifi_host` / `unifi_ssh_port` / `unifi_ssh_user` | SSH-Verbindungsdetails zum UDM. |
+| `unifi_ssh_private_key` | Den Inhalt des **privaten** Keys direkt einfügen (mehrzeilig). Nur Key-Auth — es gibt keine Passwort-Option. |
+| `unifi_ssh_known_hosts_entry` | Die SSH-Host-Key-Zeile des UDM, z. B. die Ausgabe von `ssh-keyscan -H <host>`, ausgeführt auf dem eigenen Rechner. Erforderlich — unbekannte Host-Keys werden abgelehnt statt beim ersten Kontakt vertraut. |
+| `unifi_sofia_profile` / `unifi_config_path` | Name des Sofia-Profils und Pfad zu dessen XML auf dem UDM. Da das Add-on die SSH-Discovery des interaktiven Wizards nicht ausführen kann, den Pfad einmalig über `talkanchor setup` auf einer Workstation ermitteln, oder manuell per SSH verbinden und `find / -iname "sofia*.xml"` ausführen. |
+| `unifi_backup_dir_remote` | Remote-Backup-Verzeichnis auf dem UDM. |
+| `notify_channel` / `notify_ntfy_topic_url` / `notify_webhook_url` | Optionale Benachrichtigungen. Für Home-Assistant-Automatisierungen `notify_webhook_url` auf einen `webhook`-Trigger zeigen lassen und in HA selbst darauf reagieren. |
 
-State, history, and local backup copies persist under `/data`, which the
-Supervisor keeps across add-on restarts and updates.
+State, Historie und lokale Backup-Kopien werden unter `/data`
+gespeichert, das der Supervisor über Add-on-Neustarts und -Updates hinweg
+erhält.
 
-## Disclaimer
+## Haftungsausschluss
 
-⚠️ Not an official Ubiquiti product — see the main
-[SECURITY.md](../../SECURITY.md) disclaimer. Start with `dry_run: true`.
+⚠️ Kein offizielles Ubiquiti-Produkt — siehe den Haftungsausschluss in der
+Haupt-[SECURITY.md](../../SECURITY.md). Mit `dry_run: true` beginnen.

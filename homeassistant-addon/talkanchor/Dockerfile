@@ -1,6 +1,7 @@
-# Thin wrapper around the main TalkAnchor image: translates Home Assistant's
-# supervisor-provided /data/options.json into a talkanchor config.yaml, then
-# execs the same entrypoint the standalone Docker image uses.
+# Schlanker Wrapper um das Haupt-TalkAnchor-Image: übersetzt das vom
+# Home-Assistant-Supervisor bereitgestellte /data/options.json in eine
+# talkanchor config.yaml und führt dann denselben Entrypoint wie das
+# eigenständige Docker-Image aus.
 FROM ghcr.io/martin141089/unifi-talk:latest
 
 USER root
