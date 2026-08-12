@@ -8,7 +8,7 @@ dieses Projekt folgt [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
-## [0.1.1] - 2026-08-12
+## [0.1.2] - 2026-08-12
 
 ### Hinzugefügt
 
@@ -20,10 +20,18 @@ dieses Projekt folgt [Semantic Versioning](https://semver.org/).
   und explizit bestätigtem Scharfschalten. Schreibt im eigenständigen
   Betrieb direkt in `config.yaml` (Hot-Reload ohne Neustart) und im
   Home-Assistant-Add-on über die Supervisor-API in die Add-on-Optionen
-  (automatischer Neustart zur Übernahme).
-- Dashboard-Bereich „Diagnose" (vormals „Setup-Helfer"): SSH-Host-Key
-  abrufen, Sofia-Config-Pfad suchen und die Cloudflare-Verbindung gegen
-  die aktuell gespeicherte Konfiguration testen.
+  (automatischer Neustart zur Übernahme). Ersetzt den bisherigen
+  „Setup-Helfer"-Bereich als primären Einrichtungsweg; dieser bleibt als
+  „Diagnose"-Bereich für bereits konfigurierte Deployments erhalten.
+
+## [0.1.1] - 2026-08-12
+
+### Hinzugefügt
+
+- Dashboard-Bereich „Setup-Helfer": SSH-Host-Key abrufen, Sofia-Config-Pfad
+  per SSH suchen und die Cloudflare-Verbindung testen — als Web-Ersatz für
+  die SSH-Schritte des CLI-Wizards dort, wo kein Terminal zur Verfügung
+  steht (insbesondere im Home-Assistant-Add-on).
 
 ### Behoben
 
@@ -64,6 +72,7 @@ Erstes Alpha-Release.
 - Vollständige Testsuite für den Kern-Reconcile-Loop mit In-Memory-Fakes
   (kein echtes Netzwerk/SSH nötig).
 
-[Unreleased]: https://github.com/martin141089/UniFi-Talk/compare/v0.1.1...HEAD
+[Unreleased]: https://github.com/martin141089/UniFi-Talk/compare/v0.1.2...HEAD
+[0.1.2]: https://github.com/martin141089/UniFi-Talk/compare/v0.1.1...v0.1.2
 [0.1.1]: https://github.com/martin141089/UniFi-Talk/compare/v0.1.0...v0.1.1
 [0.1.0]: https://github.com/martin141089/UniFi-Talk/releases/tag/v0.1.0
