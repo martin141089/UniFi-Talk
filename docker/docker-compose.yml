@@ -1,0 +1,23 @@
+services:
+  talkanchor:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+    image: ghcr.io/martin141089/unifi-talk:latest
+    container_name: talkanchor
+    restart: unless-stopped
+    env_file:
+      - ../.env
+    volumes:
+      - talkanchor-data:/app/data
+      # Mount your SSH key + known_hosts read-only, matching
+      # TALKANCHOR_UNIFI_TALK__SSH_KEY_PATH (default: ~/.ssh/id_ed25519,
+      # which resolves to /home/talkanchor/.ssh/id_ed25519 in the container).
+      - ~/.ssh:/home/talkanchor/.ssh:ro
+      # Alternative to .env: mount a wizard-generated config.yaml instead.
+      # - ../config.yaml:/app/config.yaml:ro
+    ports:
+      - "8420:8420"
+
+volumes:
+  talkanchor-data:

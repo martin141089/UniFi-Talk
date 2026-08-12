@@ -1,0 +1,47 @@
+name: Bug Report
+description: Etwas funktioniert nicht wie erwartet.
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Danke fürs Melden! Bitte gib so viele Details wie möglich an — insbesondere ob
+        `dry_run: true` oder `false` aktiv war, das hilft enorm bei der Einordnung.
+  - type: textarea
+    id: description
+    attributes:
+      label: Was ist passiert?
+      description: Erwartetes vs. tatsächliches Verhalten.
+    validations:
+      required: true
+  - type: textarea
+    id: logs
+    attributes:
+      label: Relevante Logs / Dashboard-Ausschnitt
+      description: Bitte Secrets (Tokens, IPs falls sensibel) vorher entfernen.
+      render: shell
+  - type: input
+    id: version
+    attributes:
+      label: TalkAnchor-Version
+      placeholder: z. B. 0.1.0 oder Commit-Hash
+    validations:
+      required: true
+  - type: dropdown
+    id: dry-run
+    attributes:
+      label: Dry-Run oder Live?
+      options:
+        - dry_run: true
+        - dry_run: false
+    validations:
+      required: true
+  - type: input
+    id: deployment
+    attributes:
+      label: Deployment
+      placeholder: Docker Compose / bare metal / Home Assistant Add-on / ...
+  - type: input
+    id: target-firmware
+    attributes:
+      label: UniFi-OS/UniFi-Talk-Version (falls target=unifi_talk)

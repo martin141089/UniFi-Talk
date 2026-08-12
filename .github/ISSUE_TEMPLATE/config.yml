@@ -1,0 +1,5 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Sicherheitslücke melden
+    url: https://github.com/martin141089/UniFi-Talk/security/advisories/new
+    about: Bitte Sicherheitsprobleme NICHT als öffentliches Issue melden — siehe SECURITY.md.

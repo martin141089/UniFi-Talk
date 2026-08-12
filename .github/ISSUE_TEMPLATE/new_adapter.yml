@@ -1,0 +1,39 @@
+name: Neuer Adapter vorschlagen
+description: Eine neue IP-Quelle, ein neues Config-Ziel oder einen neuen Notification-Kanal vorschlagen.
+labels: ["adapter"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        TalkAnchor ist bewusst als Plugin-Architektur gebaut (siehe
+        [CONTRIBUTING.md](../../CONTRIBUTING.md)) — UniFi Talk ist nur der Referenz-Adapter.
+  - type: dropdown
+    id: kind
+    attributes:
+      label: Adapter-Typ
+      options:
+        - IP-Quelle (source)
+        - Config-Ziel (target)
+        - Benachrichtigungskanal (notify)
+    validations:
+      required: true
+  - type: input
+    id: system
+    attributes:
+      label: Um welches System/Dienst geht es?
+      placeholder: z. B. pfSense, FreePBX, STUN, Pushover, ...
+    validations:
+      required: true
+  - type: textarea
+    id: details
+    attributes:
+      label: Wie würde der Adapter funktionieren?
+      description: API/Protokoll, Auth-Modell, was ist analog zu den bestehenden Adaptern zu beachten?
+    validations:
+      required: true
+  - type: checkboxes
+    id: willing
+    attributes:
+      label: Beitrag
+      options:
+        - label: Ich würde den Adapter selbst per PR beisteuern.

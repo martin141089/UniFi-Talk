@@ -1,0 +1,21 @@
+name: Feature Request
+description: Eine Idee für TalkAnchor vorschlagen.
+labels: ["enhancement"]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: Welches Problem löst das?
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Vorschlag
+      description: Wie könnte die Lösung aussehen?
+    validations:
+      required: true
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternativen erwogen?
