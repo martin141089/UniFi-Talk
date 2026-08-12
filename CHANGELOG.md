@@ -8,6 +8,8 @@ dieses Projekt folgt [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [0.1.1] - 2026-08-12
+
 ### Hinzugefügt
 
 - Dashboard-Bereich „Setup-Helfer": SSH-Host-Key abrufen, Sofia-Config-Pfad
@@ -54,5 +56,6 @@ Erstes Alpha-Release.
 - Vollständige Testsuite für den Kern-Reconcile-Loop mit In-Memory-Fakes
   (kein echtes Netzwerk/SSH nötig).
 
-[Unreleased]: https://github.com/martin141089/UniFi-Talk/compare/v0.1.0...HEAD
+[Unreleased]: https://github.com/martin141089/UniFi-Talk/compare/v0.1.1...HEAD
+[0.1.1]: https://github.com/martin141089/UniFi-Talk/compare/v0.1.0...v0.1.1
 [0.1.0]: https://github.com/martin141089/UniFi-Talk/releases/tag/v0.1.0
