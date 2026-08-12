@@ -2,7 +2,7 @@ name: CI
 
 on:
   push:
-    branches: [main]
+    branches: [claude/talkanchor-unifi-ip-3ftnrq]
   pull_request:
 
 permissions:

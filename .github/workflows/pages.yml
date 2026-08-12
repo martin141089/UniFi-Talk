@@ -2,7 +2,7 @@ name: Deploy GitHub Pages demo
 
 on:
   push:
-    branches: [main]
+    branches: [claude/talkanchor-unifi-ip-3ftnrq]
     paths:
       - "web-demo/**"
       - ".github/workflows/pages.yml"
