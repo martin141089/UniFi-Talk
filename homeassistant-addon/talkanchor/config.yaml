@@ -1,0 +1,56 @@
+name: TalkAnchor
+version: "0.1.0"
+slug: talkanchor
+description: Keeps UniFi Talk anchored to your current dynamic public IP.
+url: https://github.com/martin141089/UniFi-Talk
+image: ghcr.io/martin141089/unifi-talk-addon
+arch:
+  - amd64
+  - aarch64
+startup: services
+boot: auto
+init: false
+ingress: true
+ingress_port: 8420
+panel_icon: mdi:anchor
+panel_title: TalkAnchor
+options:
+  dry_run: true
+  poll_interval_seconds: 300
+  min_seconds_between_changes: 300
+  cloudflare_api_token: ""
+  cloudflare_account_id: ""
+  cloudflare_tunnel_id: ""
+  http_echo_url: "https://api.ipify.org?format=json"
+  unifi_host: ""
+  unifi_ssh_port: 22
+  unifi_ssh_user: root
+  unifi_ssh_private_key: ""
+  unifi_ssh_known_hosts_entry: ""
+  unifi_sofia_profile: external_talk
+  unifi_config_path: ""
+  unifi_backup_dir_remote: /root/talkanchor-backups
+  health_check_timeout_seconds: 30
+  notify_channel: none
+  notify_ntfy_topic_url: ""
+  notify_webhook_url: ""
+schema:
+  dry_run: bool
+  poll_interval_seconds: int(30,)
+  min_seconds_between_changes: int(0,)
+  cloudflare_api_token: password
+  cloudflare_account_id: str
+  cloudflare_tunnel_id: str
+  http_echo_url: str
+  unifi_host: str
+  unifi_ssh_port: port
+  unifi_ssh_user: str
+  unifi_ssh_private_key: password
+  unifi_ssh_known_hosts_entry: str
+  unifi_sofia_profile: str
+  unifi_config_path: str
+  unifi_backup_dir_remote: str
+  health_check_timeout_seconds: int(5,)
+  notify_channel: "list(none|ntfy|webhook)"
+  notify_ntfy_topic_url: str
+  notify_webhook_url: str

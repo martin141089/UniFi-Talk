@@ -7,8 +7,8 @@ dist/
 .venv/
 venv/
 .env
-config.yaml
-config.local.yaml
+/config.yaml
+/config.local.yaml
 *.sqlite3
 *.db
 data/

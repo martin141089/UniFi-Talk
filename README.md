@@ -43,6 +43,10 @@ point, not just a limitation to work around.
 
 ![TalkAnchor dashboard](docs/screenshots/dashboard.png)
 
+**[Live demo →](https://martin141089.github.io/UniFi-Talk/)** (static,
+fake data — no backend, deployed from `web-demo/`; requires GitHub Pages to
+be enabled once under *Settings → Pages → Source: GitHub Actions*).
+
 ## Features
 
 - **Dual-source IP detection** — Cloudflare Tunnel connector IP as the
