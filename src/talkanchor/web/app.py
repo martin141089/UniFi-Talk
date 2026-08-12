@@ -1,5 +1,7 @@
 """FastAPI dashboard: current IP, change history, live log, health status,
-and manual "check now" / "rollback to last backup" actions.
+manual "check now" / "rollback to last backup" actions, and a guided setup
+wizard (`/wizard`) for deployments with no terminal to run `talkanchor
+setup` from — most notably the Home Assistant add-on.
 
 Runs as a small local web app on the same host as the polling scheduler
 (see `talkanchor.cli`); not meant to be exposed to the internet.
@@ -8,26 +10,35 @@ Runs as a small local web app on the same host as the polling scheduler
 from __future__ import annotations
 
 import asyncio
+import logging
+import os
 from pathlib import Path
 from typing import Any
 
-from fastapi import FastAPI, HTTPException, Request
+import httpx
+from fastapi import BackgroundTasks, FastAPI, HTTPException, Request
 from fastapi.responses import HTMLResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
+from pydantic import BaseModel
 
 from talkanchor import __version__
-from talkanchor.config import Settings
+from talkanchor.config import Settings, load_settings
 from talkanchor.core.factory import build_reconciler, build_target
 from talkanchor.core.logging_config import live_log_handler
 from talkanchor.core.reconciler import Reconciler
 from talkanchor.core.state import ChangeEvent, StateStore
 from talkanchor.sources.base import IPSourceError
 from talkanchor.sources.cloudflare import CloudflareTunnelSource
+from talkanchor.sources.http_echo import HttpEchoSource
 from talkanchor.targets.base import ConfigTargetError
 from talkanchor.targets.unifi_talk import connect_ssh, discover_sofia_configs, fetch_host_key
+from talkanchor.wizard.writer import build_config_dict, write_config
+
+logger = logging.getLogger("talkanchor.web")
 
 _WEB_DIR = Path(__file__).parent
+_SUPERVISOR_API = "http://supervisor"
 
 
 def _event_to_dict(event: ChangeEvent) -> dict[str, Any]:
@@ -47,9 +58,79 @@ def _event_to_dict(event: ChangeEvent) -> dict[str, Any]:
     }
 
 
-def create_app(settings: Settings, *, state: StateStore | None = None, reconciler: Reconciler | None = None) -> FastAPI:
+class SSHKeyRequest(BaseModel):
+    private_key: str
+
+
+class KnownHostsRequest(BaseModel):
+    entry: str
+
+
+class KeyscanRequest(BaseModel):
+    host: str
+    port: int = 22
+
+
+class DiscoverRequest(BaseModel):
+    host: str
+    port: int = 22
+    username: str = "root"
+
+
+class CloudflareTestRequest(BaseModel):
+    api_token: str
+    account_id: str
+    tunnel_id: str
+
+
+class HttpEchoTestRequest(BaseModel):
+    url: str
+    json_field: str = "ip"
+
+
+class WizardSaveRequest(BaseModel):
+    dry_run: bool = True
+    poll_interval_seconds: int = 300
+    min_seconds_between_changes: int = 300
+    cloudflare_api_token: str = ""
+    cloudflare_account_id: str = ""
+    cloudflare_tunnel_id: str = ""
+    http_echo_url: str = "https://api.ipify.org?format=json"
+    http_echo_json_field: str = "ip"
+    unifi_host: str = ""
+    unifi_ssh_port: int = 22
+    unifi_ssh_user: str = "root"
+    unifi_ssh_private_key: str = ""
+    unifi_ssh_known_hosts_entry: str = ""
+    unifi_sofia_profile: str = "external_talk"
+    unifi_config_path: str = ""
+    unifi_backup_dir_remote: str = "/root/talkanchor-backups"
+    health_check_timeout_seconds: int = 30
+    notify_channel: str = "none"
+    notify_ntfy_topic_url: str = ""
+    notify_webhook_url: str = ""
+
+
+async def _restart_self(token: str) -> None:
+    async with httpx.AsyncClient(timeout=15) as client:
+        try:
+            await client.post(
+                f"{_SUPERVISOR_API}/addons/self/restart",
+                headers={"Authorization": f"Bearer {token}"},
+            )
+        except httpx.HTTPError:
+            logger.exception("Failed to trigger Home Assistant add-on self-restart")
+
+
+def create_app(
+    settings: Settings,
+    *,
+    state: StateStore | None = None,
+    reconciler: Reconciler | None = None,
+    config_path: str = "config.yaml",
+) -> FastAPI:
     state = state or StateStore(settings.state_db_path)
-    reconciler = reconciler or build_reconciler(settings, state=state)
+    active_reconciler: Reconciler = reconciler or build_reconciler(settings, state=state)
 
     app = FastAPI(title="TalkAnchor Dashboard", version=__version__)
     app.mount("/static", StaticFiles(directory=_WEB_DIR / "static"), name="static")
@@ -57,7 +138,7 @@ def create_app(settings: Settings, *, state: StateStore | None = None, reconcile
 
     app.state.settings = settings
     app.state.state_store = state
-    app.state.reconciler = reconciler
+    app.state.reconciler = active_reconciler
 
     @app.get("/", response_class=HTMLResponse)
     async def dashboard(request: Request) -> HTMLResponse:
@@ -70,6 +151,10 @@ def create_app(settings: Settings, *, state: StateStore | None = None, reconcile
                 "poll_interval_seconds": settings.poll_interval_seconds,
             },
         )
+
+    @app.get("/wizard", response_class=HTMLResponse)
+    async def wizard_page(request: Request) -> HTMLResponse:
+        return templates.TemplateResponse(request, "wizard.html", {"version": __version__})
 
     @app.get("/api/status")
     async def status() -> dict[str, Any]:
@@ -94,7 +179,7 @@ def create_app(settings: Settings, *, state: StateStore | None = None, reconcile
 
     @app.post("/api/check-now")
     async def check_now() -> dict[str, Any]:
-        outcome = await reconciler.run_once()
+        outcome = await active_reconciler.run_once()
         return {
             "checked_ip": outcome.checked_ip,
             "changed": outcome.changed,
@@ -118,12 +203,11 @@ def create_app(settings: Settings, *, state: StateStore | None = None, reconcile
 
         return {"success": result.success, "message": result.message, "restored_from": target_event.backup_path}
 
-    # -- setup helper -------------------------------------------------------
-    # Re-exposes the CLI setup wizard's SSH discovery/testing steps as web
-    # actions, for deployments with no terminal to run the wizard from (most
-    # notably the Home Assistant add-on). All three act on the currently
-    # loaded config.yaml/options — save and restart with updated settings
-    # before using them.
+    # -- quick diagnostics ----------------------------------------------------
+    # Re-tests/re-discovers against the currently loaded config.yaml/options —
+    # useful after setup to confirm things still work. For first-time setup,
+    # use the guided wizard below instead (it doesn't require anything to be
+    # saved yet).
 
     @app.post("/api/setup/ssh-keyscan")
     async def setup_ssh_keyscan() -> dict[str, str]:
@@ -168,5 +252,157 @@ def create_app(settings: Settings, *, state: StateStore | None = None, reconcile
         except IPSourceError as exc:
             raise HTTPException(status_code=502, detail=str(exc)) from exc
         return {"ip": ip}
+
+    # -- guided setup wizard ----------------------------------------------------
+    # Mirrors `talkanchor setup` (the CLI wizard) as a step-by-step web flow for
+    # deployments with no terminal — mainly the Home Assistant add-on, reached
+    # via its Ingress sidebar entry. Each step tests/persists as you go (SSH key
+    # and host key are written immediately so later steps can use them, exactly
+    # like the CLI wizard expects them already on disk); the final "save" step
+    # either writes config.yaml directly (standalone) or, when running under
+    # the HA Supervisor, pushes the values into this add-on's own options and
+    # triggers a restart so they take effect.
+
+    @app.post("/api/wizard/ssh-key")
+    async def wizard_ssh_key(body: SSHKeyRequest) -> dict[str, str]:
+        key_path = Path(settings.unifi_talk.ssh_key_path).expanduser()
+        key_path.parent.mkdir(parents=True, exist_ok=True, mode=0o700)
+        key_path.write_text(body.private_key.strip() + "\n", encoding="utf-8")
+        key_path.chmod(0o600)
+        return {"path": str(key_path)}
+
+    @app.post("/api/wizard/known-hosts")
+    async def wizard_known_hosts(body: KnownHostsRequest) -> dict[str, bool]:
+        known_hosts = Path("~/.ssh/known_hosts").expanduser()
+        known_hosts.parent.mkdir(parents=True, exist_ok=True, mode=0o700)
+        with known_hosts.open("a", encoding="utf-8") as fh:
+            fh.write(body.entry.strip() + "\n")
+        return {"success": True}
+
+    @app.post("/api/wizard/ssh-keyscan")
+    async def wizard_ssh_keyscan(body: KeyscanRequest) -> dict[str, str]:
+        try:
+            line = await asyncio.to_thread(fetch_host_key, body.host, body.port)
+        except OSError as exc:
+            raise HTTPException(
+                status_code=502, detail=f"Verbindung zu {body.host}:{body.port} fehlgeschlagen: {exc}"
+            ) from exc
+        return {"known_hosts_entry": line}
+
+    @app.post("/api/wizard/discover-sofia")
+    async def wizard_discover_sofia(body: DiscoverRequest) -> dict[str, list[str]]:
+        key_path = settings.unifi_talk.ssh_key_path
+
+        def _discover() -> list[str]:
+            client = connect_ssh(host=body.host, port=body.port, username=body.username, key_path=key_path)
+            try:
+                return discover_sofia_configs(client)
+            finally:
+                client.close()
+
+        try:
+            candidates = await asyncio.to_thread(_discover)
+        except ConfigTargetError as exc:
+            raise HTTPException(status_code=502, detail=str(exc)) from exc
+        return {"candidates": candidates}
+
+    @app.post("/api/wizard/cloudflare-test")
+    async def wizard_cloudflare_test(body: CloudflareTestRequest) -> dict[str, str]:
+        if not (body.api_token and body.account_id and body.tunnel_id):
+            raise HTTPException(status_code=400, detail="Bitte Token, Account-ID und Tunnel-ID ausfüllen.")
+        source = CloudflareTunnelSource(api_token=body.api_token, account_id=body.account_id, tunnel_id=body.tunnel_id)
+        try:
+            ip = await source.check()
+        except IPSourceError as exc:
+            raise HTTPException(status_code=502, detail=str(exc)) from exc
+        return {"ip": ip}
+
+    @app.post("/api/wizard/http-echo-test")
+    async def wizard_http_echo_test(body: HttpEchoTestRequest) -> dict[str, str]:
+        source = HttpEchoSource(body.url, json_field=body.json_field or None)
+        try:
+            ip = await source.check()
+        except IPSourceError as exc:
+            raise HTTPException(status_code=502, detail=str(exc)) from exc
+        return {"ip": ip}
+
+    @app.post("/api/wizard/save")
+    async def wizard_save(body: WizardSaveRequest, background_tasks: BackgroundTasks) -> dict[str, Any]:
+        nonlocal settings, active_reconciler
+        supervisor_token = os.environ.get("SUPERVISOR_TOKEN")
+
+        if supervisor_token:
+            ha_options = {
+                "dry_run": body.dry_run,
+                "poll_interval_seconds": body.poll_interval_seconds,
+                "min_seconds_between_changes": body.min_seconds_between_changes,
+                "cloudflare_api_token": body.cloudflare_api_token,
+                "cloudflare_account_id": body.cloudflare_account_id,
+                "cloudflare_tunnel_id": body.cloudflare_tunnel_id,
+                "http_echo_url": body.http_echo_url,
+                "unifi_host": body.unifi_host,
+                "unifi_ssh_port": body.unifi_ssh_port,
+                "unifi_ssh_user": body.unifi_ssh_user,
+                "unifi_ssh_private_key": body.unifi_ssh_private_key,
+                "unifi_ssh_known_hosts_entry": body.unifi_ssh_known_hosts_entry,
+                "unifi_sofia_profile": body.unifi_sofia_profile,
+                "unifi_config_path": body.unifi_config_path,
+                "unifi_backup_dir_remote": body.unifi_backup_dir_remote,
+                "health_check_timeout_seconds": body.health_check_timeout_seconds,
+                "notify_channel": body.notify_channel,
+                "notify_ntfy_topic_url": body.notify_ntfy_topic_url,
+                "notify_webhook_url": body.notify_webhook_url,
+            }
+            async with httpx.AsyncClient(timeout=15) as client:
+                try:
+                    response = await client.post(
+                        f"{_SUPERVISOR_API}/addons/self/options",
+                        json={"options": ha_options},
+                        headers={"Authorization": f"Bearer {supervisor_token}"},
+                    )
+                except httpx.HTTPError as exc:
+                    raise HTTPException(status_code=502, detail=f"Supervisor nicht erreichbar: {exc}") from exc
+            if response.status_code >= 400:
+                raise HTTPException(
+                    status_code=502, detail=f"Supervisor lehnte die Optionen ab: {response.text[:300]}"
+                )
+
+            background_tasks.add_task(_restart_self, supervisor_token)
+            return {
+                "mode": "supervisor",
+                "message": "Gespeichert. Das Add-on wird neu gestartet, um die Konfiguration zu übernehmen.",
+            }
+
+        answers = {
+            "dry_run": body.dry_run,
+            "poll_interval_seconds": body.poll_interval_seconds,
+            "min_seconds_between_changes": body.min_seconds_between_changes,
+            "data_dir": settings.data_dir,
+            "cloudflare_api_token": body.cloudflare_api_token,
+            "cloudflare_account_id": body.cloudflare_account_id,
+            "cloudflare_tunnel_id": body.cloudflare_tunnel_id,
+            "http_echo_url": body.http_echo_url,
+            "http_echo_json_field": body.http_echo_json_field,
+            "unifi_host": body.unifi_host,
+            "unifi_ssh_port": body.unifi_ssh_port,
+            "unifi_ssh_user": body.unifi_ssh_user,
+            "unifi_ssh_key_path": settings.unifi_talk.ssh_key_path,
+            "unifi_sofia_profile": body.unifi_sofia_profile,
+            "unifi_config_path": body.unifi_config_path,
+            "unifi_backup_dir_remote": body.unifi_backup_dir_remote,
+            "unifi_health_check_timeout_seconds": body.health_check_timeout_seconds,
+            "notify_channel": body.notify_channel,
+            "notify_ntfy_topic_url": body.notify_ntfy_topic_url,
+            "notify_webhook_url": body.notify_webhook_url,
+            "web_host": settings.web_host,
+            "web_port": settings.web_port,
+        }
+        write_config(build_config_dict(answers), config_path)
+
+        settings = load_settings(config_path)
+        active_reconciler = build_reconciler(settings, state=state)
+        app.state.settings = settings
+        app.state.reconciler = active_reconciler
+        return {"mode": "file", "message": f"Gespeichert nach {config_path}."}
 
     return app

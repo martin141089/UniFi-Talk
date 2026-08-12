@@ -12,10 +12,18 @@ dieses Projekt folgt [Semantic Versioning](https://semver.org/).
 
 ### Hinzugefügt
 
-- Dashboard-Bereich „Setup-Helfer": SSH-Host-Key abrufen, Sofia-Config-Pfad
-  per SSH suchen und die Cloudflare-Verbindung testen — als Web-Ersatz für
-  die SSH-Schritte des CLI-Wizards dort, wo kein Terminal zur Verfügung
-  steht (insbesondere im Home-Assistant-Add-on).
+- Geführter Web-Setup-Wizard (`/wizard`), der den CLI-Wizard für
+  Umgebungen ohne Terminal spiegelt: Schritte für Cloudflare, Fallback-
+  Quelle, UniFi-SSH (inkl. Host-Key-Abruf mit Bestätigung und
+  SSH-basierter Sofia-Config-Discovery) und Benachrichtigungen, jeweils
+  inline testbar, mit abschließender Zusammenfassung, Dry-Run-Testlauf
+  und explizit bestätigtem Scharfschalten. Schreibt im eigenständigen
+  Betrieb direkt in `config.yaml` (Hot-Reload ohne Neustart) und im
+  Home-Assistant-Add-on über die Supervisor-API in die Add-on-Optionen
+  (automatischer Neustart zur Übernahme).
+- Dashboard-Bereich „Diagnose" (vormals „Setup-Helfer"): SSH-Host-Key
+  abrufen, Sofia-Config-Pfad suchen und die Cloudflare-Verbindung gegen
+  die aktuell gespeicherte Konfiguration testen.
 
 ### Behoben
 

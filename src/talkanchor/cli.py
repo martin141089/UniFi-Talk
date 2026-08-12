@@ -91,7 +91,7 @@ def run(
 
             from talkanchor.web.app import create_app
 
-            web_app = create_app(settings, reconciler=reconciler)
+            web_app = create_app(settings, reconciler=reconciler, config_path=config)
             uv_config = uvicorn.Config(web_app, host=settings.web_host, port=settings.web_port, log_level="warning")
             server = uvicorn.Server(uv_config)
             await server.serve()
@@ -114,7 +114,7 @@ def web(config: str = CONFIG_PATH_OPTION) -> None:
 
     configure_logging(level="INFO")
     settings = load_settings(config)
-    web_app = create_app(settings)
+    web_app = create_app(settings, config_path=config)
     uvicorn.run(web_app, host=settings.web_host, port=settings.web_port)
 
 

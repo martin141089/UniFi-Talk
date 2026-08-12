@@ -70,14 +70,15 @@ Actions* aktiviert wurde).
   zurückgestellt, nicht wiederholt scharf ausgeführt.
 - **Austauschbare Benachrichtigungen** — ntfy, generischer Webhook (Home
   Assistant, Discord-Relay, Slack) oder E-Mail.
-- **Geführter Setup-Wizard** — interaktive CLI, die durch Cloudflare-,
-  SSH- und Benachrichtigungs-Einrichtung führt, inklusive SSH-basierter
-  Erkennung des (sonst undokumentierten) Sofia-Config-Pfads.
+- **Geführter Setup-Wizard, zweimal** — interaktive CLI (`talkanchor
+  setup`) für Terminal-Nutzer, und ein gleichwertiger Web-Wizard
+  (`/wizard`) für alle anderen (z. B. das Home-Assistant-Add-on über
+  Ingress): Cloudflare, Fallback-Quelle, SSH-Einrichtung inkl.
+  Host-Key-Abruf und Sofia-Config-Discovery, Benachrichtigungen —
+  Schritt für Schritt, inline getestet, am Ende gespeichert.
 - **Lokales Dashboard** — aktuelle IP, Änderungshistorie, Live-Log,
-  Health-Status, manuelle Prüfen-/Rollback-Buttons, sowie ein
-  „Setup-Helfer"-Bereich, der die SSH-Discovery-Schritte des Wizards auch
-  dort anbietet, wo kein Terminal zur Verfügung steht (z. B. im
-  Home-Assistant-Add-on).
+  Health-Status, manuelle Prüfen-/Rollback-Buttons sowie ein
+  Diagnose-Bereich zum erneuten Prüfen der gespeicherten Konfiguration.
 - **Plugin-Architektur** — UniFi Talk ist der Referenz-Zieladapter, nicht
   der einzig mögliche; siehe [CONTRIBUTING.md](CONTRIBUTING.md), um ein
   weiteres SIP-System oder eine weitere IP-Quelle zu ergänzen.

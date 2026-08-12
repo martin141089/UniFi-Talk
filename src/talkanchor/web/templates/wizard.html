@@ -1,0 +1,193 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>TalkAnchor Setup-Wizard</title>
+  <link rel="stylesheet" href="/static/style.css" />
+  <link rel="stylesheet" href="/static/wizard.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <svg width="28" height="28" viewBox="0 0 64 64" aria-hidden="true">
+        <circle cx="32" cy="14" r="6" fill="none" stroke="#00D9A3" stroke-width="4"/>
+        <line x1="32" y1="20" x2="32" y2="30" stroke="#00D9A3" stroke-width="4"/>
+        <path d="M14 30 C14 46 22 56 32 58 C42 56 50 46 50 30" fill="none" stroke="#00D9A3" stroke-width="4" stroke-linecap="round"/>
+        <path d="M20 30 q6 -8 12 0 q6 -8 12 0" fill="none" stroke="#E8FFF7" stroke-width="3" stroke-linecap="round"/>
+      </svg>
+      <span>TalkAnchor Setup-Wizard</span>
+    </div>
+    <div class="badges">
+      <a class="badge subtle" href="/">← Zurück zum Dashboard</a>
+    </div>
+  </header>
+
+  <main class="wizard-main">
+    <ol class="wizard-steps" id="step-indicator">
+      <li data-step="1">Cloudflare</li>
+      <li data-step="2">Fallback-Quelle</li>
+      <li data-step="3">UniFi Talk (SSH)</li>
+      <li data-step="4">Benachrichtigungen</li>
+      <li data-step="5">Zusammenfassung</li>
+    </ol>
+
+    <!-- Step 1: Cloudflare -->
+    <section class="wizard-panel" data-step="1">
+      <h2>Cloudflare Tunnel</h2>
+      <p class="muted">
+        Primäre IP-Quelle. Token-Scope: <strong>Account → Cloudflare Tunnel → Read</strong>.
+      </p>
+      <label>Cloudflare API-Token
+        <input type="password" id="cf-token" autocomplete="off" />
+      </label>
+      <label>Account-ID
+        <input type="text" id="cf-account" autocomplete="off" />
+      </label>
+      <label>Tunnel-ID
+        <input type="text" id="cf-tunnel" autocomplete="off" />
+      </label>
+      <div class="wizard-test-row">
+        <button type="button" id="cf-test-btn" class="secondary">Verbindung testen</button>
+        <span class="wizard-result" id="cf-test-result"></span>
+      </div>
+    </section>
+
+    <!-- Step 2: fallback source -->
+    <section class="wizard-panel" data-step="2" hidden>
+      <h2>Fallback-IP-Quelle</h2>
+      <p class="muted">
+        Zweite, unabhängige Quelle. Muss mit Cloudflare übereinstimmen, bevor TalkAnchor handelt.
+      </p>
+      <label>URL
+        <input type="text" id="echo-url" value="https://api.ipify.org?format=json" />
+      </label>
+      <label>JSON-Feld (leer lassen für Klartext-Antwort)
+        <input type="text" id="echo-field" value="ip" />
+      </label>
+      <div class="wizard-test-row">
+        <button type="button" id="echo-test-btn" class="secondary">Verbindung testen</button>
+        <span class="wizard-result" id="echo-test-result"></span>
+      </div>
+    </section>
+
+    <!-- Step 3: UniFi SSH -->
+    <section class="wizard-panel" data-step="3" hidden>
+      <h2>UniFi Talk (SSH-Ziel)</h2>
+      <p class="muted">Nur Key-Auth — es gibt kein Passwort-Feld.</p>
+      <label>UDM-Hostname oder IP
+        <input type="text" id="udm-host" autocomplete="off" />
+      </label>
+      <div class="wizard-grid-2">
+        <label>SSH-Port
+          <input type="number" id="udm-port" value="22" />
+        </label>
+        <label>SSH-Benutzer
+          <input type="text" id="udm-user" value="root" />
+        </label>
+      </div>
+
+      <label>Privater SSH-Key (Inhalt, mehrzeilig)
+        <textarea id="udm-key" rows="5" autocomplete="off" spellcheck="false" placeholder="-----BEGIN OPENSSH PRIVATE KEY-----"></textarea>
+      </label>
+      <div class="wizard-test-row">
+        <button type="button" id="key-save-btn" class="secondary">Key speichern</button>
+        <span class="wizard-result" id="key-save-result"></span>
+      </div>
+
+      <div class="wizard-substep">
+        <h3>1. Host-Key abrufen &amp; bestätigen</h3>
+        <div class="wizard-test-row">
+          <button type="button" id="keyscan-btn" class="secondary">Host-Key abrufen</button>
+          <span class="wizard-result" id="keyscan-result"></span>
+        </div>
+        <div id="keyscan-confirm" class="wizard-confirm" hidden>
+          <p class="muted">Fingerprint geprüft? Dann bestätigen, um ihn zu übernehmen:</p>
+          <button type="button" id="keyscan-confirm-btn">Host-Key übernehmen</button>
+          <span class="wizard-result" id="keyscan-confirm-result"></span>
+        </div>
+      </div>
+
+      <div class="wizard-substep">
+        <h3>2. Sofia-Config-Pfad suchen</h3>
+        <p class="muted">Setzt gespeicherten Key + bestätigten Host-Key voraus (Schritte oben).</p>
+        <div class="wizard-test-row">
+          <button type="button" id="discover-btn" class="secondary">Pfad suchen</button>
+          <span class="wizard-result" id="discover-result"></span>
+        </div>
+        <select id="discover-select" hidden></select>
+      </div>
+
+      <label>Sofia-Config-Pfad
+        <input type="text" id="udm-config-path" autocomplete="off" placeholder="/usr/local/freeswitch/conf/sofia.conf.d/external_talk.xml" />
+      </label>
+      <label>Sofia-Profilname
+        <input type="text" id="udm-profile" value="external_talk" />
+      </label>
+      <div class="wizard-grid-2">
+        <label>Remote-Backup-Verzeichnis
+          <input type="text" id="udm-backup-dir" value="/root/talkanchor-backups" />
+        </label>
+        <label>Health-Check-Timeout (s)
+          <input type="number" id="udm-health-timeout" value="30" />
+        </label>
+      </div>
+    </section>
+
+    <!-- Step 4: notifications -->
+    <section class="wizard-panel" data-step="4" hidden>
+      <h2>Benachrichtigungen</h2>
+      <label>Kanal
+        <select id="notify-channel">
+          <option value="none">Keine</option>
+          <option value="ntfy">ntfy</option>
+          <option value="webhook">Webhook</option>
+        </select>
+      </label>
+      <label id="notify-ntfy-row" hidden>ntfy Topic-URL
+        <input type="text" id="notify-ntfy" placeholder="https://ntfy.sh/mein-topic" />
+      </label>
+      <label id="notify-webhook-row" hidden>Webhook-URL
+        <input type="text" id="notify-webhook" />
+      </label>
+      <div class="wizard-grid-2">
+        <label>Polling-Intervall (s)
+          <input type="number" id="poll-interval" value="300" />
+        </label>
+        <label>Rate-Limit (s)
+          <input type="number" id="min-seconds" value="300" />
+        </label>
+      </div>
+    </section>
+
+    <!-- Step 5: summary -->
+    <section class="wizard-panel" data-step="5" hidden>
+      <h2>Zusammenfassung</h2>
+      <table class="wizard-summary" id="summary-table"></table>
+
+      <div class="wizard-final-actions">
+        <button type="button" id="save-btn">Speichern (Dry-Run)</button>
+        <p class="muted" id="save-result"></p>
+
+        <button type="button" id="check-now-wizard-btn" class="secondary" disabled>Jetzt Testlauf ausführen</button>
+        <p class="muted" id="check-now-wizard-result"></p>
+
+        <div class="wizard-golive">
+          <label>Zur Bestätigung <code>GO LIVE</code> eintippen:
+            <input type="text" id="golive-confirm" disabled />
+          </label>
+          <button type="button" id="golive-btn" class="danger" disabled>Jetzt scharf schalten</button>
+          <p class="muted" id="golive-result"></p>
+        </div>
+      </div>
+    </section>
+
+    <nav class="wizard-nav">
+      <button type="button" id="back-btn" class="secondary" disabled>Zurück</button>
+      <button type="button" id="next-btn">Weiter</button>
+    </nav>
+  </main>
+
+  <script src="/static/wizard.js"></script>
+</body>
+</html>

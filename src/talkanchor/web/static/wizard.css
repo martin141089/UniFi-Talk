@@ -1,0 +1,205 @@
+.wizard-main {
+  padding: 1.5rem;
+  max-width: 720px;
+  margin: 0 auto;
+}
+
+/* Our own display:block rules on label/select/etc. otherwise outrank the
+   UA stylesheet's [hidden]{display:none}, so hidden elements would still
+   show up. */
+[hidden] { display: none !important; }
+
+.wizard-steps {
+  display: flex;
+  list-style: none;
+  padding: 0;
+  margin: 0 0 1.5rem;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+.wizard-steps li {
+  flex: 1;
+  min-width: 100px;
+  text-align: center;
+  padding: 0.5rem 0.3rem;
+  border-radius: 8px;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  color: var(--muted);
+  font-size: 0.78rem;
+  font-weight: 600;
+}
+.wizard-steps li.active {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+.wizard-steps li.done {
+  background: var(--accent);
+  color: #04241a;
+  border-color: var(--accent);
+}
+
+.wizard-panel {
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 1.5rem;
+  margin-bottom: 1.2rem;
+}
+.wizard-panel h2 { margin-top: 0; }
+.wizard-panel h3 { font-size: 0.95rem; color: var(--muted); margin-bottom: 0.4rem; }
+
+.wizard-panel label {
+  display: block;
+  margin-bottom: 1rem;
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+
+.wizard-panel input,
+.wizard-panel textarea,
+.wizard-panel select {
+  display: block;
+  width: 100%;
+  margin-top: 0.35rem;
+  padding: 0.55rem;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: var(--bg);
+  color: var(--text);
+  font-family: inherit;
+  font-size: 0.9rem;
+}
+.wizard-panel textarea {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 0.78rem;
+  resize: vertical;
+}
+
+.wizard-grid-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+.wizard-test-row {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  margin: 0.5rem 0 1rem;
+}
+
+button.secondary {
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--accent);
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+}
+button.secondary:hover { background: var(--border); }
+button.secondary:disabled { opacity: 0.4; cursor: not-allowed; }
+
+.wizard-result {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 0.78rem;
+  color: var(--muted);
+  word-break: break-all;
+}
+.wizard-result.ok { color: var(--accent); }
+.wizard-result.bad { color: var(--danger); }
+
+.wizard-substep {
+  border-top: 1px solid var(--border);
+  padding-top: 1rem;
+  margin-bottom: 1rem;
+}
+
+.wizard-confirm {
+  margin-top: 0.5rem;
+  padding: 0.8rem;
+  border-radius: 8px;
+  background: var(--bg);
+  border: 1px solid var(--warning);
+}
+.wizard-confirm button {
+  padding: 0.4rem 0.9rem;
+  border-radius: 8px;
+  border: none;
+  background: var(--warning);
+  color: #3a2a00;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.wizard-nav {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 1rem;
+}
+.wizard-nav button {
+  padding: 0.6rem 1.4rem;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.wizard-nav #next-btn {
+  border: none;
+  background: var(--accent);
+  color: #04241a;
+}
+.wizard-nav #next-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+.wizard-summary {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.85rem;
+  margin-bottom: 1.2rem;
+}
+.wizard-summary td {
+  padding: 0.4rem 0.6rem;
+  border-bottom: 1px solid var(--border);
+}
+.wizard-summary td:first-child { color: var(--muted); width: 40%; }
+
+.wizard-final-actions button {
+  display: block;
+  width: 100%;
+  padding: 0.7rem;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  margin-bottom: 0.4rem;
+}
+#save-btn {
+  border: none;
+  background: var(--accent);
+  color: #04241a;
+}
+.wizard-final-actions button.secondary {
+  background: transparent;
+  color: var(--accent);
+  border: 1px solid var(--border);
+}
+.wizard-golive {
+  margin-top: 1.5rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--border);
+}
+.wizard-golive input {
+  width: 100%;
+  margin: 0.4rem 0 0.8rem;
+  padding: 0.5rem;
+  border-radius: 8px;
+  border: 1px solid var(--danger);
+  background: var(--bg);
+  color: var(--text);
+}
+button.danger {
+  border: 1px solid var(--danger);
+  background: transparent;
+  color: var(--danger);
+}
+button.danger:disabled { opacity: 0.4; cursor: not-allowed; }

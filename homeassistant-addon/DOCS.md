@@ -12,10 +12,42 @@ Dashboard.
 1. Settings → Add-ons → Add-on Store → ⋮ → **Repositories** →
    `https://github.com/martin141089/UniFi-Talk` hinzufügen.
 2. **TalkAnchor** im Store finden und installieren.
-3. Konfiguration ausfüllen (siehe unten), Add-on starten und über die
-   Seitenleiste (Ingress) oder `http://<ha-host>:8420` öffnen.
+3. Add-on starten (die Konfiguration kann leer bleiben) und über die
+   Seitenleiste (Ingress) öffnen.
+4. Auf **„Setup-Wizard öffnen"** klicken und dem geführten Ablauf folgen
+   (siehe unten) — er schreibt die Konfiguration direkt in die
+   Add-on-Optionen, ganz ohne das HA-Konfigurationsformular von Hand
+   auszufüllen.
+
+## Geführter Setup-Wizard
+
+Der interaktive CLI-Wizard (`talkanchor setup`) braucht ein Terminal, das
+es im Add-on-Kontext nicht gibt. Der Web-Wizard unter `/wizard`
+(erreichbar über den Button oben im Dashboard) bietet dieselbe Führung:
+
+1. **Cloudflare** — Token, Account-ID, Tunnel-ID eintragen, Verbindung
+   direkt testen.
+2. **Fallback-Quelle** — HTTP-Echo-URL prüfen.
+3. **UniFi Talk (SSH)** — Host, Port, Benutzer und den privaten Key
+   eintragen; Key speichern; Host-Key abrufen, Fingerprint prüfen und
+   bestätigen; anschließend den Sofia-Config-Pfad automatisch per SSH
+   suchen lassen und aus der Trefferliste auswählen.
+4. **Benachrichtigungen** — Kanal und Polling-Einstellungen.
+5. **Zusammenfassung** — alle Werte im Überblick, **„Speichern
+   (Dry-Run)"** schreibt die Konfiguration in die Add-on-Optionen und
+   startet das Add-on neu, um sie zu übernehmen. Danach steht **„Jetzt
+   Testlauf ausführen"** zur Verfügung. Erst nach getipptem `GO LIVE` lässt
+   sich scharf schalten.
+
+Der Wizard schreibt dabei direkt über die Home-Assistant-Supervisor-API in
+die Add-on-Optionen (`hassio_api: true` im Manifest) — das manuelle
+Ausfüllen des Konfigurationsformulars in den HA-Einstellungen ist nicht
+mehr nötig, kann aber weiterhin genutzt werden.
 
 ## Konfiguration
+
+Die folgende Tabelle ist zum Nachschlagen gedacht — der Setup-Wizard oben
+ist der empfohlene Weg, sie auszufüllen.
 
 | Option | Beschreibung |
 |---|---|
@@ -34,21 +66,10 @@ State, Historie und lokale Backup-Kopien werden unter `/data`
 gespeichert, das der Supervisor über Add-on-Neustarts und -Updates hinweg
 erhält.
 
-### Setup-Helfer (kein Terminal nötig)
-
-Der interaktive CLI-Wizard (`talkanchor setup`) braucht ein Terminal, das
-es im Add-on-Kontext nicht gibt. Stattdessen bietet das Dashboard
-(Ingress-Seitenleiste, Bereich „Setup-Helfer") dieselben SSH-Schritte als
-Buttons an:
-
-1. `unifi_host`, `unifi_ssh_user`, `unifi_ssh_private_key` ausfüllen, speichern, Add-on neu starten.
-2. Im Dashboard **„SSH-Host-Key abrufen"** klicken, den angezeigten Fingerprint prüfen und die Zeile in `unifi_ssh_known_hosts_entry` eintragen, speichern, neu starten.
-3. **„Sofia-Config-Pfad suchen"** klicken, den passenden Pfad in `unifi_config_path` eintragen.
-4. **„Cloudflare-Verbindung testen"**, um `cloudflare_api_token`/`cloudflare_account_id`/`cloudflare_tunnel_id` zu prüfen.
-
-Jeder Schritt wirkt auf die zuletzt gespeicherte und aktive Konfiguration
-— nach jeder Änderung erst speichern und das Add-on neu starten, bevor der
-nächste Schritt ausgeführt wird.
+Das Dashboard bietet außerdem einen Bereich „Diagnose" mit denselben
+Prüfungen (Host-Key, Sofia-Pfad, Cloudflare) gegen die aktuell
+*gespeicherte* Konfiguration — nützlich, um nach dem Setup erneut zu
+prüfen, ob noch alles erreichbar ist.
 
 ## Haftungsausschluss
 
