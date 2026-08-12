@@ -1,0 +1,68 @@
+[project]
+name = "talkanchor"
+version = "0.1.0"
+description = "Keeps UniFi Talk anchored to your current dynamic public IP by watching your Cloudflare Tunnel and patching the Sofia SIP config over SSH when it drifts."
+readme = "README.md"
+license = { text = "MIT" }
+requires-python = ">=3.11"
+authors = [{ name = "TalkAnchor contributors" }]
+keywords = ["unifi", "unifi-talk", "voip", "sip", "freeswitch", "cloudflare", "dynamic-dns", "sofia"]
+classifiers = [
+  "Development Status :: 3 - Alpha",
+  "Intended Audience :: System Administrators",
+  "License :: OSI Approved :: MIT License",
+  "Programming Language :: Python :: 3",
+  "Topic :: System :: Networking :: Monitoring",
+]
+
+dependencies = [
+  "httpx>=0.27",
+  "paramiko>=3.4",
+  "sqlmodel>=0.0.21",
+  "apscheduler>=3.10",
+  "typer>=0.12",
+  "rich>=13.7",
+  "questionary>=2.0",
+  "pyyaml>=6.0",
+  "pydantic>=2.7",
+  "pydantic-settings>=2.3",
+  "fastapi>=0.111",
+  "uvicorn[standard]>=0.30",
+  "jinja2>=3.1",
+]
+
+[project.optional-dependencies]
+dev = [
+  "pytest>=8.2",
+  "pytest-asyncio>=0.23",
+  "pytest-mock>=3.14",
+  "ruff>=0.5",
+  "mypy>=1.10",
+  "types-PyYAML",
+]
+
+[project.scripts]
+talkanchor = "talkanchor.cli:app"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/talkanchor"]
+
+[tool.ruff]
+line-length = 120
+target-version = "py311"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "SIM"]
+
+[tool.mypy]
+python_version = "3.11"
+ignore_missing_imports = true
+warn_unused_ignores = true
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+asyncio_mode = "auto"
