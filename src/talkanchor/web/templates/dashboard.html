@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>TalkAnchor Dashboard</title>
+  <link rel="stylesheet" href="/static/style.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <svg width="28" height="28" viewBox="0 0 64 64" aria-hidden="true">
+        <circle cx="32" cy="14" r="6" fill="none" stroke="#00D9A3" stroke-width="4"/>
+        <line x1="32" y1="20" x2="32" y2="30" stroke="#00D9A3" stroke-width="4"/>
+        <path d="M14 30 C14 46 22 56 32 58 C42 56 50 46 50 30" fill="none" stroke="#00D9A3" stroke-width="4" stroke-linecap="round"/>
+        <path d="M20 30 q6 -8 12 0 q6 -8 12 0" fill="none" stroke="#E8FFF7" stroke-width="3" stroke-linecap="round"/>
+      </svg>
+      <span>TalkAnchor</span>
+    </div>
+    <div class="badges">
+      <span id="dry-run-badge" class="badge">…</span>
+      <span class="badge subtle">v{{ version }}</span>
+    </div>
+  </header>
+
+  <main>
+    <section class="cards">
+      <div class="card">
+        <h2>Aktuelle IP</h2>
+        <p class="big" id="current-ip">–</p>
+        <p class="muted" id="last-change">–</p>
+      </div>
+      <div class="card">
+        <h2>Health-Status</h2>
+        <p class="big" id="health-status">–</p>
+        <p class="muted" id="health-message">–</p>
+      </div>
+      <div class="card actions">
+        <h2>Aktionen</h2>
+        <button id="check-now-btn">Jetzt prüfen</button>
+        <button id="rollback-btn" class="danger">Rollback auf letztes Backup</button>
+        <p class="muted" id="action-result"></p>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>Verlauf</h2>
+      <table id="history-table">
+        <thead>
+          <tr>
+            <th>Zeit</th><th>Alt → Neu</th><th>Dry-Run</th><th>Apply</th><th>Health</th><th>Rollback</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </section>
+
+    <section class="panel">
+      <h2>Live-Log</h2>
+      <pre id="live-log"></pre>
+    </section>
+  </main>
+
+  <script src="/static/dashboard.js"></script>
+</body>
+</html>
