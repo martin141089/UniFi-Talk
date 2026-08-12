@@ -1,10 +1,13 @@
 # TalkAnchor — Home-Assistant-Add-on
 
-Dieses Verzeichnis ist ein [Home-Assistant-Add-on-Repository](https://developers.home-assistant.io/docs/add-ons/repository).
-Es ist ein schlanker Wrapper um das eigenständige TalkAnchor-Docker-Image
-(siehe die [Repo-Wurzel](..)) für alle, die bereits Home Assistant im
-Netzwerk betreiben und TalkAnchor lieber über den Supervisor verwalten
-möchten als über ein separates `docker compose`-Deployment.
+Dieses Verzeichnis ist eine erste Ebene innerhalb des Haupt-Repositorys, das
+gleichzeitig als [Home-Assistant-Add-on-Repository](https://developers.home-assistant.io/docs/add-ons/repository)
+dient (`repository.yaml` liegt an der Repo-Wurzel, dieser Ordner enthält
+das eigentliche Add-on mit seiner `config.yaml`). Es ist ein schlanker
+Wrapper um das eigenständige TalkAnchor-Docker-Image (siehe die
+[Repo-Wurzel](..)) für alle, die bereits Home Assistant im Netzwerk
+betreiben und TalkAnchor lieber über den Supervisor verwalten möchten als
+über ein separates `docker compose`-Deployment.
 
 ## Dieses Repository hinzufügen
 
@@ -16,7 +19,7 @@ https://github.com/martin141089/UniFi-Talk
 ```
 
 Das **TalkAnchor**-Add-on erscheint dann im Store. Konfigurationsdetails
-stehen in [talkanchor/DOCS.md](talkanchor/DOCS.md).
+stehen in [DOCS.md](DOCS.md).
 
 Unsicher, ob das Add-on oder das eigenständige Docker-/Compose-Deployment
 die richtige Wahl ist? Beides funktioniert — sie laufen mit demselben

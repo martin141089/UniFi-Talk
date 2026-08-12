@@ -20,7 +20,7 @@ Dashboard.
 | Option | Beschreibung |
 |---|---|
 | `dry_run` | Auf `true` lassen, bis ein paar Zyklen im Log geprüft wurden. |
-| `poll_interval_seconds` / `min_seconds_between_changes` | Wie in der eigenständigen Konfiguration — siehe [CONFIGURATION.md](../../CONFIGURATION.md). |
+| `poll_interval_seconds` / `min_seconds_between_changes` | Wie in der eigenständigen Konfiguration — siehe [CONFIGURATION.md](../CONFIGURATION.md). |
 | `cloudflare_api_token` / `cloudflare_account_id` / `cloudflare_tunnel_id` | Cloudflare-Tunnel-Connector-IP-Quelle. Token-Scope: Account → Cloudflare Tunnel → Read. |
 | `http_echo_url` | Fallback-IP-Quelle. |
 | `unifi_host` / `unifi_ssh_port` / `unifi_ssh_user` | SSH-Verbindungsdetails zum UDM. |
@@ -37,4 +37,4 @@ erhält.
 ## Haftungsausschluss
 
 ⚠️ Kein offizielles Ubiquiti-Produkt — siehe den Haftungsausschluss in der
-Haupt-[SECURITY.md](../../SECURITY.md). Mit `dry_run: true` beginnen.
+Haupt-[SECURITY.md](../SECURITY.md). Mit `dry_run: true` beginnen.

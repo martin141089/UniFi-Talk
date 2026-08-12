@@ -80,8 +80,8 @@ jobs:
       - name: Build and push Home Assistant add-on image
         uses: docker/build-push-action@v6
         with:
-          context: homeassistant-addon/talkanchor
-          file: homeassistant-addon/talkanchor/Dockerfile
+          context: homeassistant-addon
+          file: homeassistant-addon/Dockerfile
           platforms: linux/amd64,linux/arm64
           push: true
           tags: ${{ steps.meta.outputs.tags }}
