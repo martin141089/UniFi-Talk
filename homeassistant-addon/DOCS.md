@@ -25,14 +25,30 @@ Dashboard.
 | `http_echo_url` | Fallback-IP-Quelle. |
 | `unifi_host` / `unifi_ssh_port` / `unifi_ssh_user` | SSH-Verbindungsdetails zum UDM. |
 | `unifi_ssh_private_key` | Den Inhalt des **privaten** Keys direkt einfügen (mehrzeilig). Nur Key-Auth — es gibt keine Passwort-Option. |
-| `unifi_ssh_known_hosts_entry` | Die SSH-Host-Key-Zeile des UDM, z. B. die Ausgabe von `ssh-keyscan -H <host>`, ausgeführt auf dem eigenen Rechner. Erforderlich — unbekannte Host-Keys werden abgelehnt statt beim ersten Kontakt vertraut. |
-| `unifi_sofia_profile` / `unifi_config_path` | Name des Sofia-Profils und Pfad zu dessen XML auf dem UDM. Da das Add-on die SSH-Discovery des interaktiven Wizards nicht ausführen kann, den Pfad einmalig über `talkanchor setup` auf einer Workstation ermitteln, oder manuell per SSH verbinden und `find / -iname "sofia*.xml"` ausführen. |
+| `unifi_ssh_known_hosts_entry` | Die SSH-Host-Key-Zeile des UDM. Erforderlich — unbekannte Host-Keys werden abgelehnt statt beim ersten Kontakt vertraut. |
+| `unifi_sofia_profile` / `unifi_config_path` | Name des Sofia-Profils und Pfad zu dessen XML auf dem UDM. |
 | `unifi_backup_dir_remote` | Remote-Backup-Verzeichnis auf dem UDM. |
 | `notify_channel` / `notify_ntfy_topic_url` / `notify_webhook_url` | Optionale Benachrichtigungen. Für Home-Assistant-Automatisierungen `notify_webhook_url` auf einen `webhook`-Trigger zeigen lassen und in HA selbst darauf reagieren. |
 
 State, Historie und lokale Backup-Kopien werden unter `/data`
 gespeichert, das der Supervisor über Add-on-Neustarts und -Updates hinweg
 erhält.
+
+### Setup-Helfer (kein Terminal nötig)
+
+Der interaktive CLI-Wizard (`talkanchor setup`) braucht ein Terminal, das
+es im Add-on-Kontext nicht gibt. Stattdessen bietet das Dashboard
+(Ingress-Seitenleiste, Bereich „Setup-Helfer") dieselben SSH-Schritte als
+Buttons an:
+
+1. `unifi_host`, `unifi_ssh_user`, `unifi_ssh_private_key` ausfüllen, speichern, Add-on neu starten.
+2. Im Dashboard **„SSH-Host-Key abrufen"** klicken, den angezeigten Fingerprint prüfen und die Zeile in `unifi_ssh_known_hosts_entry` eintragen, speichern, neu starten.
+3. **„Sofia-Config-Pfad suchen"** klicken, den passenden Pfad in `unifi_config_path` eintragen.
+4. **„Cloudflare-Verbindung testen"**, um `cloudflare_api_token`/`cloudflare_account_id`/`cloudflare_tunnel_id` zu prüfen.
+
+Jeder Schritt wirkt auf die zuletzt gespeicherte und aktive Konfiguration
+— nach jeder Änderung erst speichern und das Add-on neu starten, bevor der
+nächste Schritt ausgeführt wird.
 
 ## Haftungsausschluss
 

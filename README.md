@@ -74,7 +74,10 @@ Actions* aktiviert wurde).
   SSH- und Benachrichtigungs-Einrichtung führt, inklusive SSH-basierter
   Erkennung des (sonst undokumentierten) Sofia-Config-Pfads.
 - **Lokales Dashboard** — aktuelle IP, Änderungshistorie, Live-Log,
-  Health-Status, manuelle Prüfen-/Rollback-Buttons.
+  Health-Status, manuelle Prüfen-/Rollback-Buttons, sowie ein
+  „Setup-Helfer"-Bereich, der die SSH-Discovery-Schritte des Wizards auch
+  dort anbietet, wo kein Terminal zur Verfügung steht (z. B. im
+  Home-Assistant-Add-on).
 - **Plugin-Architektur** — UniFi Talk ist der Referenz-Zieladapter, nicht
   der einzig mögliche; siehe [CONTRIBUTING.md](CONTRIBUTING.md), um ein
   weiteres SIP-System oder eine weitere IP-Quelle zu ergänzen.

@@ -85,5 +85,32 @@ $("rollback-btn").addEventListener("click", async () => {
   await refreshAll();
 });
 
+async function runSetupAction(resultId, url, formatSuccess) {
+  const out = $(resultId);
+  out.textContent = "Läuft...";
+  try {
+    const res = await fetch(url, { method: "POST" });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.detail || "Aktion fehlgeschlagen");
+    out.textContent = formatSuccess(data);
+  } catch (err) {
+    out.textContent = `Fehler: ${err.message}`;
+  }
+}
+
+$("keyscan-btn").addEventListener("click", () =>
+  runSetupAction("keyscan-result", "/api/setup/ssh-keyscan", (data) => data.known_hosts_entry)
+);
+
+$("discover-btn").addEventListener("click", () =>
+  runSetupAction("discover-result", "/api/setup/discover-sofia", (data) =>
+    data.candidates.length ? data.candidates.join("\n") : "Keine sofia*.xml gefunden."
+  )
+);
+
+$("cf-test-btn").addEventListener("click", () =>
+  runSetupAction("cf-test-result", "/api/setup/cloudflare-test", (data) => `Erkannte IP: ${data.ip}`)
+);
+
 refreshAll();
 setInterval(refreshAll, 10000);

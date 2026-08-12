@@ -31,6 +31,7 @@ from __future__ import annotations
 import logging
 import re
 import shlex
+import socket
 from dataclasses import dataclass
 from datetime import UTC, datetime
 from pathlib import Path
@@ -71,6 +72,57 @@ def discover_sofia_configs(client: paramiko.SSHClient) -> list[str]:
     return paths
 
 
+def fetch_host_key(host: str, port: int, *, timeout: float = 10.0) -> str:
+    """Fetch `host:port`'s SSH host key without verifying it against
+    known_hosts — this *is* the trust-on-first-use step. It's meant to be
+    reviewed and pasted into `unifi_ssh_known_hosts_entry` by the user
+    (e.g. from the setup helper in the dashboard when there's no terminal
+    to run `ssh-keyscan` from, such as the Home Assistant add-on), not
+    auto-trusted by TalkAnchor itself.
+    """
+    sock = socket.create_connection((host, port), timeout=timeout)
+    transport = paramiko.Transport(sock)
+    try:
+        transport.start_client(timeout=timeout)
+        key = transport.get_remote_server_key()
+    finally:
+        transport.close()
+    return f"{host} {key.get_name()} {key.get_base64()}"
+
+
+def connect_ssh(*, host: str, port: int, username: str, key_path: str) -> paramiko.SSHClient:
+    """Open a host-key-verified SSH connection. Shared by UniFiTalkTarget
+    and the dashboard's setup helper (SSH-based Sofia config discovery)."""
+    if not host:
+        raise ConfigTargetError("SSH host is not configured.")
+
+    client = paramiko.SSHClient()
+    client.load_system_host_keys()
+    known_hosts = Path("~/.ssh/known_hosts").expanduser()
+    if known_hosts.exists():
+        client.load_host_keys(str(known_hosts))
+    client.set_missing_host_key_policy(paramiko.RejectPolicy())
+
+    resolved_key_path = Path(key_path).expanduser()
+    try:
+        client.connect(
+            hostname=host,
+            port=port,
+            username=username,
+            key_filename=str(resolved_key_path),
+            timeout=15,
+            allow_agent=False,
+            look_for_keys=False,
+        )
+    except paramiko.SSHException as exc:
+        raise ConfigTargetError(
+            f"SSH connection to {host} failed: {exc}. If this is the first connection, "
+            f"fetch the host key first (setup helper, or `ssh-keyscan -H {host} "
+            ">> ~/.ssh/known_hosts` on a workstation)."
+        ) from exc
+    return client
+
+
 @dataclass
 class _Connection:
     client: paramiko.SSHClient
@@ -87,37 +139,13 @@ class UniFiTalkTarget:
     # -- connection -----------------------------------------------------
 
     def _connect(self) -> paramiko.SSHClient:
-        if not self._config.host or not self._config.config_path:
+        cfg = self._config
+        if not cfg.config_path:
             raise ConfigTargetError(
-                "UniFi Talk target is not configured (host/config_path missing). "
+                "UniFi Talk target is not configured (config_path missing). "
                 "Run `talkanchor setup` first."
             )
-
-        client = paramiko.SSHClient()
-        client.load_system_host_keys()
-        known_hosts = Path("~/.ssh/known_hosts").expanduser()
-        if known_hosts.exists():
-            client.load_host_keys(str(known_hosts))
-        client.set_missing_host_key_policy(paramiko.RejectPolicy())
-
-        key_path = Path(self._config.ssh_key_path).expanduser()
-        try:
-            client.connect(
-                hostname=self._config.host,
-                port=self._config.ssh_port,
-                username=self._config.ssh_user,
-                key_filename=str(key_path),
-                timeout=15,
-                allow_agent=False,
-                look_for_keys=False,
-            )
-        except paramiko.SSHException as exc:
-            raise ConfigTargetError(
-                f"SSH connection to {self._config.host} failed: {exc}. If this is the first "
-                f"connection, add the host key with: ssh-keyscan -H {self._config.host} "
-                ">> ~/.ssh/known_hosts"
-            ) from exc
-        return client
+        return connect_ssh(host=cfg.host, port=cfg.ssh_port, username=cfg.ssh_user, key_path=cfg.ssh_key_path)
 
     def _run(self, client: paramiko.SSHClient, command: str, *, timeout: float = 30) -> tuple[int, str, str]:
         _, stdout, stderr = client.exec_command(command, timeout=timeout)

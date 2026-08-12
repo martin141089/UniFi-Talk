@@ -8,6 +8,21 @@ dieses Projekt folgt [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+### Hinzugefügt
+
+- Dashboard-Bereich „Setup-Helfer": SSH-Host-Key abrufen, Sofia-Config-Pfad
+  per SSH suchen und die Cloudflare-Verbindung testen — als Web-Ersatz für
+  die SSH-Schritte des CLI-Wizards dort, wo kein Terminal zur Verfügung
+  steht (insbesondere im Home-Assistant-Add-on).
+
+### Behoben
+
+- Home-Assistant-Add-on-Repository lag zwei statt eine Ebene tief und
+  wurde vom Supervisor nicht gefunden ("is not a valid app repository").
+- Add-on-Options-Schema markierte Felder mit leerem Standardwert
+  fälschlich als Pflichtfelder und blockierte dadurch das Speichern der
+  Konfiguration.
+
 ## [0.1.0] - 2026-08-12
 
 Erstes Alpha-Release.

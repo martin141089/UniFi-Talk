@@ -22,7 +22,10 @@ from talkanchor.core.factory import build_reconciler, build_target
 from talkanchor.core.logging_config import live_log_handler
 from talkanchor.core.reconciler import Reconciler
 from talkanchor.core.state import ChangeEvent, StateStore
+from talkanchor.sources.base import IPSourceError
+from talkanchor.sources.cloudflare import CloudflareTunnelSource
 from talkanchor.targets.base import ConfigTargetError
+from talkanchor.targets.unifi_talk import connect_ssh, discover_sofia_configs, fetch_host_key
 
 _WEB_DIR = Path(__file__).parent
 
@@ -114,5 +117,56 @@ def create_app(settings: Settings, *, state: StateStore | None = None, reconcile
             raise HTTPException(status_code=502, detail=str(exc)) from exc
 
         return {"success": result.success, "message": result.message, "restored_from": target_event.backup_path}
+
+    # -- setup helper -------------------------------------------------------
+    # Re-exposes the CLI setup wizard's SSH discovery/testing steps as web
+    # actions, for deployments with no terminal to run the wizard from (most
+    # notably the Home Assistant add-on). All three act on the currently
+    # loaded config.yaml/options — save and restart with updated settings
+    # before using them.
+
+    @app.post("/api/setup/ssh-keyscan")
+    async def setup_ssh_keyscan() -> dict[str, str]:
+        cfg = settings.unifi_talk
+        if not cfg.host:
+            raise HTTPException(status_code=400, detail="unifi_host ist nicht konfiguriert.")
+        try:
+            line = await asyncio.to_thread(fetch_host_key, cfg.host, cfg.ssh_port)
+        except OSError as exc:
+            raise HTTPException(
+                status_code=502, detail=f"Verbindung zu {cfg.host}:{cfg.ssh_port} fehlgeschlagen: {exc}"
+            ) from exc
+        return {"known_hosts_entry": line}
+
+    @app.post("/api/setup/discover-sofia")
+    async def setup_discover_sofia() -> dict[str, list[str]]:
+        cfg = settings.unifi_talk
+
+        def _discover() -> list[str]:
+            client = connect_ssh(host=cfg.host, port=cfg.ssh_port, username=cfg.ssh_user, key_path=cfg.ssh_key_path)
+            try:
+                return discover_sofia_configs(client)
+            finally:
+                client.close()
+
+        try:
+            candidates = await asyncio.to_thread(_discover)
+        except ConfigTargetError as exc:
+            raise HTTPException(status_code=502, detail=str(exc)) from exc
+        return {"candidates": candidates}
+
+    @app.post("/api/setup/cloudflare-test")
+    async def setup_cloudflare_test() -> dict[str, str]:
+        cf = settings.cloudflare
+        if not (cf.api_token.get_secret_value() and cf.account_id and cf.tunnel_id):
+            raise HTTPException(status_code=400, detail="Cloudflare-Zugangsdaten sind nicht vollständig konfiguriert.")
+        source = CloudflareTunnelSource(
+            api_token=cf.api_token.get_secret_value(), account_id=cf.account_id, tunnel_id=cf.tunnel_id
+        )
+        try:
+            ip = await source.check()
+        except IPSourceError as exc:
+            raise HTTPException(status_code=502, detail=str(exc)) from exc
+        return {"ip": ip}
 
     return app

@@ -44,6 +44,33 @@
     </section>
 
     <section class="panel">
+      <h2>Setup-Helfer</h2>
+      <p class="muted">
+        Ersetzt die SSH-Schritte des CLI-Wizards, wenn kein Terminal zur
+        Verfügung steht (z. B. im Home-Assistant-Add-on). Wirkt auf die
+        aktuell geladene Konfiguration — nach Änderungen erst speichern und
+        neu starten.
+      </p>
+      <div class="setup-actions">
+        <div class="setup-action">
+          <button id="keyscan-btn">SSH-Host-Key abrufen</button>
+          <p class="muted">Für <code>unifi_ssh_known_hosts_entry</code>. Prüfe den Fingerprint, bevor du ihn einträgst.</p>
+          <pre class="setup-result" id="keyscan-result"></pre>
+        </div>
+        <div class="setup-action">
+          <button id="discover-btn">Sofia-Config-Pfad suchen</button>
+          <p class="muted">Für <code>unifi_config_path</code>. Setzt einen bereits eingetragenen Host-Key voraus.</p>
+          <pre class="setup-result" id="discover-result"></pre>
+        </div>
+        <div class="setup-action">
+          <button id="cf-test-btn">Cloudflare-Verbindung testen</button>
+          <p class="muted">Prüft die aktuell gespeicherten Cloudflare-Zugangsdaten.</p>
+          <pre class="setup-result" id="cf-test-result"></pre>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel">
       <h2>Verlauf</h2>
       <table id="history-table">
         <thead>
