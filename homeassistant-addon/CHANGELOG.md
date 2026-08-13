@@ -1,5 +1,12 @@
 # TalkAnchor-Add-on-Changelog
 
+## 0.1.10
+
+- Wizard-Eingaben gingen bei Neuladen/Navigation verloren, da sie erst
+  beim finalen Speichern an den Server geschickt wurden. Alle Felder
+  werden jetzt laufend im Browser zwischengespeichert und beim erneuten
+  Öffnen automatisch wiederhergestellt.
+
 ## 0.1.9
 
 - Klarere Fehlermeldung, wenn UniFi die SSH-Authentifizierung ablehnt:

@@ -8,6 +8,19 @@ dieses Projekt folgt [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [0.1.10] - 2026-08-13
+
+### Hinzugefügt
+
+- Der Wizard verlor bisher alle eingegebenen Werte (Cloudflare-Token, IDs,
+  UniFi-Host, ...), sobald die Seite neu geladen wurde oder man zwischen
+  Schritten navigierte, ohne vorher explizit zu speichern — Werte landeten
+  serverseitig erst beim finalen "Speichern"/"GO LIVE". Alle Formularfelder
+  werden jetzt bei jeder Änderung automatisch im Browser (localStorage)
+  zwischengespeichert und bei erneutem Öffnen des Wizards wiederhergestellt
+  (inkl. aktuellem Schritt und Host-Key-Bestätigungsstatus). Der
+  Zwischenstand wird erst nach erfolgreichem "GO LIVE" gelöscht.
+
 ## [0.1.9] - 2026-08-13
 
 ### Behoben
@@ -173,7 +186,8 @@ Erstes Alpha-Release.
 - Vollständige Testsuite für den Kern-Reconcile-Loop mit In-Memory-Fakes
   (kein echtes Netzwerk/SSH nötig).
 
-[Unreleased]: https://github.com/martin141089/UniFi-Talk/compare/v0.1.9...HEAD
+[Unreleased]: https://github.com/martin141089/UniFi-Talk/compare/v0.1.10...HEAD
+[0.1.10]: https://github.com/martin141089/UniFi-Talk/compare/v0.1.9...v0.1.10
 [0.1.9]: https://github.com/martin141089/UniFi-Talk/compare/v0.1.8...v0.1.9
 [0.1.8]: https://github.com/martin141089/UniFi-Talk/compare/v0.1.7...v0.1.8
 [0.1.7]: https://github.com/martin141089/UniFi-Talk/compare/v0.1.6...v0.1.7

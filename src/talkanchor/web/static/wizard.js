@@ -3,6 +3,58 @@ const TOTAL_STEPS = 5;
 let currentStep = 1;
 let hostKeyConfirmed = false;
 
+// -- draft autosave --------------------------------------------------------
+// Field values only ever reached the server on an explicit test/save click;
+// simply navigating between steps, reloading, or the Ingress session
+// dropping wiped everything typed so far. Mirror every field into
+// localStorage on change and restore it on load so a reload resumes where
+// you left off instead of starting over.
+
+const DRAFT_STORAGE_KEY = "talkanchor-wizard-draft";
+const DRAFT_FIELD_IDS = [
+  "cf-token", "cf-account", "cf-tunnel",
+  "echo-url", "echo-field",
+  "udm-host", "udm-port", "udm-user", "udm-key",
+  "udm-config-path", "udm-profile", "udm-backup-dir", "udm-health-timeout",
+  "notify-channel", "notify-ntfy", "notify-webhook",
+  "poll-interval", "min-seconds",
+];
+
+function saveDraft() {
+  const draft = { currentStep, hostKeyConfirmed, lastKeyscanEntry };
+  for (const id of DRAFT_FIELD_IDS) {
+    const el = $(id);
+    if (el) draft[id] = el.value;
+  }
+  localStorage.setItem(DRAFT_STORAGE_KEY, JSON.stringify(draft));
+}
+
+function loadDraft() {
+  const raw = localStorage.getItem(DRAFT_STORAGE_KEY);
+  if (!raw) return;
+  let draft;
+  try {
+    draft = JSON.parse(raw);
+  } catch {
+    localStorage.removeItem(DRAFT_STORAGE_KEY);
+    return;
+  }
+  for (const id of DRAFT_FIELD_IDS) {
+    if (draft[id] !== undefined && $(id)) $(id).value = draft[id];
+  }
+  if (draft.currentStep) currentStep = draft.currentStep;
+  if (draft.hostKeyConfirmed) hostKeyConfirmed = draft.hostKeyConfirmed;
+  if (draft.lastKeyscanEntry) lastKeyscanEntry = draft.lastKeyscanEntry;
+  $("notify-channel").dispatchEvent(new Event("change"));
+}
+
+function clearDraft() {
+  localStorage.removeItem(DRAFT_STORAGE_KEY);
+}
+
+document.querySelector(".wizard-main").addEventListener("input", saveDraft);
+document.querySelector(".wizard-main").addEventListener("change", saveDraft);
+
 function showResult(id, text, ok) {
   const el = $(id);
   el.textContent = text;
@@ -287,9 +339,11 @@ $("golive-btn").addEventListener("click", async () => {
     answers.dry_run = false;
     const data = await postJson("api/wizard/save", answers);
     showResult("golive-result", `Scharf geschaltet. ${data.message}`, true);
+    clearDraft();
   } catch (err) {
     showResult("golive-result", err.message, false);
   }
 });
 
+loadDraft();
 renderStep();
