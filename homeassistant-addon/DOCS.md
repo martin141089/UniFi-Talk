@@ -1,11 +1,27 @@
+<p align="center">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="../assets/logo/wordmark-dark.svg">
+    <img src="../assets/logo/wordmark.svg" alt="TalkAnchor" width="320">
+  </picture>
+</p>
+
 # TalkAnchor Home-Assistant-Add-on
 
-Schlanker Wrapper um das eigenständige
+**Was macht das?** Wenn dein Internetanschluss eine wechselnde (dynamische)
+öffentliche IP-Adresse hat, "vergisst" UniFi Talk das nach einem
+IP-Wechsel oft nicht von selbst zu korrigieren — die Folge sind
+Anrufabbrüche oder ein Telefon, das gar nicht mehr klingelt. Dieses Add-on
+beobachtet deine aktuelle öffentliche IP automatisch im Hintergrund und
+trägt sie bei Bedarf sicher (mit Backup und Health-Check) in die
+UniFi-Talk-Konfiguration ein — ganz ohne dass du eingreifen musst.
+
+Es ist ein schlanker Wrapper um das eigenständige
 [TalkAnchor](https://github.com/martin141089/UniFi-Talk)-Docker-Image für
-alle, die bereits Home Assistant im Netzwerk betreiben. Er übersetzt die
-Konfigurations-UI dieses Add-ons in dieselbe `config.yaml`, die auch das
-CLI-/Compose-Deployment nutzt, und startet dann denselben Polling-Loop +
-Dashboard.
+alle, die bereits Home Assistant im Netzwerk betreiben und lieber darüber
+verwalten als über ein separates `docker compose`-Deployment. Die
+Konfigurations-UI dieses Add-ons schreibt in dieselbe `config.yaml`, die
+auch das eigenständige CLI-Deployment nutzt, und startet denselben
+Polling-Loop + dasselbe Dashboard.
 
 ## Installation
 

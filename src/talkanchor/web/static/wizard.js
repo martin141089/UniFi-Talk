@@ -348,6 +348,8 @@ function collectAnswers() {
   };
 }
 
+const NOTIFY_CHANNEL_LABELS = { none: "Keine", ntfy: "ntfy", webhook: "Webhook" };
+
 function renderSummary() {
   const a = collectAnswers();
   const rows = [
@@ -359,7 +361,7 @@ function renderSummary() {
     ["Sofia-Config-Pfad", a.unifi_config_path || "–"],
     ["Polling-Intervall", `${a.poll_interval_seconds}s`],
     ["Rate-Limit", `${a.min_seconds_between_changes}s`],
-    ["Benachrichtigung", a.notify_channel],
+    ["Benachrichtigung", NOTIFY_CHANNEL_LABELS[a.notify_channel] || a.notify_channel],
   ];
   $("summary-table").innerHTML = rows.map(([k, v]) => `<tr><td>${k}</td><td>${v}</td></tr>`).join("");
 }

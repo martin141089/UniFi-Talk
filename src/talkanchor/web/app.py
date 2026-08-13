@@ -298,7 +298,7 @@ def create_app(
         events = state.recent_events(limit=20)
         target_event = next((e for e in events if e.apply_success and e.backup_path), None)
         if target_event is None or not target_event.backup_path:
-            raise HTTPException(status_code=404, detail="No backup available to roll back to")
+            raise HTTPException(status_code=404, detail="Kein Backup zum Zurückrollen vorhanden")
 
         target = build_target(settings)
         try:

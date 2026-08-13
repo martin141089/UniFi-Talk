@@ -20,8 +20,10 @@ body {
 
 .topbar {
   display: flex;
+  flex-wrap: wrap;
   justify-content: space-between;
   align-items: center;
+  gap: 0.6rem;
   padding: 1rem 1.5rem;
   background: var(--bg-elevated);
   border-bottom: 1px solid var(--border);
@@ -36,7 +38,7 @@ body {
   letter-spacing: 0.02em;
 }
 
-.badges { display: flex; gap: 0.5rem; }
+.badges { display: flex; flex-wrap: wrap; gap: 0.5rem; }
 
 .badge {
   padding: 0.25rem 0.6rem;
@@ -100,7 +102,9 @@ main { padding: 1.5rem; max-width: 1100px; margin: 0 auto; }
 }
 .panel h2 { margin-top: 0; font-size: 1rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; }
 
-table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
+.table-scroll { overflow-x: auto; }
+
+table { width: 100%; min-width: 560px; border-collapse: collapse; font-size: 0.9rem; }
 th, td { text-align: left; padding: 0.5rem; border-bottom: 1px solid var(--border); }
 th { color: var(--muted); font-weight: 600; }
 
@@ -149,3 +153,9 @@ th { color: var(--muted); font-weight: 600; }
   word-break: break-all;
 }
 .setup-result:empty { display: none; }
+
+@media (max-width: 480px) {
+  main { padding: 1rem; }
+  .card, .panel { padding: 1rem; }
+  .topbar { padding: 0.8rem 1rem; }
+}

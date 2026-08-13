@@ -45,16 +45,16 @@ class CloudflareTunnelSource:
             try:
                 response = await client.get(url, headers=headers)
             except httpx.HTTPError as exc:
-                raise IPSourceError(f"Cloudflare API request failed: {exc}") from exc
+                raise IPSourceError(f"Cloudflare-API-Anfrage fehlgeschlagen: {exc}") from exc
 
         if response.status_code != 200:
             raise IPSourceError(
-                f"Cloudflare API returned HTTP {response.status_code}: {response.text[:300]}"
+                f"Cloudflare-API antwortete mit HTTP {response.status_code}: {response.text[:300]}"
             )
 
         payload = response.json()
         if not payload.get("success", False):
-            raise IPSourceError(f"Cloudflare API reported failure: {payload.get('errors')}")
+            raise IPSourceError(f"Cloudflare-API meldet einen Fehler: {payload.get('errors')}")
 
         origin_ips: list[str] = []
         for connector in payload.get("result", []) or []:
@@ -65,15 +65,16 @@ class CloudflareTunnelSource:
 
         if not origin_ips:
             raise IPSourceError(
-                "Cloudflare API returned no active tunnel connections with an origin_ip. "
-                "Is the tunnel up?"
+                "Cloudflare-API meldet keine aktiven Tunnel-Verbindungen mit origin_ip. "
+                "Läuft der Tunnel?"
             )
 
         unique_ips = set(origin_ips)
         if len(unique_ips) > 1:
             raise IPSourceError(
-                f"Cloudflare tunnel connectors disagree on origin IP: {sorted(unique_ips)}. "
-                "This can happen mid-failover; refusing to pick one automatically."
+                f"Cloudflare-Tunnel-Connectoren melden unterschiedliche Ursprungs-IPs: "
+                f"{sorted(unique_ips)}. Das kann während eines Failovers vorkommen; "
+                "TalkAnchor wählt in diesem Fall bewusst keine automatisch aus."
             )
 
         return unique_ips.pop()

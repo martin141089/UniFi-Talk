@@ -1,5 +1,20 @@
 # TalkAnchor-Add-on-Changelog
 
+## 0.2.0
+
+- Logo/Icon repariert: `icon.png` war in der Add-on-Übersicht nicht
+  zentriert und hatte einen weißen statt transparenten Hintergrund;
+  `logo.png` bestand größtenteils aus leerem Platz. Beide neu und korrekt
+  aus den SVG-Quellen erzeugt; Logo erscheint jetzt auch in dieser
+  Dokumentation.
+- Alle vom Add-on erzeugten Meldungen (Anwenden/Health-Check/Rollback,
+  Benachrichtigungen, Log-Zeilen) sind jetzt durchgängig auf Deutsch statt
+  bisher Englisch.
+- Dokumentation ausführlicher und einsteigerfreundlicher überarbeitet.
+- Dashboard-Verlaufstabelle und Wizard-Formulare auf schmalen
+  Handy-Bildschirmen verbessert (kein Überlaufen mehr über den
+  Bildschirmrand, Formularfelder brechen sauber um).
+
 ## 0.1.19
 
 - Nach einem fehlgeschlagenen scharfen Versuch (Rollback) und einer

@@ -17,31 +17,67 @@
 ---
 
 **TalkAnchor** hält eine selbst gehostete [UniFi Talk](https://ui.com/talk)-
-Installation verankert an deiner aktuellen dynamischen öffentlichen IP. Es
-beobachtet die IP deines Cloudflare-Tunnel-Connectors, gleicht sie
-gegen eine Fallback-Quelle ab und patcht — nur wenn beide übereinstimmen und
-sich tatsächlich etwas geändert hat — sicher das FreeSWITCH-Sofia-SIP-Profil
-per SSH, erstellt vorher ein Backup, startet das Profil neu und prüft, ob
-sich der Trunk erfolgreich neu registriert, bevor der Vorgang als
-abgeschlossen gilt.
+Installation verankert an deiner aktuellen dynamischen öffentlichen IP —
+automatisch, im Hintergrund, ohne dass du dich darum kümmern musst.
 
-## Warum TalkAnchor?
+**Zwei Wege, TalkAnchor zu betreiben:** als eigenständigen Docker-Dienst
+(diese README) oder — wenn du ohnehin schon Home Assistant im Netzwerk
+laufen hast — als bequemes [**Home-Assistant-Add-on**](homeassistant-addon/)
+mit geführtem Web-Setup, ganz ohne Terminal. Beide nutzen denselben Kern.
 
-UniFi Talk registriert sich bei deinem SIP-Trunk (Telekom o. Ä.) mit einer
-externen IP, die fest in der Sofia-Profil-Konfiguration hinterlegt ist
-(`ext-sip-ip` / `ext-rtp-ip`, `auto-nat: false`). Bei Anschlüssen mit
-**dynamischer öffentlicher IP** wird dieser Wert veraltet, sobald der
-Provider die IP wechselt (Zwangstrennung, DHCP-Lease-Erneuerung, ...) —
-Audio bricht ab, Anrufe werden getrennt, die Registrierung schlägt fehl.
-Die UniFi-Talk-UI bietet dafür keinen Schalter; der Wert wird intern von
-der App verwaltet und bei jedem App-Update zurückgesetzt.
+### Inhalt
 
-Es gibt dafür keine offizielle Lösung, nur vereinzelte manuelle
-Community-Workarounds, die beim nächsten Update wieder verloren gehen.
-TalkAnchor ist ein schlanker, selbst gehosteter Dienst, der genau diese
-Lücke schließt — und im nächsten Zyklus automatisch nachkorrigiert, selbst
-wenn ein App-Update die Einstellung zurückgesetzt hat. Das ist der
-eigentliche Clou, nicht nur eine Einschränkung, mit der man leben muss.
+- [Das Problem, das TalkAnchor löst](#das-problem-das-talkanchor-löst)
+- [Wie TalkAnchor das löst](#wie-talkanchor-das-löst)
+- [Screenshot](#screenshot)
+- [Funktionen](#funktionen)
+- [Schnellstart](#schnellstart)
+- [Haftungsausschluss](#haftungsausschluss)
+- [Dokumentation](#dokumentation)
+
+## Das Problem, das TalkAnchor löst
+
+Wenn dein Internetanschluss eine **dynamische IP-Adresse** hat (die meisten
+DSL-/Kabelanschlüsse in Deutschland), ändert sich diese IP von Zeit zu Zeit
+— bei einer erzwungenen Trennung, nach einem Router-Neustart, oder weil der
+Provider es einfach so macht. UniFi Talk merkt sich seine öffentliche IP
+aber fest in einer internen Konfigurationsdatei. Ändert sich die IP und
+UniFi Talk bekommt es nicht mit, registriert sich dein SIP-Trunk (z. B. bei
+der Telekom) nicht mehr richtig — die Folge: **Anrufe brechen ab, das
+Telefon klingelt nicht mehr, Gespräche haben keinen Ton mehr.** Gerade für
+ein Ferienwohnungs- oder Handwerksbetrieb, bei dem Kunden anrufen können
+müssen, ist das kein Detail, sondern ein echtes Geschäftsrisiko.
+
+Ubiquiti bietet dafür keine Lösung an — die IP-Einstellung wird von der
+UniFi-Talk-App intern verwaltet und bei jedem App-Update sogar
+zurückgesetzt, selbst wenn man sie manuell korrigiert hat. Es gibt nur
+vereinzelte Handarbeit-Workarounds in Foren, die nach dem nächsten Update
+wieder futsch sind.
+
+## Wie TalkAnchor das löst
+
+TalkAnchor läuft als kleiner, eigenständiger Dienst auf einem separaten
+Gerät in deinem Netzwerk (z. B. einem Raspberry Pi, NAS, Mini-PC — oder als
+Home-Assistant-Add-on, falls du das ohnehin schon betreibst). Alle paar
+Minuten prüft es automatisch:
+
+1. **Wie lautet gerade meine öffentliche IP?** — über zwei unabhängige
+   Quellen (Cloudflare-Tunnel-Connector und/oder einen einfachen
+   "Wie ist meine IP"-Dienst), die sich gegenseitig plausibilisieren.
+2. **Hat sich seit dem letzten Mal etwas geändert?** Wenn nein: nichts
+   tun, fertig.
+3. **Wenn ja:** vorher ein Backup der UniFi-Talk-Konfiguration anlegen,
+   dann die neue IP per SSH sicher eintragen, den SIP-Trunk neu starten
+   und prüfen, ob er sich erfolgreich neu registriert.
+4. **Falls danach etwas nicht stimmt:** automatisch auf den letzten
+   funktionierenden Stand zurückrollen und dich benachrichtigen — nie
+   stillschweigend einen kaputten Zustand hinterlassen.
+
+Das Besondere daran: Weil TalkAnchor als eigener Dienst läuft (nicht als
+Teil der UniFi-Talk-App), übersteht es auch App-Updates, die die
+IP-Einstellung zurücksetzen — im nächsten Prüfzyklus korrigiert es das ganz
+von selbst wieder, ohne dass du eingreifen musst. Genau das ist der
+eigentliche Mehrwert, nicht nur eine einmalige Reparatur.
 
 ## Screenshot
 
@@ -84,6 +120,12 @@ Actions* aktiviert wurde).
   weiteres SIP-System oder eine weitere IP-Quelle zu ergänzen.
 
 ## Schnellstart
+
+> Läuft bei dir bereits Home Assistant? Dann ist der
+> [**Home-Assistant-Add-on-Weg**](homeassistant-addon/) meist einfacher —
+> Installation über den Add-on-Store, Einrichtung komplett per Web-Wizard,
+> kein Terminal nötig. Der Rest dieses Abschnitts beschreibt den
+> eigenständigen Docker-/CLI-Weg.
 
 ```sh
 git clone https://github.com/martin141089/UniFi-Talk.git talkanchor

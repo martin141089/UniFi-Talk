@@ -1,3 +1,10 @@
+<p align="center">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="../assets/logo/wordmark-dark.svg">
+    <img src="../assets/logo/wordmark.svg" alt="TalkAnchor" width="320">
+  </picture>
+</p>
+
 # TalkAnchor — Home-Assistant-Add-on
 
 Dieses Verzeichnis ist eine erste Ebene innerhalb des Haupt-Repositorys, das

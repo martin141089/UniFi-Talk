@@ -37,18 +37,18 @@ class HttpEchoSource:
             try:
                 response = await client.get(self._url)
             except httpx.HTTPError as exc:
-                raise IPSourceError(f"HTTP echo request to {self._url} failed: {exc}") from exc
+                raise IPSourceError(f"HTTP-Echo-Anfrage an {self._url} fehlgeschlagen: {exc}") from exc
 
         if response.status_code != 200:
             raise IPSourceError(
-                f"HTTP echo service returned HTTP {response.status_code}: {response.text[:300]}"
+                f"HTTP-Echo-Dienst antwortete mit HTTP {response.status_code}: {response.text[:300]}"
             )
 
         raw_ip = self._extract_ip(response)
         try:
             ipaddress.ip_address(raw_ip)
         except ValueError as exc:
-            raise IPSourceError(f"HTTP echo service returned a non-IP value: {raw_ip!r}") from exc
+            raise IPSourceError(f"HTTP-Echo-Dienst lieferte keinen gültigen IP-Wert: {raw_ip!r}") from exc
         return raw_ip
 
     def _extract_ip(self, response: httpx.Response) -> str:
@@ -61,6 +61,6 @@ class HttpEchoSource:
         value = data.get(self._json_field)
         if not value:
             raise IPSourceError(
-                f"HTTP echo service JSON response had no {self._json_field!r} field: {data!r}"
+                f"HTTP-Echo-Dienst: JSON-Antwort enthielt kein Feld {self._json_field!r}: {data!r}"
             )
         return str(value).strip()

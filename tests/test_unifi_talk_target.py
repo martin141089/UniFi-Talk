@@ -194,7 +194,7 @@ def test_apply_live_fails_safely_when_param_not_found_and_skips_backup(tmp_path,
     result = target.apply("198.51.100.9", dry_run=False)
 
     assert result.success is False
-    assert "not found" in result.message
+    assert "nicht in /x.xml gefunden" in result.message
     assert files["/x.xml"] == b'<profile><settings><param name="something-else" value="1"/></settings></profile>'
     assert list(files.keys()) == ["/x.xml"]  # no remote backup written
     assert list(tmp_path.iterdir()) == []  # no local backup written either

@@ -65,19 +65,19 @@ class Reconciler:
                 errors.append(f"{source.name}: {exc}")
 
         if not observations:
-            raise IPSourceError(f"All IP sources failed: {'; '.join(errors)}")
+            raise IPSourceError(f"Alle IP-Quellen fehlgeschlagen: {'; '.join(errors)}")
 
         unique_ips = set(observations.values())
         if len(self._sources) > 1 and len(observations) < len(self._sources):
             logger.warning(
-                "Only %d/%d IP sources responded (%s); proceeding cautiously with what we have",
+                "Nur %d/%d IP-Quellen haben geantwortet (%s); fahre vorsichtig mit dem fort, was vorliegt",
                 len(observations),
                 len(self._sources),
                 "; ".join(errors),
             )
         if len(unique_ips) > 1:
             raise SourcesDisagreeError(
-                f"IP sources disagree, refusing to act: {observations}"
+                f"IP-Quellen widersprechen sich, keine Aktion: {observations}"
             )
         return unique_ips.pop()
 
@@ -92,10 +92,10 @@ class Reconciler:
         try:
             current_ip = await self._agreed_ip()
         except (IPSourceError, SourcesDisagreeError) as exc:
-            logger.error("IP check failed: %s", exc)
+            logger.error("IP-Prüfung fehlgeschlagen: %s", exc)
             await self._notifier.send(
                 Notification(
-                    title="TalkAnchor: IP check failed",
+                    title="TalkAnchor: IP-Prüfung fehlgeschlagen",
                     body=str(exc),
                     level=NotificationLevel.WARNING,
                 )
@@ -104,21 +104,21 @@ class Reconciler:
 
         last_known_ip = self._state.get_last_known_ip(include_dry_run=self._dry_run)
         if current_ip == last_known_ip:
-            logger.debug("IP unchanged (%s); nothing to do", current_ip)
+            logger.debug("IP unverändert (%s); nichts zu tun", current_ip)
             return ReconcileOutcome(checked_ip=current_ip, changed=False)
 
-        logger.info("IP change detected: %s -> %s", last_known_ip, current_ip)
+        logger.info("IP-Änderung erkannt: %s -> %s", last_known_ip, current_ip)
 
         if self._is_rate_limited():
             message = (
-                f"IP changed ({last_known_ip} -> {current_ip}) but a change was applied "
-                f"within the last {self._min_seconds_between_changes}s; holding off to avoid "
-                "flapping. Will retry next cycle."
+                f"IP geändert ({last_known_ip} -> {current_ip}), aber innerhalb der letzten "
+                f"{self._min_seconds_between_changes}s wurde bereits eine Änderung angewendet; "
+                "wird zurückgestellt, um Flattern zu vermeiden. Nächster Zyklus versucht es erneut."
             )
             logger.warning(message)
             await self._notifier.send(
                 Notification(
-                    title="TalkAnchor: change deferred (rate limit)",
+                    title="TalkAnchor: Änderung zurückgestellt (Rate-Limit)",
                     body=message,
                     level=NotificationLevel.WARNING,
                 )
@@ -145,8 +145,8 @@ class Reconciler:
             event = self._state.record_change(event)
             await self._notifier.send(
                 Notification(
-                    title="TalkAnchor: failed to apply new IP",
-                    body=f"{old_ip} -> {new_ip} failed: {apply_result.message}",
+                    title="TalkAnchor: Anwenden der neuen IP fehlgeschlagen",
+                    body=f"{old_ip} -> {new_ip} fehlgeschlagen: {apply_result.message}",
                     level=NotificationLevel.ERROR,
                 )
             )
@@ -156,8 +156,8 @@ class Reconciler:
             event = self._state.record_change(event)
             await self._notifier.send(
                 Notification(
-                    title="TalkAnchor: dry-run would apply new IP",
-                    body=f"{old_ip} -> {new_ip} (dry-run, no changes were written)",
+                    title="TalkAnchor: Dry-Run würde neue IP anwenden",
+                    body=f"{old_ip} -> {new_ip} (Dry-Run, es wurde nichts geschrieben)",
                     level=NotificationLevel.INFO,
                 )
             )
@@ -171,15 +171,15 @@ class Reconciler:
             event = self._state.record_change(event)
             await self._notifier.send(
                 Notification(
-                    title="TalkAnchor: IP updated successfully",
-                    body=f"{old_ip} -> {new_ip}, health check passed ({health.message})",
+                    title="TalkAnchor: IP erfolgreich aktualisiert",
+                    body=f"{old_ip} -> {new_ip}, Health-Check bestanden ({health.message})",
                     level=NotificationLevel.SUCCESS,
                 )
             )
             return ReconcileOutcome(checked_ip=new_ip, changed=True, event=event)
 
-        # Health check failed: notify clearly and offer/perform rollback if we have a backup.
-        logger.error("Health check failed after applying %s: %s", new_ip, health.message)
+        # Health-Check fehlgeschlagen: klar benachrichtigen und Rollback anbieten/durchführen, falls Backup vorhanden.
+        logger.error("Health-Check nach Anwenden von %s fehlgeschlagen: %s", new_ip, health.message)
         if apply_result.backup_path:
             rollback_result = self._target.rollback(apply_result.backup_path, dry_run=self._dry_run)
             event.rolled_back = rollback_result.success
@@ -188,10 +188,10 @@ class Reconciler:
             level = NotificationLevel.WARNING if rollback_result.success else NotificationLevel.ERROR
             await self._notifier.send(
                 Notification(
-                    title="TalkAnchor: health check failed, rollback attempted",
+                    title="TalkAnchor: Health-Check fehlgeschlagen, Rollback versucht",
                     body=(
-                        f"{old_ip} -> {new_ip} failed health check ({health.message}). "
-                        f"Rollback {'succeeded' if rollback_result.success else 'FAILED'}: "
+                        f"{old_ip} -> {new_ip} hat den Health-Check nicht bestanden ({health.message}). "
+                        f"Rollback {'erfolgreich' if rollback_result.success else 'FEHLGESCHLAGEN'}: "
                         f"{rollback_result.message}"
                     ),
                     level=level,
@@ -201,8 +201,8 @@ class Reconciler:
             event = self._state.record_change(event)
             await self._notifier.send(
                 Notification(
-                    title="TalkAnchor: health check failed, no backup to roll back to",
-                    body=f"{old_ip} -> {new_ip} failed health check ({health.message}).",
+                    title="TalkAnchor: Health-Check fehlgeschlagen, kein Backup für Rollback vorhanden",
+                    body=f"{old_ip} -> {new_ip} hat den Health-Check nicht bestanden ({health.message}).",
                     level=NotificationLevel.ERROR,
                 )
             )

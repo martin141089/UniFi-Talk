@@ -143,7 +143,7 @@ def connect_ssh(*, host: str, port: int, username: str, key_path: str) -> parami
     """Open a host-key-verified SSH connection. Shared by UniFiTalkTarget
     and the dashboard's setup helper (SSH-based Sofia config discovery)."""
     if not host:
-        raise ConfigTargetError("SSH host is not configured.")
+        raise ConfigTargetError("SSH-Host ist nicht konfiguriert.")
 
     client = paramiko.SSHClient()
     client.load_system_host_keys()
@@ -182,9 +182,9 @@ def connect_ssh(*, host: str, port: int, username: str, key_path: str) -> parami
                 f"UniFi-Geräts für den Benutzer '{username}' hinterlegt?"
             ) from exc
         raise ConfigTargetError(
-            f"SSH connection to {host} failed: {exc}. If this is the first connection, "
-            f"fetch the host key first (setup helper, or `ssh-keyscan -H {host} "
-            ">> ~/.ssh/known_hosts` on a workstation)."
+            f"SSH-Verbindung zu {host} fehlgeschlagen: {exc}. Falls dies die erste Verbindung "
+            f"ist, zuerst den Host-Key abrufen (Setup-Helfer im Dashboard, oder "
+            f"`ssh-keyscan -H {host} >> ~/.ssh/known_hosts` auf einem Rechner mit Terminal)."
         ) from exc
     return client
 
@@ -208,8 +208,8 @@ class UniFiTalkTarget:
         cfg = self._config
         if not cfg.config_path:
             raise ConfigTargetError(
-                "UniFi Talk target is not configured (config_path missing). "
-                "Run `talkanchor setup` first."
+                "UniFi-Talk-Ziel ist nicht konfiguriert (config_path fehlt). "
+                "Zuerst `talkanchor setup` bzw. den Setup-Wizard ausführen."
             )
         return connect_ssh(host=cfg.host, port=cfg.ssh_port, username=cfg.ssh_user, key_path=cfg.ssh_key_path)
 
@@ -227,9 +227,9 @@ class UniFiTalkTarget:
                 success=True,
                 backup_path=None,
                 message=(
-                    f"[dry-run] would back up {cfg.config_path} and set "
-                    f"{cfg.ext_sip_ip_param}={new_ip}, {cfg.ext_rtp_ip_param}={new_ip} on "
-                    f"{cfg.host}, then reload sofia profile '{cfg.sofia_profile}'"
+                    f"[Dry-Run] würde {cfg.config_path} sichern und "
+                    f"{cfg.ext_sip_ip_param}={new_ip}, {cfg.ext_rtp_ip_param}={new_ip} auf "
+                    f"{cfg.host} setzen, dann das Sofia-Profil '{cfg.sofia_profile}' neu laden"
                 ),
             )
 
@@ -241,7 +241,7 @@ class UniFiTalkTarget:
                     original_text = fh.read().decode("utf-8")
             except OSError as exc:
                 raise ConfigTargetError(
-                    f"Could not read {cfg.config_path} on {cfg.host}: {exc}"
+                    f"{cfg.config_path} auf {cfg.host} konnte nicht gelesen werden: {exc}"
                 ) from exc
 
             patched_text, sip_found = _patch_param(original_text, cfg.ext_sip_ip_param, new_ip)
@@ -253,9 +253,9 @@ class UniFiTalkTarget:
                 if not rtp_found:
                     missing.append(cfg.ext_rtp_ip_param)
                 raise ConfigTargetError(
-                    f"Parameter(s) {missing} not found in {cfg.config_path}. Config layout may "
-                    "differ from what was discovered during setup — re-run `talkanchor setup "
-                    "--discover` to confirm the path."
+                    f"Parameter {missing} nicht in {cfg.config_path} gefunden. Der Aufbau der "
+                    "Config weicht evtl. von dem beim Setup ermittelten ab — im Wizard erneut "
+                    '"Sofia-Config-Pfad suchen" ausführen, um den Pfad zu bestätigen.'
                 )
 
             # Only back up once we know there's actually something to write —
@@ -276,14 +276,15 @@ class UniFiTalkTarget:
 
             if reload_status != 0 or restart_status != 0:
                 raise ConfigTargetError(
-                    f"fs_cli commands failed (reloadxml exit={reload_status}: {reload_err or reload_out}; "
-                    f"restart exit={restart_status}: {restart_err or restart_out})"
+                    f"fs_cli-Befehle fehlgeschlagen (reloadxml exit={reload_status}: "
+                    f"{reload_err or reload_out}; restart exit={restart_status}: "
+                    f"{restart_err or restart_out})"
                 )
 
             return ApplyResult(
                 success=True,
                 backup_path=backup_path,
-                message=f"Patched {cfg.config_path} to {new_ip} and restarted profile '{cfg.sofia_profile}'",
+                message=f"{cfg.config_path} auf {new_ip} gepatcht und Profil '{cfg.sofia_profile}' neu gestartet",
             )
         except ConfigTargetError as exc:
             return ApplyResult(success=False, backup_path=None, message=str(exc))
@@ -300,7 +301,7 @@ class UniFiTalkTarget:
 
         mkdir_status, _, mkdir_err = self._run(client, f"mkdir -p {shlex.quote(cfg.backup_dir_remote)}")
         if mkdir_status != 0:
-            raise ConfigTargetError(f"Could not create remote backup dir: {mkdir_err}")
+            raise ConfigTargetError(f"Remote-Backup-Verzeichnis konnte nicht angelegt werden: {mkdir_err}")
 
         with sftp.open(remote_backup_path, "w") as fh:
             fh.write(original_text.encode("utf-8"))
@@ -309,7 +310,9 @@ class UniFiTalkTarget:
         local_backup_path = self._local_backup_dir / f"{filename}.{timestamp}.bak"
         local_backup_path.write_text(original_text, encoding="utf-8")
 
-        logger.info("Backed up %s to %s (remote) and %s (local)", config_path, remote_backup_path, local_backup_path)
+        logger.info(
+            "%s gesichert nach %s (remote) und %s (lokal)", config_path, remote_backup_path, local_backup_path
+        )
         return remote_backup_path
 
     # -- health check -----------------------------------------------------
@@ -331,7 +334,7 @@ class UniFiTalkTarget:
                     return HealthCheckResult(
                         healthy=True,
                         details={"sofia_status": out.strip()},
-                        message=f"Profile '{cfg.sofia_profile}' registrations look healthy",
+                        message=f"Profil '{cfg.sofia_profile}': Registrierungen sehen gesund aus",
                     )
                 time.sleep(2)
 
@@ -339,8 +342,8 @@ class UniFiTalkTarget:
                 healthy=False,
                 details={"sofia_status": last_output.strip()},
                 message=(
-                    f"Profile '{cfg.sofia_profile}' did not show healthy registrations within "
-                    f"{cfg.health_check_timeout_seconds}s"
+                    f"Profil '{cfg.sofia_profile}' zeigte innerhalb von "
+                    f"{cfg.health_check_timeout_seconds}s keine gesunde Registrierung"
                 ),
             )
         finally:
@@ -359,7 +362,9 @@ class UniFiTalkTarget:
     def rollback(self, backup_path: str, *, dry_run: bool) -> RollbackResult:
         cfg = self._config
         if dry_run:
-            return RollbackResult(success=True, message=f"[dry-run] would restore {backup_path} -> {cfg.config_path}")
+            return RollbackResult(
+                success=True, message=f"[Dry-Run] würde {backup_path} -> {cfg.config_path} wiederherstellen"
+            )
 
         client = self._connect()
         try:
@@ -367,15 +372,17 @@ class UniFiTalkTarget:
                 client, f"cp {shlex.quote(backup_path)} {shlex.quote(cfg.config_path)}"
             )
             if status != 0:
-                return RollbackResult(success=False, message=f"Failed to restore backup: {err}")
+                return RollbackResult(success=False, message=f"Backup konnte nicht wiederhergestellt werden: {err}")
 
             self._run(client, 'fs_cli -x "reloadxml"')
             restart_status, _out2, err2 = self._run(
                 client, f'fs_cli -x "sofia profile {shlex.quote(cfg.sofia_profile)} restart"'
             )
             if restart_status != 0:
-                return RollbackResult(success=False, message=f"Restored file but restart failed: {err2}")
+                return RollbackResult(
+                    success=False, message=f"Datei wiederhergestellt, aber Neustart fehlgeschlagen: {err2}"
+                )
 
-            return RollbackResult(success=True, message=f"Restored {cfg.config_path} from {backup_path}")
+            return RollbackResult(success=True, message=f"{cfg.config_path} von {backup_path} wiederhergestellt")
         finally:
             client.close()

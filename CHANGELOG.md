@@ -8,6 +8,39 @@ dieses Projekt folgt [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [0.2.0] - 2026-08-13
+
+### Geändert
+
+- **Logo/Icon im Home-Assistant-Add-on repariert.** `icon.png` war nicht
+  zentriert (56px toter Rand nur unten/rechts) und hatte einen weißen statt
+  transparenten Hintergrund; `logo.png` bestand größtenteils aus leerem
+  Platz. Beide Dateien werden jetzt sauber und korrekt zentriert aus den
+  vorhandenen SVG-Quellen erzeugt.
+- Logo (Wordmark) wird jetzt auch in der Add-on-Dokumentation (`DOCS.md`,
+  `homeassistant-addon/README.md`) angezeigt — vorher nur in der
+  Haupt-README.
+- **Alle nutzersichtbaren Backend-Texte auf Deutsch umgestellt:**
+  Apply-/Health-Check-/Rollback-Meldungen, Benachrichtigungstitel und
+  -texte sowie die zugehörigen Log-Zeilen (sichtbar u. a. im Live-Log des
+  Dashboards und in Push-/Webhook-Benachrichtigungen) waren bisher
+  durchgängig Englisch, obwohl Oberfläche und Dokumentation längst Deutsch
+  sind. Betrifft `targets/unifi_talk.py`, `core/reconciler.py`,
+  `sources/cloudflare.py`, `sources/http_echo.py`. Eine restliche englische
+  Meldung im Wizard-Zusammenfassungsfeld „Benachrichtigung" (`none` statt
+  „Keine") ebenfalls behoben.
+- README.md und die Add-on-Doku (`DOCS.md`) ausführlicher und
+  einsteigerfreundlicher überarbeitet: erklärt jetzt in einfachen Worten,
+  welches Problem TalkAnchor löst und wie, mit Inhaltsverzeichnis in der
+  README und einem Verweis auf den jeweils anderen Betriebsweg
+  (eigenständig vs. Home-Assistant-Add-on).
+- Mobile-Ansicht von Dashboard und Wizard verbessert: Die Verlaufstabelle
+  im Dashboard lief auf schmalen Bildschirmen über den Rand hinaus (jetzt
+  in einem eigenen scrollbaren Container statt die ganze Seite zu
+  verbreitern); zweispaltige Formularfelder im Wizard (SSH-Port/-Benutzer
+  u. a.) brechen unter 480px jetzt auf eine Spalte um statt gequetscht zu
+  werden; Kopfzeile bricht bei Bedarf um, statt abgeschnitten zu werden.
+
 ## [0.1.19] - 2026-08-13
 
 ### Behoben

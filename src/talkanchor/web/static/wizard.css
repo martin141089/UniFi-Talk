@@ -230,6 +230,13 @@ button.secondary:disabled { opacity: 0.4; cursor: not-allowed; }
   color: var(--accent);
   border: 1px solid var(--border);
 }
+
+@media (max-width: 480px) {
+  .wizard-main { padding: 1rem; }
+  .wizard-panel { padding: 1rem; }
+  .wizard-grid-2 { grid-template-columns: 1fr; }
+  .wizard-steps li { font-size: 0.7rem; padding: 0.4rem 0.2rem; }
+}
 .wizard-golive {
   margin-top: 1.5rem;
   padding-top: 1rem;
