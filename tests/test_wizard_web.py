@@ -1,5 +1,8 @@
 from __future__ import annotations
 
+from pathlib import Path
+
+import paramiko
 from fastapi.testclient import TestClient
 
 from talkanchor.config import Settings
@@ -44,6 +47,24 @@ def test_wizard_ssh_key_written_to_disk(tmp_path, monkeypatch):
     key_path = response.json()["path"]
     with open(key_path) as fh:
         assert "FAKE-KEY-CONTENT" in fh.read()
+
+
+def test_wizard_ssh_generate_key(tmp_path, monkeypatch):
+    client, settings = make_wizard_client(tmp_path, monkeypatch)
+    response = client.post("/api/wizard/ssh-generate-key")
+    assert response.status_code == 200
+    data = response.json()
+
+    assert data["public_key"].startswith("ssh-rsa ")
+    assert "-----BEGIN RSA PRIVATE KEY-----" in data["private_key"]
+
+    key_path = Path(data["path"])
+    assert key_path.read_text() == data["private_key"]
+    assert oct(key_path.stat().st_mode)[-3:] == "600"
+
+    # the generated key round-trips through paramiko, i.e. it's actually usable
+    loaded = paramiko.RSAKey.from_private_key_file(str(key_path))
+    assert data["public_key"] == f"ssh-rsa {loaded.get_base64()} talkanchor"
 
 
 def test_wizard_known_hosts_appends(tmp_path, monkeypatch):

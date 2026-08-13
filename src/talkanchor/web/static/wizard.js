@@ -107,6 +107,29 @@ $("echo-test-btn").addEventListener("click", async () => {
 
 // -- Step 3: UniFi SSH -----------------------------------------------------
 
+$("key-generate-btn").addEventListener("click", async () => {
+  showResult("key-generate-result", "Erzeuge Schlüssel...");
+  try {
+    const data = await postJson("api/wizard/ssh-generate-key", {});
+    $("udm-key").value = data.private_key;
+    $("key-generate-pub").value = data.public_key;
+    $("key-generate-pub-row").hidden = false;
+    showResult("key-generate-result", `Gespeichert: ${data.path}`, true);
+  } catch (err) {
+    showResult("key-generate-result", err.message, false);
+  }
+});
+
+$("key-generate-pub-copy").addEventListener("click", async () => {
+  try {
+    await navigator.clipboard.writeText($("key-generate-pub").value);
+    $("key-generate-pub-copy").textContent = "Kopiert!";
+    setTimeout(() => { $("key-generate-pub-copy").textContent = "Kopieren"; }, 1500);
+  } catch {
+    $("key-generate-pub").select();
+  }
+});
+
 $("key-save-btn").addEventListener("click", async () => {
   showResult("key-save-result", "Speichere...");
   try {

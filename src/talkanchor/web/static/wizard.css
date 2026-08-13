@@ -144,6 +144,17 @@ button.secondary:disabled { opacity: 0.4; cursor: not-allowed; }
   margin-bottom: 1rem;
 }
 
+.wizard-advanced {
+  margin-top: 0.8rem;
+}
+.wizard-advanced summary {
+  cursor: pointer;
+  color: var(--muted);
+  font-size: 0.85rem;
+  margin-bottom: 0.5rem;
+}
+.wizard-advanced[open] summary { color: var(--text); }
+
 .wizard-confirm {
   margin-top: 0.5rem;
   padding: 0.8rem;

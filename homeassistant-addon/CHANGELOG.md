@@ -1,5 +1,13 @@
 # TalkAnchor-Add-on-Changelog
 
+## 0.1.8
+
+- Neuer Knopf "Schlüssel automatisch erzeugen" im SSH-Schritt des
+  Wizards: erzeugt den Schlüssel serverseitig (kein Terminal mehr nötig),
+  zeigt nur die öffentliche Zeile zum Einfügen bei UniFi. Manuelles
+  Einfügen eines eigenen Schlüssels bleibt als aufklappbare
+  "fortgeschritten"-Option erhalten.
+
 ## 0.1.7
 
 - Warnhinweis direkt am Cloudflare-Token-Feld im Wizard: der Tunnel-

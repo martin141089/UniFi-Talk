@@ -8,6 +8,22 @@ dieses Projekt folgt [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [0.1.8] - 2026-08-13
+
+### Hinzugefügt
+
+- Der SSH-Schritt im Setup-Wizard verlangte bisher, dass man sich selbst
+  (z. B. per Terminal-Add-on) einen passphrasefreien Schlüssel erzeugt,
+  den öffentlichen Teil manuell bei UniFi hinterlegt und den privaten Teil
+  zurück in den Wizard einfügt — für die meisten Nutzer zu viele manuelle
+  Schritte über mehrere Apps hinweg. Der Wizard kann den Schlüssel jetzt
+  auf Knopfdruck selbst erzeugen (RSA 3072, ohne Passphrase — TalkAnchor
+  läuft unbeaufsichtigt und könnte ohnehin nicht danach fragen) und
+  schreibt ihn direkt an den richtigen Ort; man bekommt nur noch die
+  öffentliche Zeile zum Einfügen bei UniFi zu sehen. Manuelles Einfügen
+  eines eigenen Schlüssels bleibt unter "Eigenen Schlüssel einfügen
+  (fortgeschritten)" weiterhin möglich.
+
 ## [0.1.7] - 2026-08-13
 
 ### Behoben
@@ -139,7 +155,8 @@ Erstes Alpha-Release.
 - Vollständige Testsuite für den Kern-Reconcile-Loop mit In-Memory-Fakes
   (kein echtes Netzwerk/SSH nötig).
 
-[Unreleased]: https://github.com/martin141089/UniFi-Talk/compare/v0.1.7...HEAD
+[Unreleased]: https://github.com/martin141089/UniFi-Talk/compare/v0.1.8...HEAD
+[0.1.8]: https://github.com/martin141089/UniFi-Talk/compare/v0.1.7...v0.1.8
 [0.1.7]: https://github.com/martin141089/UniFi-Talk/compare/v0.1.6...v0.1.7
 [0.1.6]: https://github.com/martin141089/UniFi-Talk/compare/v0.1.5...v0.1.6
 [0.1.5]: https://github.com/martin141089/UniFi-Talk/compare/v0.1.4...v0.1.5

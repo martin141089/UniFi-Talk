@@ -98,16 +98,41 @@
         </label>
       </div>
 
-      <label>Privater SSH-Key (Inhalt, mehrzeilig)
-        <textarea id="udm-key" rows="5" autocomplete="off" spellcheck="false" placeholder="-----BEGIN OPENSSH PRIVATE KEY-----"></textarea>
-      </label>
-      <div class="wizard-test-row">
-        <button type="button" id="key-save-btn" class="secondary">Key speichern</button>
-        <span class="wizard-result" id="key-save-result"></span>
+      <div class="wizard-substep">
+        <h3>1. SSH-Schlüssel</h3>
+        <p class="muted">
+          Am einfachsten: Schlüssel hier erzeugen lassen, kein Terminal nötig. Du bekommst danach
+          nur eine kurze öffentliche Zeile, die du bei UniFi einträgst.
+        </p>
+        <div class="wizard-test-row">
+          <button type="button" id="key-generate-btn">Schlüssel automatisch erzeugen</button>
+          <span class="wizard-result" id="key-generate-result"></span>
+        </div>
+        <div id="key-generate-pub-row" class="wizard-confirm" hidden>
+          <p class="muted">
+            Diese Zeile bei UniFi hinterlegen (UniFi Network App → Einstellungen → System →
+            Konsole-Zugriff bzw. SSH → Public Key für Benutzer "root" eintragen):
+          </p>
+          <div class="wizard-input-row">
+            <input type="text" id="key-generate-pub" readonly />
+            <button type="button" id="key-generate-pub-copy" class="secondary small">Kopieren</button>
+          </div>
+        </div>
+
+        <details class="wizard-advanced">
+          <summary>Eigenen Schlüssel einfügen (fortgeschritten)</summary>
+          <label>Privater SSH-Key (Inhalt, mehrzeilig)
+            <textarea id="udm-key" rows="5" autocomplete="off" spellcheck="false" placeholder="-----BEGIN OPENSSH PRIVATE KEY-----"></textarea>
+          </label>
+          <div class="wizard-test-row">
+            <button type="button" id="key-save-btn" class="secondary">Key speichern</button>
+            <span class="wizard-result" id="key-save-result"></span>
+          </div>
+        </details>
       </div>
 
       <div class="wizard-substep">
-        <h3>1. Host-Key abrufen &amp; bestätigen</h3>
+        <h3>2. Host-Key abrufen &amp; bestätigen</h3>
         <div class="wizard-test-row">
           <button type="button" id="keyscan-btn" class="secondary">Host-Key abrufen</button>
           <span class="wizard-result" id="keyscan-result"></span>
@@ -120,7 +145,7 @@
       </div>
 
       <div class="wizard-substep">
-        <h3>2. Sofia-Config-Pfad suchen</h3>
+        <h3>3. Sofia-Config-Pfad suchen</h3>
         <p class="muted">Setzt gespeicherten Key + bestätigten Host-Key voraus (Schritte oben).</p>
         <div class="wizard-test-row">
           <button type="button" id="discover-btn" class="secondary">Pfad suchen</button>

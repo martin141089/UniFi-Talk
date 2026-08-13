@@ -10,12 +10,14 @@ Runs as a small local web app on the same host as the polling scheduler
 from __future__ import annotations
 
 import asyncio
+import io
 import logging
 import os
 from pathlib import Path
 from typing import Any
 
 import httpx
+import paramiko
 from fastapi import BackgroundTasks, FastAPI, HTTPException, Request
 from fastapi.responses import HTMLResponse
 from fastapi.staticfiles import StaticFiles
@@ -299,6 +301,27 @@ def create_app(
         key_path.write_text(body.private_key.strip() + "\n", encoding="utf-8")
         key_path.chmod(0o600)
         return {"path": str(key_path)}
+
+    @app.post("/api/wizard/ssh-generate-key")
+    async def wizard_ssh_generate_key() -> dict[str, str]:
+        """Generate a passphrase-less keypair for the user instead of making
+        them run ssh-keygen themselves — TalkAnchor runs unattended, so a
+        passphrase-protected key would never be usable anyway. Only the
+        public half needs to leave this endpoint's response for the user to
+        copy into UniFi; the private half is written straight to disk."""
+
+        def _generate() -> tuple[str, str]:
+            key = paramiko.RSAKey.generate(3072)
+            buf = io.StringIO()
+            key.write_private_key(buf)
+            return buf.getvalue(), f"ssh-rsa {key.get_base64()} talkanchor"
+
+        private_key, public_key = await asyncio.to_thread(_generate)
+        key_path = Path(settings.unifi_talk.ssh_key_path).expanduser()
+        key_path.parent.mkdir(parents=True, exist_ok=True, mode=0o700)
+        key_path.write_text(private_key, encoding="utf-8")
+        key_path.chmod(0o600)
+        return {"path": str(key_path), "private_key": private_key, "public_key": public_key}
 
     @app.post("/api/wizard/known-hosts")
     async def wizard_known_hosts(body: KnownHostsRequest) -> dict[str, bool]:
