@@ -117,6 +117,31 @@ async def test_rollback_leaves_old_ip_as_last_known_so_it_gets_retried(state):
 
 
 @pytest.mark.asyncio
+async def test_dry_run_save_after_rollback_does_not_block_the_real_retry(state):
+    # Live-reproduced bug: a real apply fails its health check and rolls
+    # back (old_ip stays current). The operator then briefly switches to
+    # dry-run (e.g. the wizard's "save as dry-run" preview) and back to
+    # live before the next poll. The intervening dry-run event must not
+    # make the reconciler think the real target is already on new_ip.
+    target = FakeTarget(health_ok=False, rollback_ok=True)
+    source = FakeSource("a", "5.5.5.5")
+    live_reconciler = make_reconciler(state, sources=[source], target=target, dry_run=False, min_seconds=0)
+
+    first = await live_reconciler.run_once()
+    assert first.event.rolled_back is True
+    assert target.applied_ips == ["5.5.5.5"]
+
+    dry_run_reconciler = make_reconciler(state, sources=[source], target=target, dry_run=True, min_seconds=0)
+    dry_outcome = await dry_run_reconciler.run_once()
+    assert dry_outcome.event.dry_run is True
+
+    second = await live_reconciler.run_once()
+    assert second.changed is True  # not silently treated as "already applied"
+    assert second.event.dry_run is False
+    assert second.event.backup_path is not None  # a real (non-dry-run) apply happened
+
+
+@pytest.mark.asyncio
 async def test_failed_apply_is_recorded_without_health_check(state):
     target = FakeTarget(apply_ok=False)
     source = FakeSource("a", "7.7.7.7")

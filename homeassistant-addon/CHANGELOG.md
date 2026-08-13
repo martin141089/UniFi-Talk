@@ -1,5 +1,14 @@
 # TalkAnchor-Add-on-Changelog
 
+## 0.1.19
+
+- Nach einem fehlgeschlagenen scharfen Versuch (Rollback) und einer
+  danach zwischendurch als Dry-Run gespeicherten Konfiguration hielt
+  TalkAnchor die simulierte IP fälschlich für bereits auf dem Gerät
+  übernommen — der nächste scharfe Zyklus hätte nie mehr korrigierend
+  eingegriffen. Dry-Run-Speicherungen zählen jetzt nicht mehr als
+  "bereits angewendet".
+
 ## 0.1.18
 
 - "Jetzt Testlauf ausführen" im Wizard (und "Jetzt prüfen" im Dashboard)

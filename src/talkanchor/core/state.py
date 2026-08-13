@@ -39,7 +39,7 @@ class StateStore:
         self._engine = create_engine(f"sqlite:///{self._db_path}")
         SQLModel.metadata.create_all(self._engine)
 
-    def get_last_known_ip(self) -> str | None:
+    def get_last_known_ip(self, *, include_dry_run: bool = False) -> str | None:
         """The IP the target's live config currently reflects.
 
         Not simply "the newest successful write": a write can succeed and
@@ -48,11 +48,25 @@ class StateStore:
         the reconciler would see the (still-current) real IP as "unchanged"
         forever and never retry — the target would stay silently reverted
         to old_ip with no further attempts to fix it.
+
+        By default, dry-run events are excluded: they never touch the
+        target, so a dry-run save must not overwrite what we know the live
+        config actually holds (otherwise a dry-run after a
+        failed-and-rolled-back live apply would make the reconciler believe
+        the target is already correct and stop retrying, even though it's
+        still on the old IP). The reconciler passes include_dry_run=True
+        only while it is itself running in dry-run mode, so repeated
+        dry-run cycles on an unchanged IP still dedupe against each other
+        instead of re-"detecting" the same change and re-notifying every
+        poll.
         """
         with Session(self._engine) as session:
+            conditions = [ChangeEvent.apply_success == True]  # noqa: E712
+            if not include_dry_run:
+                conditions.append(ChangeEvent.dry_run == False)  # noqa: E712
             statement = (
                 select(ChangeEvent)
-                .where(ChangeEvent.apply_success == True)  # noqa: E712
+                .where(*conditions)
                 .order_by(ChangeEvent.created_at.desc())  # type: ignore[attr-defined]
                 .limit(1)
             )
@@ -85,10 +99,14 @@ class StateStore:
             return list(session.exec(statement).all())
 
     def last_change_at(self) -> datetime | None:
+        """Timestamp of the last real (non-dry-run) applied change, used to
+        rate-limit writes to the target. A dry-run save must not start this
+        clock — it never touched the target, so there's nothing to avoid
+        flapping on."""
         with Session(self._engine) as session:
             statement = (
                 select(ChangeEvent)
-                .where(ChangeEvent.apply_success == True)  # noqa: E712
+                .where(ChangeEvent.apply_success == True, ChangeEvent.dry_run == False)  # noqa: E712
                 .order_by(ChangeEvent.created_at.desc())  # type: ignore[attr-defined]
                 .limit(1)
             )

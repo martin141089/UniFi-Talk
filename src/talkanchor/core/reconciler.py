@@ -102,7 +102,7 @@ class Reconciler:
             )
             return ReconcileOutcome(checked_ip=None, changed=False, skipped_reason=str(exc))
 
-        last_known_ip = self._state.get_last_known_ip()
+        last_known_ip = self._state.get_last_known_ip(include_dry_run=self._dry_run)
         if current_ip == last_known_ip:
             logger.debug("IP unchanged (%s); nothing to do", current_ip)
             return ReconcileOutcome(checked_ip=current_ip, changed=False)

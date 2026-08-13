@@ -8,6 +8,24 @@ dieses Projekt folgt [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [0.1.19] - 2026-08-13
+
+### Behoben
+
+- **Live auf der Henschke-Instanz beobachtet:** Nach mehreren fehlgeschlagenen
+  scharfen Anwendungsversuchen (Health-Check-Fehler, Rollback) wurde die
+  Konfiguration einmal per Wizard als Dry-Run gespeichert. Der darauffolgende
+  Dry-Run-Zyklus verbuchte seine simulierte IP fälschlich als "vom Ziel
+  bereits übernommen" — `get_last_known_ip()` filterte nicht nach
+  `dry_run`. Da ein Dry-Run nie tatsächlich schreibt, hätte TalkAnchor beim
+  nächsten scharfen Zyklus fälschlich angenommen, die echte Sofia-Config sei
+  schon korrekt, obwohl sie noch auf der alten IP stand — und den nötigen
+  Korrektur-Versuch stillschweigend nie mehr unternommen.
+  `get_last_known_ip()` ignoriert Dry-Run-Events jetzt standardmäßig; nur
+  während der Reconciler selbst im Dry-Run läuft, zählen sie weiterhin (damit
+  ein reiner Dry-Run-Betrieb nicht bei jedem Zyklus erneut "Änderung erkannt"
+  meldet). Betrifft ebenso `last_change_at()` (Rate-Limit-Uhr).
+
 ## [0.1.18] - 2026-08-13
 
 ### Behoben
