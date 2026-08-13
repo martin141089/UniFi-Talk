@@ -6,7 +6,7 @@ function fmtTime(iso) {
 }
 
 async function refreshStatus() {
-  const res = await fetch("/api/status");
+  const res = await fetch("api/status");
   const data = await res.json();
 
   $("current-ip").textContent = data.current_ip || "unbekannt";
@@ -28,7 +28,7 @@ async function refreshStatus() {
 }
 
 async function refreshHistory() {
-  const res = await fetch("/api/history?limit=25");
+  const res = await fetch("api/history?limit=25");
   const rows = await res.json();
   const tbody = document.querySelector("#history-table tbody");
   tbody.innerHTML = "";
@@ -49,7 +49,7 @@ async function refreshHistory() {
 }
 
 async function refreshLogs() {
-  const res = await fetch("/api/logs");
+  const res = await fetch("api/logs");
   const lines = await res.json();
   const pre = $("live-log");
   const wasAtBottom = pre.scrollTop + pre.clientHeight >= pre.scrollHeight - 10;
@@ -63,7 +63,7 @@ async function refreshAll() {
 
 $("check-now-btn").addEventListener("click", async () => {
   $("action-result").textContent = "Prüfe...";
-  const res = await fetch("/api/check-now", { method: "POST" });
+  const res = await fetch("api/check-now", { method: "POST" });
   const data = await res.json();
   $("action-result").textContent = data.changed
     ? `Änderung erkannt: ${data.checked_ip}`
@@ -75,7 +75,7 @@ $("rollback-btn").addEventListener("click", async () => {
   if (!confirm("Wirklich auf das letzte Backup zurückrollen?")) return;
   $("action-result").textContent = "Rollback läuft...";
   try {
-    const res = await fetch("/api/rollback", { method: "POST" });
+    const res = await fetch("api/rollback", { method: "POST" });
     const data = await res.json();
     if (!res.ok) throw new Error(data.detail || "Rollback fehlgeschlagen");
     $("action-result").textContent = data.message;
@@ -99,17 +99,17 @@ async function runSetupAction(resultId, url, formatSuccess) {
 }
 
 $("keyscan-btn").addEventListener("click", () =>
-  runSetupAction("keyscan-result", "/api/setup/ssh-keyscan", (data) => data.known_hosts_entry)
+  runSetupAction("keyscan-result", "api/setup/ssh-keyscan", (data) => data.known_hosts_entry)
 );
 
 $("discover-btn").addEventListener("click", () =>
-  runSetupAction("discover-result", "/api/setup/discover-sofia", (data) =>
+  runSetupAction("discover-result", "api/setup/discover-sofia", (data) =>
     data.candidates.length ? data.candidates.join("\n") : "Keine sofia*.xml gefunden."
   )
 );
 
 $("cf-test-btn").addEventListener("click", () =>
-  runSetupAction("cf-test-result", "/api/setup/cloudflare-test", (data) => `Erkannte IP: ${data.ip}`)
+  runSetupAction("cf-test-result", "api/setup/cloudflare-test", (data) => `Erkannte IP: ${data.ip}`)
 );
 
 refreshAll();

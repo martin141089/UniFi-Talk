@@ -41,6 +41,18 @@ _WEB_DIR = Path(__file__).parent
 _SUPERVISOR_API = "http://supervisor"
 
 
+def _ingress_base(request: Request) -> str:
+    """Home Assistant's Ingress proxy serves this app under a per-install
+    path prefix (e.g. /api/hassio_ingress/<token>) it passes along via the
+    X-Ingress-Path header. Templates use this to set <base href> so that
+    static assets, links, and fetch() calls — all written as relative URLs
+    — resolve correctly under that prefix instead of 404ing against the
+    Ingress proxy's own root. Outside Ingress (standalone/Docker) the
+    header is absent and this is just "", giving the normal absolute root.
+    """
+    return request.headers.get("X-Ingress-Path", "").rstrip("/")
+
+
 def _event_to_dict(event: ChangeEvent) -> dict[str, Any]:
     return {
         "id": event.id,
@@ -149,12 +161,15 @@ def create_app(
                 "version": __version__,
                 "dry_run": settings.dry_run,
                 "poll_interval_seconds": settings.poll_interval_seconds,
+                "ingress_path": _ingress_base(request),
             },
         )
 
     @app.get("/wizard", response_class=HTMLResponse)
     async def wizard_page(request: Request) -> HTMLResponse:
-        return templates.TemplateResponse(request, "wizard.html", {"version": __version__})
+        return templates.TemplateResponse(
+            request, "wizard.html", {"version": __version__, "ingress_path": _ingress_base(request)}
+        )
 
     @app.get("/api/status")
     async def status() -> dict[str, Any]:

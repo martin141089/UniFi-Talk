@@ -8,6 +8,18 @@ dieses Projekt folgt [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [0.1.3] - 2026-08-13
+
+### Behoben
+
+- Dashboard und Setup-Wizard waren unter Home Assistants Ingress-Proxy
+  komplett ungestylt und der Wizard-Link/API-Aufrufe liefen ins Leere:
+  alle CSS-/JS-/API-Pfade waren absolut (`/static/...`, `/api/...`), was
+  unter dem Ingress-Pfadpräfix (`/api/hassio_ingress/<token>/...`) nicht
+  auflöst. Jetzt setzt das Backend `<base href>` anhand des von Home
+  Assistant gesendeten `X-Ingress-Path`-Headers, alle Links/Requests sind
+  relativ. Außerhalb von Ingress (Standalone/Docker) unverändert.
+
 ## [0.1.2] - 2026-08-12
 
 ### Hinzugefügt
@@ -72,7 +84,8 @@ Erstes Alpha-Release.
 - Vollständige Testsuite für den Kern-Reconcile-Loop mit In-Memory-Fakes
   (kein echtes Netzwerk/SSH nötig).
 
-[Unreleased]: https://github.com/martin141089/UniFi-Talk/compare/v0.1.2...HEAD
+[Unreleased]: https://github.com/martin141089/UniFi-Talk/compare/v0.1.3...HEAD
+[0.1.3]: https://github.com/martin141089/UniFi-Talk/compare/v0.1.2...v0.1.3
 [0.1.2]: https://github.com/martin141089/UniFi-Talk/compare/v0.1.1...v0.1.2
 [0.1.1]: https://github.com/martin141089/UniFi-Talk/compare/v0.1.0...v0.1.1
 [0.1.0]: https://github.com/martin141089/UniFi-Talk/releases/tag/v0.1.0

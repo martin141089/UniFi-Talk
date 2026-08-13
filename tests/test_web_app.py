@@ -32,6 +32,29 @@ def test_dashboard_renders(tmp_path):
     assert "TalkAnchor" in response.text
 
 
+def test_dashboard_uses_relative_asset_paths(tmp_path):
+    """No leading-slash hrefs/srcs — those 404 under Home Assistant Ingress,
+    which serves the app under a path prefix. See _ingress_base()."""
+    client, _ = make_client(tmp_path)
+    response = client.get("/")
+    assert 'href="/static' not in response.text
+    assert 'src="/static' not in response.text
+    assert '<base href="/" />' in response.text
+
+
+def test_dashboard_base_href_reflects_ingress_path(tmp_path):
+    client, _ = make_client(tmp_path)
+    response = client.get("/", headers={"X-Ingress-Path": "/api/hassio_ingress/sometoken"})
+    assert '<base href="/api/hassio_ingress/sometoken/" />' in response.text
+
+
+def test_wizard_page_uses_relative_asset_paths(tmp_path):
+    client, _ = make_client(tmp_path)
+    response = client.get("/wizard")
+    assert 'href="/static' not in response.text
+    assert 'src="/static' not in response.text
+
+
 def test_status_empty_initially(tmp_path):
     client, _ = make_client(tmp_path)
     response = client.get("/api/status")

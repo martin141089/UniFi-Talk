@@ -4,7 +4,8 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>TalkAnchor Dashboard</title>
-  <link rel="stylesheet" href="/static/style.css" />
+  <base href="{{ ingress_path }}/" />
+  <link rel="stylesheet" href="static/style.css" />
 </head>
 <body>
   <header class="topbar">
@@ -18,7 +19,7 @@
       <span>TalkAnchor</span>
     </div>
     <div class="badges">
-      <a href="/wizard" class="badge wizard-link">Setup-Wizard öffnen</a>
+      <a href="wizard" class="badge wizard-link">Setup-Wizard öffnen</a>
       <span id="dry-run-badge" class="badge">…</span>
       <span class="badge subtle">v{{ version }}</span>
     </div>
@@ -49,7 +50,7 @@
       <p class="muted">
         Prüft die <strong>aktuell gespeicherte</strong> Konfiguration erneut.
         Für die Ersteinrichtung den
-        <a href="/wizard">geführten Setup-Wizard</a> verwenden — der führt
+        <a href="wizard">geführten Setup-Wizard</a> verwenden — der führt
         Schritt für Schritt durch alle Werte und speichert sie direkt.
       </p>
       <div class="setup-actions">
@@ -89,6 +90,6 @@
     </section>
   </main>
 
-  <script src="/static/dashboard.js"></script>
+  <script src="static/dashboard.js"></script>
 </body>
 </html>

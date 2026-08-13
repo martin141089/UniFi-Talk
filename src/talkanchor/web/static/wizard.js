@@ -60,7 +60,7 @@ document.querySelectorAll("#step-indicator li").forEach((li) => {
 $("cf-test-btn").addEventListener("click", async () => {
   showResult("cf-test-result", "Prüfe...");
   try {
-    const data = await postJson("/api/wizard/cloudflare-test", {
+    const data = await postJson("api/wizard/cloudflare-test", {
       api_token: $("cf-token").value.trim(),
       account_id: $("cf-account").value.trim(),
       tunnel_id: $("cf-tunnel").value.trim(),
@@ -76,7 +76,7 @@ $("cf-test-btn").addEventListener("click", async () => {
 $("echo-test-btn").addEventListener("click", async () => {
   showResult("echo-test-result", "Prüfe...");
   try {
-    const data = await postJson("/api/wizard/http-echo-test", {
+    const data = await postJson("api/wizard/http-echo-test", {
       url: $("echo-url").value.trim(),
       json_field: $("echo-field").value.trim(),
     });
@@ -91,7 +91,7 @@ $("echo-test-btn").addEventListener("click", async () => {
 $("key-save-btn").addEventListener("click", async () => {
   showResult("key-save-result", "Speichere...");
   try {
-    const data = await postJson("/api/wizard/ssh-key", { private_key: $("udm-key").value });
+    const data = await postJson("api/wizard/ssh-key", { private_key: $("udm-key").value });
     showResult("key-save-result", `Gespeichert: ${data.path}`, true);
   } catch (err) {
     showResult("key-save-result", err.message, false);
@@ -104,7 +104,7 @@ $("keyscan-btn").addEventListener("click", async () => {
   showResult("keyscan-result", "Rufe Host-Key ab...");
   $("keyscan-confirm").hidden = true;
   try {
-    const data = await postJson("/api/wizard/ssh-keyscan", {
+    const data = await postJson("api/wizard/ssh-keyscan", {
       host: $("udm-host").value.trim(),
       port: Number($("udm-port").value) || 22,
     });
@@ -119,7 +119,7 @@ $("keyscan-btn").addEventListener("click", async () => {
 $("keyscan-confirm-btn").addEventListener("click", async () => {
   showResult("keyscan-confirm-result", "Übernehme...");
   try {
-    await postJson("/api/wizard/known-hosts", { entry: lastKeyscanEntry });
+    await postJson("api/wizard/known-hosts", { entry: lastKeyscanEntry });
     hostKeyConfirmed = true;
     showResult("keyscan-confirm-result", "Host-Key übernommen.", true);
   } catch (err) {
@@ -131,7 +131,7 @@ $("discover-btn").addEventListener("click", async () => {
   showResult("discover-result", "Suche...");
   $("discover-select").hidden = true;
   try {
-    const data = await postJson("/api/wizard/discover-sofia", {
+    const data = await postJson("api/wizard/discover-sofia", {
       host: $("udm-host").value.trim(),
       port: Number($("udm-port").value) || 22,
       username: $("udm-user").value.trim() || "root",
@@ -209,7 +209,7 @@ $("save-btn").addEventListener("click", async () => {
   try {
     const answers = collectAnswers();
     answers.dry_run = true;
-    const data = await postJson("/api/wizard/save", answers);
+    const data = await postJson("api/wizard/save", answers);
     showResult("save-result", data.message, true);
     $("check-now-wizard-btn").disabled = false;
     $("golive-confirm").disabled = false;
@@ -221,7 +221,7 @@ $("save-btn").addEventListener("click", async () => {
 $("check-now-wizard-btn").addEventListener("click", async () => {
   showResult("check-now-wizard-result", "Prüfe...");
   try {
-    const res = await fetch("/api/check-now", { method: "POST" });
+    const res = await fetch("api/check-now", { method: "POST" });
     const data = await res.json();
     showResult(
       "check-now-wizard-result",
@@ -243,7 +243,7 @@ $("golive-btn").addEventListener("click", async () => {
   try {
     const answers = collectAnswers();
     answers.dry_run = false;
-    const data = await postJson("/api/wizard/save", answers);
+    const data = await postJson("api/wizard/save", answers);
     showResult("golive-result", `Scharf geschaltet. ${data.message}`, true);
   } catch (err) {
     showResult("golive-result", err.message, false);

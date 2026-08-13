@@ -1,5 +1,12 @@
 # TalkAnchor-Add-on-Changelog
 
+## 0.1.3
+
+- Dashboard und Setup-Wizard waren unter Ingress komplett ungestylt und
+  der Wizard-Button/API-Aufrufe liefen ins Leere (404), weil alle
+  CSS-/JS-/API-Pfade absolut waren. Jetzt über `X-Ingress-Path` und
+  relative Pfade korrekt behoben.
+
 ## 0.1.2
 
 - Geführter Web-Setup-Wizard (`/wizard`, Button im Dashboard): führt

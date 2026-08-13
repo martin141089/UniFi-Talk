@@ -4,8 +4,9 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>TalkAnchor Setup-Wizard</title>
-  <link rel="stylesheet" href="/static/style.css" />
-  <link rel="stylesheet" href="/static/wizard.css" />
+  <base href="{{ ingress_path }}/" />
+  <link rel="stylesheet" href="static/style.css" />
+  <link rel="stylesheet" href="static/wizard.css" />
 </head>
 <body>
   <header class="topbar">
@@ -19,7 +20,7 @@
       <span>TalkAnchor Setup-Wizard</span>
     </div>
     <div class="badges">
-      <a class="badge subtle" href="/">← Zurück zum Dashboard</a>
+      <a class="badge subtle" href="./">← Zurück zum Dashboard</a>
     </div>
   </header>
 
@@ -188,6 +189,6 @@
     </nav>
   </main>
 
-  <script src="/static/wizard.js"></script>
+  <script src="static/wizard.js"></script>
 </body>
 </html>
