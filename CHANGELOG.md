@@ -8,6 +8,37 @@ dieses Projekt folgt [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [0.1.13] - 2026-08-13
+
+### Behoben
+
+- **Live-Fehler auf der Henschke-Instanz gefunden und behoben:** Nach
+  einer echten IP-Änderung schlug das Anwenden fehl mit *"Parameter(s)
+  ['ext-sip-ip', 'ext-rtp-ip'] not found in
+  /etc/freeswitch/autoload_configs/sofia.conf.xml"*. Ursache: Die
+  Sofia-Config-Suche im Wizard fand Kandidaten per Dateiname
+  (`sofia*.xml`) und traf damit nur FreeSWITCH's generische
+  Loader-Config, die selbst nie die IP-Parameter enthält — diese liegen
+  in einer separaten, beliebig benannten Profildatei (z. B.
+  `sip_profiles/external_talk.xml`), die die Loader-Config nur einbindet.
+  Die Suche durchsucht Dateien jetzt zuerst nach **Inhalt** (welche XML-
+  Datei enthält tatsächlich `ext-sip-ip`?) statt nur nach Namen; die alte
+  Namenssuche bleibt als Fallback. **Wer betroffen war:** Bitte im Wizard
+  bei "Sofia-Config-Pfad suchen" erneut suchen (jetzt korrekt) oder unter
+  UniFi Talk (SSH) den Pfad manuell prüfen — die zuletzt erkannte
+  IP-Änderung wurde nicht angewendet, UniFi Talk hatte also
+  möglicherweise noch die alte IP eingetragen.
+- Ein fehlgeschlagenes Anwenden legte trotzdem ein Remote-/Lokal-Backup
+  an, bevor der eigentliche Fehler (fehlende Parameter) erkannt wurde —
+  bei wiederholten Fehlversuchen (z. B. bei flatternder IP) sammelten
+  sich so nutzlose Backup-Dateien auf dem begrenzten Flash-Speicher der
+  UDM an. Backup wird jetzt erst unmittelbar vor dem tatsächlichen
+  Schreibvorgang angelegt.
+- Wiederkehrender `RuntimeError: Event loop is closed`-Traceback beim
+  Neustart des `talkanchor run`-Dienstes (u. a. nach jedem
+  Wizard-Speichern im Add-on) behoben — der Scheduler wurde nach dem
+  Schließen der Event-Loop statt davor heruntergefahren.
+
 ## [0.1.12] - 2026-08-13
 
 ### Hinzugefügt
@@ -215,7 +246,8 @@ Erstes Alpha-Release.
 - Vollständige Testsuite für den Kern-Reconcile-Loop mit In-Memory-Fakes
   (kein echtes Netzwerk/SSH nötig).
 
-[Unreleased]: https://github.com/martin141089/UniFi-Talk/compare/v0.1.12...HEAD
+[Unreleased]: https://github.com/martin141089/UniFi-Talk/compare/v0.1.13...HEAD
+[0.1.13]: https://github.com/martin141089/UniFi-Talk/compare/v0.1.12...v0.1.13
 [0.1.12]: https://github.com/martin141089/UniFi-Talk/compare/v0.1.11...v0.1.12
 [0.1.11]: https://github.com/martin141089/UniFi-Talk/compare/v0.1.10...v0.1.11
 [0.1.10]: https://github.com/martin141089/UniFi-Talk/compare/v0.1.9...v0.1.10

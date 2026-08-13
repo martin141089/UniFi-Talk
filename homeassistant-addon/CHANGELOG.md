@@ -1,5 +1,18 @@
 # TalkAnchor-Add-on-Changelog
 
+## 0.1.13
+
+- Live-Fehler behoben: Sofia-Config-Suche traf nur die FreeSWITCH-
+  Loader-Config statt der eigentlichen Profildatei mit den IP-Parametern
+  — Anwenden schlug deshalb fehl ("Parameter(s) ... not found"). Die
+  Suche prüft jetzt zuerst den Dateiinhalt statt nur den Dateinamen.
+  Bitte im Wizard "Sofia-Config-Pfad suchen" erneut ausführen.
+- Fehlgeschlagenes Anwenden erzeugte unnötig ein Backup, bevor der
+  eigentliche Fehler erkannt wurde — jetzt erst unmittelbar vor dem
+  Schreibvorgang.
+- Wiederkehrender Traceback beim Neustart behoben (Scheduler-Shutdown
+  lief nach dem Schließen der Event-Loop statt davor).
+
 ## 0.1.12
 
 - Neuer Schalter "Cloudflare-Tunnel-Connector-IP als Quelle verwenden" im

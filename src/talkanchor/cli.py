@@ -86,22 +86,29 @@ def run(
         scheduler.start()
         await scheduler.run_once_now()
 
-        if with_web:
-            import uvicorn
+        try:
+            if with_web:
+                import uvicorn
 
-            from talkanchor.web.app import create_app
+                from talkanchor.web.app import create_app
 
-            web_app = create_app(settings, reconciler=reconciler, config_path=config)
-            uv_config = uvicorn.Config(web_app, host=settings.web_host, port=settings.web_port, log_level="warning")
-            server = uvicorn.Server(uv_config)
-            await server.serve()
-        else:
-            await asyncio.Event().wait()
+                web_app = create_app(settings, reconciler=reconciler, config_path=config)
+                uv_config = uvicorn.Config(
+                    web_app, host=settings.web_host, port=settings.web_port, log_level="warning"
+                )
+                server = uvicorn.Server(uv_config)
+                await server.serve()
+            else:
+                await asyncio.Event().wait()
+        finally:
+            # Must happen before asyncio.run() below closes the event loop —
+            # AsyncIOScheduler.shutdown() schedules cleanup on it via
+            # call_soon_threadsafe, which raises "Event loop is closed" if
+            # called after the fact (i.e. from an outer `finally`, once
+            # asyncio.run() has already torn the loop down).
+            scheduler.shutdown()
 
-    try:
-        asyncio.run(_main())
-    finally:
-        scheduler.shutdown()
+    asyncio.run(_main())
 
 
 @app.command()

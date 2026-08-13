@@ -64,12 +64,32 @@ def discover_sofia_configs(client: paramiko.SSHClient) -> list[str]:
 
     Used by the setup wizard so the user doesn't have to know UniFi Talk's
     internal filesystem layout.
+
+    Searches by *content* first — files actually containing an
+    `ext-sip-ip` param — not just by filename. FreeSWITCH's sofia module
+    ships a generic loader config at .../autoload_configs/sofia.conf.xml
+    that matches a naive "sofia*.xml" filename search but never contains
+    the actual per-profile IP params; those live in a separately, often
+    differently-named profile file (e.g. sip_profiles/external_talk.xml)
+    that the loader config only `<X-PRE-PROCESS include>`s. Matching by
+    filename alone can surface the loader config as the only "candidate"
+    and silently point setup at a file `apply()` can never patch.
     """
+    _, stdout, _ = client.exec_command(
+        """find / -xdev -iname '*.xml' -exec grep -l 'name="ext-sip-ip"' {} + 2>/dev/null""",
+        timeout=45,
+    )
+    paths = [line.strip() for line in stdout.read().decode("utf-8", "ignore").splitlines() if line.strip()]
+    if paths:
+        return paths
+
+    # Nothing contained that exact param name (e.g. a custom/renamed
+    # param) — fall back to the old filename-based search rather than
+    # coming back empty-handed.
     _, stdout, _ = client.exec_command(
         'find / -xdev -iname "sofia*.xml" 2>/dev/null', timeout=30
     )
-    paths = [line.strip() for line in stdout.read().decode("utf-8", "ignore").splitlines() if line.strip()]
-    return paths
+    return [line.strip() for line in stdout.read().decode("utf-8", "ignore").splitlines() if line.strip()]
 
 
 def fetch_host_key(host: str, port: int, *, timeout: float = 10.0) -> str:
@@ -195,8 +215,6 @@ class UniFiTalkTarget:
                     f"Could not read {cfg.config_path} on {cfg.host}: {exc}"
                 ) from exc
 
-            backup_path = self._backup(client, sftp, cfg.config_path, original_text)
-
             patched_text, sip_found = _patch_param(original_text, cfg.ext_sip_ip_param, new_ip)
             patched_text, rtp_found = _patch_param(patched_text, cfg.ext_rtp_ip_param, new_ip)
             if not sip_found or not rtp_found:
@@ -210,6 +228,12 @@ class UniFiTalkTarget:
                     "differ from what was discovered during setup — re-run `talkanchor setup "
                     "--discover` to confirm the path."
                 )
+
+            # Only back up once we know there's actually something to write —
+            # taking one on every failed cycle (e.g. a wrong config_path)
+            # would pile up useless backups on the UDM's limited flash on
+            # every retry.
+            backup_path = self._backup(client, sftp, cfg.config_path, original_text)
 
             with sftp.open(cfg.config_path, "w") as fh:
                 fh.write(patched_text.encode("utf-8"))
