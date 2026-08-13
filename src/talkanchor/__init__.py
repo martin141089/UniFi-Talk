@@ -1,3 +1,3 @@
 """TalkAnchor: keeps UniFi Talk anchored to your current dynamic public IP."""
 
-__version__ = "0.1.5"
+__version__ = "0.1.6"

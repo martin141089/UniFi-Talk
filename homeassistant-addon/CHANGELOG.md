@@ -1,5 +1,14 @@
 # TalkAnchor-Add-on-Changelog
 
+## 0.1.6
+
+- "Anzeigen"-Knopf neben dem Cloudflare-Token-Feld im Wizard, um die
+  Eingabe bei Bedarf im Klartext zu prüfen (das Feld war zuvor immer
+  maskiert, obwohl `paste`-Fehler unsichtbar blieben). Zusätzlich zeigt
+  die Fehlermeldung bei einer abgelehnten Verbindung jetzt sicher Länge,
+  Anfang/Ende und eventuelle nicht-druckbare Zeichen des empfangenen
+  Tokens.
+
 ## 0.1.5
 
 - Cloudflare-Token-Feld im Wizard erkennt jetzt automatisch, wenn versehentlich

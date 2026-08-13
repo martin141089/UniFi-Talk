@@ -89,6 +89,13 @@
   margin: 0.5rem 0 1rem;
 }
 
+.wizard-input-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.wizard-input-row input { flex: 1; }
+
 button.secondary {
   padding: 0.5rem 1rem;
   border-radius: 8px;
@@ -98,6 +105,10 @@ button.secondary {
   font-weight: 600;
   cursor: pointer;
   white-space: nowrap;
+}
+button.secondary.small {
+  padding: 0.5rem 0.7rem;
+  font-size: 0.78rem;
 }
 button.secondary:hover { background: var(--border); }
 button.secondary:disabled { opacity: 0.4; cursor: not-allowed; }

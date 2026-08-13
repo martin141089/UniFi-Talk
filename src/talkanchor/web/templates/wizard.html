@@ -40,7 +40,10 @@
         Primäre IP-Quelle. Token-Scope: <strong>Account → Cloudflare Tunnel → Read</strong>.
       </p>
       <label>Cloudflare API-Token
-        <input type="password" id="cf-token" autocomplete="off" />
+        <span class="wizard-input-row">
+          <input type="password" id="cf-token" autocomplete="off" />
+          <button type="button" id="cf-token-toggle" class="secondary small">Anzeigen</button>
+        </span>
       </label>
       <label>Account-ID
         <input type="text" id="cf-account" autocomplete="off" />

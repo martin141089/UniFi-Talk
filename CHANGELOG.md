@@ -8,6 +8,21 @@ dieses Projekt folgt [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [0.1.6] - 2026-08-13
+
+### Hinzugefügt
+
+- Die 0.1.5-Bereinigung griff auf dem echten Gerät nicht: der Token blieb
+  weiterhin bei 248 statt 40 Zeichen, enthielt also weder ein `Bearer `-
+  Präfix noch Leerraum, den man hätte abschneiden können. Da das Feld als
+  `type="password"` maskiert war, konnte niemand sehen, was tatsächlich
+  eingefügt wurde. Zwei Diagnose-Werkzeuge dafür: ein "Anzeigen"-Knopf
+  neben dem Cloudflare-Token-Feld im Wizard, der die Eingabe temporär im
+  Klartext zeigt, sowie eine serverseitige, sichere Kurzform des
+  empfangenen Tokens in der Fehlermeldung (Länge, erste/letzte 6 Zeichen,
+  Hinweis auf nicht-druckbare Zeichen) — ohne den Token vollständig
+  preiszugeben.
+
 ## [0.1.5] - 2026-08-13
 
 ### Behoben
@@ -110,7 +125,8 @@ Erstes Alpha-Release.
 - Vollständige Testsuite für den Kern-Reconcile-Loop mit In-Memory-Fakes
   (kein echtes Netzwerk/SSH nötig).
 
-[Unreleased]: https://github.com/martin141089/UniFi-Talk/compare/v0.1.5...HEAD
+[Unreleased]: https://github.com/martin141089/UniFi-Talk/compare/v0.1.6...HEAD
+[0.1.6]: https://github.com/martin141089/UniFi-Talk/compare/v0.1.5...v0.1.6
 [0.1.5]: https://github.com/martin141089/UniFi-Talk/compare/v0.1.4...v0.1.5
 [0.1.4]: https://github.com/martin141089/UniFi-Talk/compare/v0.1.3...v0.1.4
 [0.1.3]: https://github.com/martin141089/UniFi-Talk/compare/v0.1.2...v0.1.3

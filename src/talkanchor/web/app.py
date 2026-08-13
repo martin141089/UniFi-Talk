@@ -54,6 +54,19 @@ def _ingress_base(request: Request) -> str:
     return request.headers.get("X-Ingress-Path", "").rstrip("/")
 
 
+def _describe_token_shape(token: str) -> str:
+    """Summarize a secret's shape without revealing most of it: length, a
+    few characters at each end, and whether it contains anything outside
+    printable ASCII (a strong sign of a mangled paste — e.g. a stray
+    control character breaking HTTP header parsing).
+    """
+    control_chars = sorted({repr(ch) for ch in token if ord(ch) < 32 or ord(ch) > 126})
+    shape = f"{len(token)} Zeichen (üblich sind 40), Anfang '{token[:6]}…', Ende '…{token[-6:]}'"
+    if control_chars:
+        shape += f", enthält nicht-druckbare Zeichen: {', '.join(control_chars)}"
+    return shape
+
+
 def _event_to_dict(event: ChangeEvent) -> dict[str, Any]:
     return {
         "id": event.id,
@@ -331,7 +344,7 @@ def create_app(
             ip = await source.check()
         except IPSourceError as exc:
             token_problem = await verify_cloudflare_token(body.api_token)
-            token_len_hint = f"Erhaltener Token ist {len(body.api_token)} Zeichen lang (üblich sind 40)."
+            token_len_hint = f"Erhaltener Token: {_describe_token_shape(body.api_token)}."
             if token_problem:
                 detail = f"{token_problem} {token_len_hint}"
             else:
