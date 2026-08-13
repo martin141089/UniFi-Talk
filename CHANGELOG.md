@@ -8,6 +8,22 @@ dieses Projekt folgt [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [0.1.17] - 2026-08-13
+
+### Behoben
+
+- **Live auf der Henschke-Instanz beobachtet:** Der Health-Check schlug
+  nach jeder scharfen IP-Änderung weiterhin fehl — auch mit dem korrekten
+  Profilnamen `external_talk` und 90s Timeout. Ursache: `external_talk`
+  ist ein reines Trunk-Profil ohne eingehende SIP-Endpunkt-Registrierungen
+  (`sofia status profile external_talk` zeigt dauerhaft
+  `REGISTRATIONS: 0`). Der Health-Check fragte bisher
+  `sofia status profile <profile> reg` ab — das prüft Endpunkt-
+  Registrierungen, nicht die ausgehenden Gateway-Registrierungen zum
+  SIP-Provider (hier: Deutsche Telekom). Die tatsächlichen `REGED`-Zustände
+  stehen unter den Gateways. Health-Check fragt jetzt
+  `sofia status profile <profile> gateway` ab.
+
 ## [0.1.16] - 2026-08-13
 
 ### Behoben

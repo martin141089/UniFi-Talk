@@ -61,7 +61,7 @@ nur mit dieser einen Quelle.
 | `config_path` | — | Absoluter Pfad zur Sofia-Profil-XML auf dem UDM. Über die SSH-Discovery von `talkanchor setup` ermitteln lassen, da der Pfad firmwareabhängig und von Ubiquiti nicht dokumentiert ist. |
 | `ext_sip_ip_param` / `ext_rtp_ip_param` | `ext-sip-ip` / `ext-rtp-ip` | Die XML-`<param name="...">`-Attribute, die auf die neue IP gepatcht werden. |
 | `backup_dir_remote` | `/root/talkanchor-backups` | Remote-Verzeichnis, in das vor jedem Schreibzugriff Backups kopiert werden. |
-| `health_check_timeout_seconds` | `30` | Wie lange `sofia status profile <profile> reg` nach einer scharfen Änderung auf einen gesunden `REGED`-Status abgefragt wird, bevor aufgegeben und zurückgerollt wird. |
+| `health_check_timeout_seconds` | `30` | Wie lange `sofia status profile <profile> gateway` nach einer scharfen Änderung auf einen gesunden `REGED`-Status abgefragt wird, bevor aufgegeben und zurückgerollt wird. |
 | `expected_registrations` | `[]` | Optionale Liste von Strings (z. B. Gateway-Namen), die alle `REGED` zeigen müssen, damit der Health-Check besteht. Wenn leer, prüft TalkAnchor nur, ob *irgendeine* Registrierung `REGED` ist. |
 
 Vor der ersten SSH-Verbindung den Host-Key des UDM hinzufügen:

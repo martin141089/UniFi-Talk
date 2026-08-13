@@ -324,7 +324,7 @@ class UniFiTalkTarget:
             last_output = ""
             while time.monotonic() < deadline:
                 status, out, _err = self._run(
-                    client, f'fs_cli -x "sofia status profile {shlex.quote(cfg.sofia_profile)} reg"'
+                    client, f'fs_cli -x "sofia status profile {shlex.quote(cfg.sofia_profile)} gateway"'
                 )
                 last_output = out
                 if status == 0 and self._registrations_ok(out, cfg.expected_registrations):

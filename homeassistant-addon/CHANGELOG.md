@@ -1,5 +1,16 @@
 # TalkAnchor-Add-on-Changelog
 
+## 0.1.17
+
+- Health-Check schlug nach jeder scharfen IP-Änderung fehl, obwohl der
+  Patch selbst erfolgreich war — auch mit korrektem Profilnamen und 90s
+  Timeout. Ursache: Das Profil ist ein reines Trunk-Profil ohne
+  eingehende SIP-Endpunkt-Registrierungen (`sofia status profile
+  <profil>` zeigt dauerhaft `REGISTRATIONS: 0`); die eigentlichen
+  `REGED`-Zustände stehen unter den Gateway-Registrierungen zum
+  SIP-Provider. Health-Check prüft jetzt `sofia status profile <profil>
+  gateway` statt `... reg`.
+
 ## 0.1.16
 
 - Nach einem per Health-Check ausgelösten Rollback hielt TalkAnchor die
