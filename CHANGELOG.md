@@ -8,6 +8,24 @@ dieses Projekt folgt [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [0.1.9] - 2026-08-13
+
+### Behoben
+
+- Die Sofia-Config-Suche schlug live mit "encountered RSA key, expected
+  OPENSSH key" fehl, obwohl der neu erzeugte RSA-Schlüssel selbst
+  einwandfrei war. Ursache: Paramiko probiert für dieselbe Schlüsseldatei
+  nacheinander RSA-, ECDSA- und Ed25519-Klassen durch; lehnt der Server
+  die Public-Key-Authentifizierung ab (z. B. weil der öffentliche
+  Schlüssel nicht korrekt auf dem UniFi-Gerät hinterlegt wurde), bleibt
+  am Ende nur die komplett irreführende Formatfehler-Meldung der
+  *letzten* durchprobierten Klasse übrig — hat mit dem eigentlichen
+  Problem nichts zu tun. `connect_ssh()` erkennt dieses Muster jetzt und
+  gibt stattdessen eine klare Meldung aus: Authentifizierung wurde
+  abgelehnt, bitte prüfen, ob der öffentliche Schlüssel vollständig und
+  korrekt bei UniFi hinterlegt ist (die rohe Paramiko-Meldung bleibt für
+  Debugging-Zwecke erhalten).
+
 ## [0.1.8] - 2026-08-13
 
 ### Hinzugefügt
@@ -155,7 +173,8 @@ Erstes Alpha-Release.
 - Vollständige Testsuite für den Kern-Reconcile-Loop mit In-Memory-Fakes
   (kein echtes Netzwerk/SSH nötig).
 
-[Unreleased]: https://github.com/martin141089/UniFi-Talk/compare/v0.1.8...HEAD
+[Unreleased]: https://github.com/martin141089/UniFi-Talk/compare/v0.1.9...HEAD
+[0.1.9]: https://github.com/martin141089/UniFi-Talk/compare/v0.1.8...v0.1.9
 [0.1.8]: https://github.com/martin141089/UniFi-Talk/compare/v0.1.7...v0.1.8
 [0.1.7]: https://github.com/martin141089/UniFi-Talk/compare/v0.1.6...v0.1.7
 [0.1.6]: https://github.com/martin141089/UniFi-Talk/compare/v0.1.5...v0.1.6

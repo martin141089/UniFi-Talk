@@ -1,5 +1,14 @@
 # TalkAnchor-Add-on-Changelog
 
+## 0.1.9
+
+- Klarere Fehlermeldung, wenn UniFi die SSH-Authentifizierung ablehnt:
+  vorher zeigte Paramiko irreführend einen "falsches Schlüsselformat"-
+  Fehler (z. B. "encountered RSA key, expected OPENSSH key"), obwohl der
+  Schlüssel technisch in Ordnung war — das eigentliche Problem ist fast
+  immer, dass der öffentliche Schlüssel nicht korrekt bei UniFi hinterlegt
+  wurde. Wird jetzt erkannt und klar benannt.
+
 ## 0.1.8
 
 - Neuer Knopf "Schlüssel automatisch erzeugen" im SSH-Schritt des

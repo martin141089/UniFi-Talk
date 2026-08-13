@@ -1,7 +1,13 @@
 from __future__ import annotations
 
+import io
+
+import paramiko
+import pytest
+
 from talkanchor.config import UniFiTalkTargetConfig
-from talkanchor.targets.unifi_talk import UniFiTalkTarget, _patch_param
+from talkanchor.targets.base import ConfigTargetError
+from talkanchor.targets.unifi_talk import UniFiTalkTarget, _patch_param, connect_ssh
 
 SAMPLE_XML = """<profile name="external_talk">
   <settings>
@@ -47,3 +53,31 @@ def test_rollback_dry_run_never_connects(tmp_path):
 
     result = target.rollback("/backups/x.xml.bak", dry_run=True)
     assert result.success is True
+
+
+def test_connect_ssh_explains_paramikos_misleading_rejected_auth_message(tmp_path, monkeypatch):
+    # Paramiko tries RSA, then ECDSA, then Ed25519 against the same key
+    # file; if the server rejects public-key auth outright (e.g. the
+    # public key isn't actually in authorized_keys), the exception that
+    # survives is the *last* class's unrelated "wrong key format" parse
+    # error, not the real "authentication failed" reason. connect_ssh()
+    # should translate that specific pattern into an actionable message.
+    key = paramiko.RSAKey.generate(2048)
+    buf = io.StringIO()
+    key.write_private_key(buf)
+    key_path = tmp_path / "id_rsa"
+    key_path.write_text(buf.getvalue())
+    key_path.chmod(0o600)
+
+    def fake_connect(self, **kwargs):
+        raise paramiko.SSHException("encountered RSA key, expected OPENSSH key")
+
+    monkeypatch.setattr(paramiko.SSHClient, "connect", fake_connect)
+
+    with pytest.raises(ConfigTargetError) as exc_info:
+        connect_ssh(host="udm.example.internal", port=22, username="root", key_path=str(key_path))
+
+    detail = str(exc_info.value)
+    assert "abgelehnt" in detail
+    assert "vollständige, exakte öffentliche Schlüssel" in detail
+    assert "encountered RSA key, expected OPENSSH key" in detail  # raw message kept for debugging

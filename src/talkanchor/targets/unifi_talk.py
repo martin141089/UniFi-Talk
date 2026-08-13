@@ -115,6 +115,23 @@ def connect_ssh(*, host: str, port: int, username: str, key_path: str) -> parami
             look_for_keys=False,
         )
     except paramiko.SSHException as exc:
+        message = str(exc)
+        # Paramiko tries every key class (RSA, ECDSA, Ed25519) against the
+        # same key_filename in turn; if the server rejects public-key auth
+        # outright, every class after the first "succeeds at parsing, fails
+        # at auth" attempt still gets tried, and the exception that survives
+        # is whichever class's file-format mismatch happened last — a
+        # completely misleading message that has nothing to do with the
+        # real problem (rejected auth) once you're past the first class.
+        if "encountered" in message and "expected" in message and message.endswith("key"):
+            raise ConfigTargetError(
+                f"SSH-Authentifizierung zu {host} wurde abgelehnt (paramiko meldet dies "
+                f"irreführend als Schlüsselformat-Fehler: '{message}' — das ist praktisch "
+                f"immer ein Zeichen, dass die Authentifizierung selbst fehlschlägt, nicht "
+                f"dass der Schlüssel falsch formatiert ist). Bitte prüfen: Ist der "
+                f"vollständige, exakte öffentliche Schlüssel in den SSH-Einstellungen des "
+                f"UniFi-Geräts für den Benutzer '{username}' hinterlegt?"
+            ) from exc
         raise ConfigTargetError(
             f"SSH connection to {host} failed: {exc}. If this is the first connection, "
             f"fetch the host key first (setup helper, or `ssh-keyscan -H {host} "
