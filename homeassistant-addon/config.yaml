@@ -1,5 +1,5 @@
 name: TalkAnchor
-version: "0.1.4"
+version: "0.1.5"
 slug: talkanchor
 description: Hält UniFi Talk verankert an deiner aktuellen dynamischen öffentlichen IP.
 url: https://github.com/martin141089/UniFi-Talk

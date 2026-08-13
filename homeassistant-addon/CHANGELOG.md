@@ -1,5 +1,12 @@
 # TalkAnchor-Add-on-Changelog
 
+## 0.1.5
+
+- Cloudflare-Token-Feld im Wizard erkennt jetzt automatisch, wenn versehentlich
+  mehr als der reine Token eingefügt wurde (z. B. Cloudflares eigenes
+  curl-Beispiel drumherum) und extrahiert nur den Token daraus; verbleibender
+  Leerraum/Zeilenumbrüche werden zusätzlich entfernt.
+
 ## 0.1.4
 
 - Cloudflare-Verbindungstest im Setup-Wizard liefert jetzt eine genaue

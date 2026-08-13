@@ -57,11 +57,23 @@ document.querySelectorAll("#step-indicator li").forEach((li) => {
 
 // -- Step 1: Cloudflare -------------------------------------------------
 
+// Cloudflare tokens never contain whitespace. Users sometimes paste more
+// than the token itself (e.g. the whole "curl -H 'Authorization: Bearer
+// <token>' ..." example Cloudflare shows next to it), which breaks the
+// Authorization header entirely. Extract just the token in that case,
+// otherwise strip any accidental whitespace/newlines from the paste.
+function sanitizeCloudflareToken(raw) {
+  const trimmed = raw.trim();
+  const bearerMatch = trimmed.match(/Bearer\s+([A-Za-z0-9_\-.]+)/i);
+  if (bearerMatch) return bearerMatch[1];
+  return trimmed.replace(/\s+/g, "");
+}
+
 $("cf-test-btn").addEventListener("click", async () => {
   showResult("cf-test-result", "Prüfe...");
   try {
     const data = await postJson("api/wizard/cloudflare-test", {
-      api_token: $("cf-token").value.trim(),
+      api_token: sanitizeCloudflareToken($("cf-token").value),
       account_id: $("cf-account").value.trim(),
       tunnel_id: $("cf-tunnel").value.trim(),
     });
@@ -168,7 +180,7 @@ function collectAnswers() {
     dry_run: true,
     poll_interval_seconds: Number($("poll-interval").value) || 300,
     min_seconds_between_changes: Number($("min-seconds").value) || 300,
-    cloudflare_api_token: $("cf-token").value.trim(),
+    cloudflare_api_token: sanitizeCloudflareToken($("cf-token").value),
     cloudflare_account_id: $("cf-account").value.trim(),
     cloudflare_tunnel_id: $("cf-tunnel").value.trim(),
     http_echo_url: $("echo-url").value.trim(),

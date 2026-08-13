@@ -8,6 +8,20 @@ dieses Projekt folgt [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [0.1.5] - 2026-08-13
+
+### Behoben
+
+- Der neue Diagnose-Hinweis aus 0.1.4 zeigte live auf einem echten Gerät
+  sofort die Ursache: ein eingefügter Cloudflare-Token war 248 statt der
+  üblichen 40 Zeichen lang und wurde von Cloudflare mit "Invalid format
+  for Authorization header" abgelehnt — typischerweise weil beim Kopieren
+  mehr als der Token selbst erfasst wird (z. B. Cloudflares eigenes
+  curl-Beispiel mit `Authorization: Bearer <token>` drumherum). Der Wizard
+  erkennt jetzt ein eingebettetes `Bearer <token>`-Muster und extrahiert
+  daraus automatisch nur den Token; verbleibender Text wird zusätzlich von
+  jeglichem Leerraum/Zeilenumbrüchen bereinigt, bevor er gesendet wird.
+
 ## [0.1.4] - 2026-08-13
 
 ### Hinzugefügt
@@ -96,7 +110,8 @@ Erstes Alpha-Release.
 - Vollständige Testsuite für den Kern-Reconcile-Loop mit In-Memory-Fakes
   (kein echtes Netzwerk/SSH nötig).
 
-[Unreleased]: https://github.com/martin141089/UniFi-Talk/compare/v0.1.4...HEAD
+[Unreleased]: https://github.com/martin141089/UniFi-Talk/compare/v0.1.5...HEAD
+[0.1.5]: https://github.com/martin141089/UniFi-Talk/compare/v0.1.4...v0.1.5
 [0.1.4]: https://github.com/martin141089/UniFi-Talk/compare/v0.1.3...v0.1.4
 [0.1.3]: https://github.com/martin141089/UniFi-Talk/compare/v0.1.2...v0.1.3
 [0.1.2]: https://github.com/martin141089/UniFi-Talk/compare/v0.1.1...v0.1.2
