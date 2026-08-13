@@ -97,6 +97,52 @@ def test_wizard_cloudflare_test(tmp_path, monkeypatch):
     assert response.json()["ip"] == "198.51.100.9"
 
 
+def test_wizard_cloudflare_test_diagnoses_invalid_token(tmp_path, monkeypatch):
+    import talkanchor.web.app as app_module
+    from talkanchor.sources.base import IPSourceError
+
+    async def fake_check(self):
+        raise IPSourceError("Cloudflare API returned HTTP 400: ...9106...")
+
+    async def fake_verify_token(api_token, **kwargs):
+        return "Cloudflare lehnt den Token selbst ab (HTTP 400): [{'code': 1000, 'message': 'Invalid API Token'}]"
+
+    monkeypatch.setattr(app_module.CloudflareTunnelSource, "check", fake_check)
+    monkeypatch.setattr(app_module, "verify_cloudflare_token", fake_verify_token)
+    client, _ = make_wizard_client(tmp_path, monkeypatch)
+    response = client.post(
+        "/api/wizard/cloudflare-test",
+        json={"api_token": "short-token", "account_id": "acc", "tunnel_id": "tun"},
+    )
+    assert response.status_code == 502
+    detail = response.json()["detail"]
+    assert "lehnt den Token selbst ab" in detail
+    assert "11 Zeichen" in detail
+
+
+def test_wizard_cloudflare_test_diagnoses_permission_issue(tmp_path, monkeypatch):
+    import talkanchor.web.app as app_module
+    from talkanchor.sources.base import IPSourceError
+
+    async def fake_check(self):
+        raise IPSourceError("Cloudflare API reported failure: [...]")
+
+    async def fake_verify_token(api_token, **kwargs):
+        return None
+
+    monkeypatch.setattr(app_module.CloudflareTunnelSource, "check", fake_check)
+    monkeypatch.setattr(app_module, "verify_cloudflare_token", fake_verify_token)
+    client, _ = make_wizard_client(tmp_path, monkeypatch)
+    response = client.post(
+        "/api/wizard/cloudflare-test",
+        json={"api_token": "valid-token", "account_id": "acc", "tunnel_id": "tun"},
+    )
+    assert response.status_code == 502
+    detail = response.json()["detail"]
+    assert "gültig, aber der Zugriff" in detail
+    assert "acc" in detail and "tun" in detail
+
+
 def test_wizard_http_echo_test(tmp_path, monkeypatch):
     import talkanchor.web.app as app_module
 

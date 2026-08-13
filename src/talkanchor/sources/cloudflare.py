@@ -77,3 +77,37 @@ class CloudflareTunnelSource:
             )
 
         return unique_ips.pop()
+
+
+async def verify_token(
+    api_token: str,
+    *,
+    base_url: str = CLOUDFLARE_API_BASE,
+    timeout_seconds: float = 10.0,
+) -> str | None:
+    """Check the token itself via Cloudflare's `/user/tokens/verify` endpoint.
+
+    This needs no account/tunnel ID, so it isolates "the token is bad" from
+    "the token is fine but lacks access to this account/tunnel" when the
+    connections check above fails with an authentication error.
+
+    Returns None if the token verifies as active, otherwise a short reason.
+    """
+    url = f"{base_url.rstrip('/')}/user/tokens/verify"
+    headers = {"Authorization": f"Bearer {api_token}"}
+    async with httpx.AsyncClient(timeout=timeout_seconds) as client:
+        try:
+            response = await client.get(url, headers=headers)
+        except httpx.HTTPError as exc:
+            return f"Verify-Anfrage an Cloudflare fehlgeschlagen: {exc}"
+
+    try:
+        payload = response.json()
+    except ValueError:
+        payload = None
+
+    if response.status_code == 200 and isinstance(payload, dict) and payload.get("success"):
+        return None
+
+    errors = payload.get("errors") if isinstance(payload, dict) else response.text[:200]
+    return f"Cloudflare lehnt den Token selbst ab (HTTP {response.status_code}): {errors}"

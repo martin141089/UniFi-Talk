@@ -30,6 +30,7 @@ from talkanchor.core.reconciler import Reconciler
 from talkanchor.core.state import ChangeEvent, StateStore
 from talkanchor.sources.base import IPSourceError
 from talkanchor.sources.cloudflare import CloudflareTunnelSource
+from talkanchor.sources.cloudflare import verify_token as verify_cloudflare_token
 from talkanchor.sources.http_echo import HttpEchoSource
 from talkanchor.targets.base import ConfigTargetError
 from talkanchor.targets.unifi_talk import connect_ssh, discover_sofia_configs, fetch_host_key
@@ -329,7 +330,18 @@ def create_app(
         try:
             ip = await source.check()
         except IPSourceError as exc:
-            raise HTTPException(status_code=502, detail=str(exc)) from exc
+            token_problem = await verify_cloudflare_token(body.api_token)
+            token_len_hint = f"Erhaltener Token ist {len(body.api_token)} Zeichen lang (üblich sind 40)."
+            if token_problem:
+                detail = f"{token_problem} {token_len_hint}"
+            else:
+                detail = (
+                    f"Der API-Token ist bei Cloudflare gültig, aber der Zugriff auf Account-ID "
+                    f"'{body.account_id}' / Tunnel-ID '{body.tunnel_id}' schlägt fehl. Bitte IDs und den "
+                    f"Berechtigungs-Scope des Tokens (Account → Cloudflare Tunnel → Read, richtiger Account "
+                    f"unter 'Account Resources') prüfen. Ursprünglicher Fehler: {exc}"
+                )
+            raise HTTPException(status_code=502, detail=detail) from exc
         return {"ip": ip}
 
     @app.post("/api/wizard/http-echo-test")

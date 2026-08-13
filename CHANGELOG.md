@@ -8,6 +8,18 @@ dieses Projekt folgt [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [0.1.4] - 2026-08-13
+
+### Hinzugefügt
+
+- Der Cloudflare-Verbindungstest im Setup-Wizard unterscheidet jetzt klar
+  zwischen zwei Fehlerursachen: Cloudflare lehnt den API-Token selbst ab
+  (per `/user/tokens/verify` geprüft, inkl. Zeichenlänge des empfangenen
+  Tokens als Copy-Paste-Sanity-Check) oder der Token ist gültig, hat aber
+  keinen Zugriff auf die angegebene Account-/Tunnel-ID. Vorher zeigte der
+  Wizard nur die rohe Cloudflare-Fehlermeldung (z. B. Code 9106) ohne
+  diese Einordnung.
+
 ## [0.1.3] - 2026-08-13
 
 ### Behoben
@@ -84,7 +96,8 @@ Erstes Alpha-Release.
 - Vollständige Testsuite für den Kern-Reconcile-Loop mit In-Memory-Fakes
   (kein echtes Netzwerk/SSH nötig).
 
-[Unreleased]: https://github.com/martin141089/UniFi-Talk/compare/v0.1.3...HEAD
+[Unreleased]: https://github.com/martin141089/UniFi-Talk/compare/v0.1.4...HEAD
+[0.1.4]: https://github.com/martin141089/UniFi-Talk/compare/v0.1.3...v0.1.4
 [0.1.3]: https://github.com/martin141089/UniFi-Talk/compare/v0.1.2...v0.1.3
 [0.1.2]: https://github.com/martin141089/UniFi-Talk/compare/v0.1.1...v0.1.2
 [0.1.1]: https://github.com/martin141089/UniFi-Talk/compare/v0.1.0...v0.1.1

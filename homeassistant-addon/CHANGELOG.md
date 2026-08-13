@@ -1,5 +1,12 @@
 # TalkAnchor-Add-on-Changelog
 
+## 0.1.4
+
+- Cloudflare-Verbindungstest im Setup-Wizard liefert jetzt eine genaue
+  Diagnose statt der rohen Cloudflare-Fehlermeldung: unterscheidet
+  "Token selbst ungültig" (inkl. Zeichenlänge zur Copy-Paste-Prüfung) von
+  "Token gültig, aber kein Zugriff auf Account-/Tunnel-ID".
+
 ## 0.1.3
 
 - Dashboard und Setup-Wizard waren unter Ingress komplett ungestylt und
