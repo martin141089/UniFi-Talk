@@ -1,5 +1,13 @@
 # TalkAnchor-Add-on-Changelog
 
+## 0.1.7
+
+- Warnhinweis direkt am Cloudflare-Token-Feld im Wizard: der Tunnel-
+  Connector-Token aus `cloudflared tunnel run --token …` (beginnt meist
+  mit `eyJ…`) ist NICHT das gesuchte API-Token. Erklärt den Unterschied
+  und verlinkt den richtigen Weg (My Profile → API Tokens → Create
+  Token).
+
 ## 0.1.6
 
 - "Anzeigen"-Knopf neben dem Cloudflare-Token-Feld im Wizard, um die

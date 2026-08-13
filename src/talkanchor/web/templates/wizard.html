@@ -39,6 +39,13 @@
       <p class="muted">
         Primäre IP-Quelle. Token-Scope: <strong>Account → Cloudflare Tunnel → Read</strong>.
       </p>
+      <p class="wizard-warning">
+        ⚠ Nicht der Tunnel-Token aus dem <code>cloudflared tunnel run --token …</code>-Befehl
+        (der beginnt meist mit <code>eyJ…</code>)! Das hier ist ein separater
+        <strong>API-Token</strong>, den du unter
+        <strong>dash.cloudflare.com → dein Profil-Icon → My Profile → API Tokens → Create Token</strong>
+        neu erstellst (kurzer String, ca. 40 Zeichen).
+      </p>
       <label>Cloudflare API-Token
         <span class="wizard-input-row">
           <input type="password" id="cf-token" autocomplete="off" />

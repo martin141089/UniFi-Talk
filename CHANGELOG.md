@@ -8,6 +8,20 @@ dieses Projekt folgt [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [0.1.7] - 2026-08-13
+
+### Behoben
+
+- Der neue "Anzeigen"-Knopf aus 0.1.6 löste das Rätsel sofort: der
+  eingefügte Wert begann mit `eyJhIjoi…` — das ist gar kein
+  Cloudflare-API-Token, sondern der Base64-kodierte **Tunnel-Connector-
+  Token** aus dem `cloudflared tunnel run --token …`-Befehl auf der
+  Tunnel-Erstellungsseite. Beide werden von Cloudflare "Token" genannt,
+  dienen aber komplett unterschiedlichen Zwecken (Tunnel-Authentifizierung
+  vs. REST-API-Zugriff). Der Wizard warnt jetzt direkt am Cloudflare-
+  Token-Feld explizit davor und verlinkt den korrekten Weg (My Profile →
+  API Tokens → Create Token).
+
 ## [0.1.6] - 2026-08-13
 
 ### Hinzugefügt
@@ -125,7 +139,8 @@ Erstes Alpha-Release.
 - Vollständige Testsuite für den Kern-Reconcile-Loop mit In-Memory-Fakes
   (kein echtes Netzwerk/SSH nötig).
 
-[Unreleased]: https://github.com/martin141089/UniFi-Talk/compare/v0.1.6...HEAD
+[Unreleased]: https://github.com/martin141089/UniFi-Talk/compare/v0.1.7...HEAD
+[0.1.7]: https://github.com/martin141089/UniFi-Talk/compare/v0.1.6...v0.1.7
 [0.1.6]: https://github.com/martin141089/UniFi-Talk/compare/v0.1.5...v0.1.6
 [0.1.5]: https://github.com/martin141089/UniFi-Talk/compare/v0.1.4...v0.1.5
 [0.1.4]: https://github.com/martin141089/UniFi-Talk/compare/v0.1.3...v0.1.4
