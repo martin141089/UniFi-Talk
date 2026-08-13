@@ -55,6 +55,54 @@ function clearDraft() {
 document.querySelector(".wizard-main").addEventListener("input", saveDraft);
 document.querySelector(".wizard-main").addEventListener("change", saveDraft);
 
+// -- server-side prefill ----------------------------------------------------
+// The localStorage draft above only survives in the same browser/tab; a
+// different Ingress session (e.g. reopening from the HA app vs. a browser
+// tab) or the browser clearing site data loses it even though the values
+// were genuinely saved server-side already. Fetch the already-saved config
+// as a baseline on load; loadDraft() below then overlays anything newer
+// that was typed but never saved.
+
+const PREFILL_ID_MAP = {
+  "cf-token": "cloudflare_api_token",
+  "cf-account": "cloudflare_account_id",
+  "cf-tunnel": "cloudflare_tunnel_id",
+  "echo-url": "http_echo_url",
+  "echo-field": "http_echo_json_field",
+  "udm-host": "unifi_host",
+  "udm-port": "unifi_ssh_port",
+  "udm-user": "unifi_ssh_user",
+  "udm-key": "unifi_ssh_private_key",
+  "udm-config-path": "unifi_config_path",
+  "udm-profile": "unifi_sofia_profile",
+  "udm-backup-dir": "unifi_backup_dir_remote",
+  "udm-health-timeout": "health_check_timeout_seconds",
+  "notify-channel": "notify_channel",
+  "notify-ntfy": "notify_ntfy_topic_url",
+  "notify-webhook": "notify_webhook_url",
+  "poll-interval": "poll_interval_seconds",
+  "min-seconds": "min_seconds_between_changes",
+};
+
+async function prefillFromSettings() {
+  let data;
+  try {
+    const res = await fetch("api/wizard/prefill");
+    if (!res.ok) return;
+    data = await res.json();
+  } catch {
+    return;
+  }
+  for (const [id, key] of Object.entries(PREFILL_ID_MAP)) {
+    const value = data[key];
+    if (value !== undefined && value !== "" && $(id)) $(id).value = value;
+  }
+  if (data.unifi_ssh_known_hosts_entry) {
+    lastKeyscanEntry = data.unifi_ssh_known_hosts_entry;
+    hostKeyConfirmed = true;
+  }
+}
+
 function showResult(id, text, ok) {
   const el = $(id);
   el.textContent = text;
@@ -345,5 +393,8 @@ $("golive-btn").addEventListener("click", async () => {
   }
 });
 
-loadDraft();
-renderStep();
+(async () => {
+  await prefillFromSettings();
+  loadDraft();
+  renderStep();
+})();

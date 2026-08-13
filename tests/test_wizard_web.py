@@ -49,6 +49,44 @@ def test_wizard_ssh_key_written_to_disk(tmp_path, monkeypatch):
         assert "FAKE-KEY-CONTENT" in fh.read()
 
 
+def test_wizard_prefill_returns_saved_settings(tmp_path, monkeypatch):
+    from pydantic import SecretStr
+
+    monkeypatch.setenv("HOME", str(tmp_path))
+    settings = Settings(data_dir=str(tmp_path))
+    settings.cloudflare.api_token = SecretStr("cfut_abc123")
+    settings.cloudflare.account_id = "acc-1"
+    settings.cloudflare.tunnel_id = "tun-1"
+    settings.unifi_talk.host = "192.168.1.1"
+    settings.unifi_talk.ssh_key_path = str(tmp_path / "id_rsa")
+    Path(settings.unifi_talk.ssh_key_path).write_text("PRIVATE-KEY-CONTENT")
+
+    known_hosts = tmp_path / ".ssh" / "known_hosts"
+    known_hosts.parent.mkdir(parents=True, exist_ok=True)
+    known_hosts.write_text("192.168.1.1 ssh-ed25519 AAAAfake\nother.host ssh-rsa AAAAother\n")
+
+    state = StateStore(tmp_path / "state.sqlite3")
+    reconciler = Reconciler(
+        sources=[FakeSource("a", "1.2.3.4")],
+        target=FakeTarget(),
+        notifier=FakeNotifier(),
+        state=state,
+        dry_run=True,
+        min_seconds_between_changes=300,
+    )
+    app = create_app(settings, state=state, reconciler=reconciler, config_path=str(tmp_path / "config.yaml"))
+    client = TestClient(app)
+
+    response = client.get("/api/wizard/prefill")
+    assert response.status_code == 200
+    data = response.json()
+    assert data["cloudflare_api_token"] == "cfut_abc123"
+    assert data["cloudflare_account_id"] == "acc-1"
+    assert data["cloudflare_tunnel_id"] == "tun-1"
+    assert data["unifi_ssh_private_key"] == "PRIVATE-KEY-CONTENT"
+    assert data["unifi_ssh_known_hosts_entry"] == "192.168.1.1 ssh-ed25519 AAAAfake"
+
+
 def test_wizard_ssh_generate_key(tmp_path, monkeypatch):
     client, settings = make_wizard_client(tmp_path, monkeypatch)
     response = client.post("/api/wizard/ssh-generate-key")

@@ -8,6 +8,20 @@ dieses Projekt folgt [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [0.1.11] - 2026-08-13
+
+### Behoben
+
+- Die localStorage-Autospeicherung aus 0.1.10 half nur innerhalb
+  desselben Browsers/Tabs — live bestätigt: Werte, die erfolgreich
+  gespeichert wurden (in der Add-on-Konfigurationsansicht sichtbar),
+  fehlten trotzdem beim erneuten Öffnen des Wizards (z. B. aus einer
+  anderen Ingress-Sitzung/App heraus). Der Wizard lädt beim Start jetzt
+  zusätzlich die bereits gespeicherte Konfiguration direkt vom Server
+  (`GET /api/wizard/prefill`) als Grundlage; ein vorhandener,
+  ungespeicherter lokaler Entwurf überschreibt das anschließend nur dort,
+  wo tatsächlich neuer eingegeben wurde.
+
 ## [0.1.10] - 2026-08-13
 
 ### Hinzugefügt
@@ -186,7 +200,8 @@ Erstes Alpha-Release.
 - Vollständige Testsuite für den Kern-Reconcile-Loop mit In-Memory-Fakes
   (kein echtes Netzwerk/SSH nötig).
 
-[Unreleased]: https://github.com/martin141089/UniFi-Talk/compare/v0.1.10...HEAD
+[Unreleased]: https://github.com/martin141089/UniFi-Talk/compare/v0.1.11...HEAD
+[0.1.11]: https://github.com/martin141089/UniFi-Talk/compare/v0.1.10...v0.1.11
 [0.1.10]: https://github.com/martin141089/UniFi-Talk/compare/v0.1.9...v0.1.10
 [0.1.9]: https://github.com/martin141089/UniFi-Talk/compare/v0.1.8...v0.1.9
 [0.1.8]: https://github.com/martin141089/UniFi-Talk/compare/v0.1.7...v0.1.8

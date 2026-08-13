@@ -187,6 +187,50 @@ def create_app(
             request, "wizard.html", {"version": __version__, "ingress_path": _ingress_base(request)}
         )
 
+    @app.get("/api/wizard/prefill")
+    async def wizard_prefill() -> dict[str, Any]:
+        """Already-saved config, for the wizard to pre-fill on load.
+
+        The wizard's own in-browser draft (localStorage) only survives in
+        the same browser/tab — an Ingress session in a different app/tab,
+        or the browser clearing site data, loses it even though the values
+        were genuinely saved. This gives the wizard a server-side baseline
+        to fall back to; the client-side draft (if any) still wins for
+        anything edited more recently than the last save."""
+        key_path = Path(settings.unifi_talk.ssh_key_path).expanduser()
+        private_key = key_path.read_text(encoding="utf-8") if key_path.exists() else ""
+
+        known_hosts_entry = ""
+        known_hosts_path = Path("~/.ssh/known_hosts").expanduser()
+        if known_hosts_path.exists() and settings.unifi_talk.host:
+            prefix = f"{settings.unifi_talk.host} "
+            for line in known_hosts_path.read_text(encoding="utf-8").splitlines():
+                if line.startswith(prefix):
+                    known_hosts_entry = line.strip()
+
+        return {
+            "dry_run": settings.dry_run,
+            "poll_interval_seconds": settings.poll_interval_seconds,
+            "min_seconds_between_changes": settings.min_seconds_between_changes,
+            "cloudflare_api_token": settings.cloudflare.api_token.get_secret_value(),
+            "cloudflare_account_id": settings.cloudflare.account_id,
+            "cloudflare_tunnel_id": settings.cloudflare.tunnel_id,
+            "http_echo_url": settings.http_echo.url,
+            "http_echo_json_field": settings.http_echo.json_field,
+            "unifi_host": settings.unifi_talk.host,
+            "unifi_ssh_port": settings.unifi_talk.ssh_port,
+            "unifi_ssh_user": settings.unifi_talk.ssh_user,
+            "unifi_ssh_private_key": private_key,
+            "unifi_ssh_known_hosts_entry": known_hosts_entry,
+            "unifi_sofia_profile": settings.unifi_talk.sofia_profile,
+            "unifi_config_path": settings.unifi_talk.config_path,
+            "unifi_backup_dir_remote": settings.unifi_talk.backup_dir_remote,
+            "health_check_timeout_seconds": settings.unifi_talk.health_check_timeout_seconds,
+            "notify_channel": settings.notify.channel,
+            "notify_ntfy_topic_url": settings.notify.ntfy_topic_url,
+            "notify_webhook_url": settings.notify.webhook_url,
+        }
+
     @app.get("/api/status")
     async def status() -> dict[str, Any]:
         last_ip = state.get_last_known_ip()

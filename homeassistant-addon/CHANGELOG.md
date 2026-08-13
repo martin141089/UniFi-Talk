@@ -1,5 +1,12 @@
 # TalkAnchor-Add-on-Changelog
 
+## 0.1.11
+
+- Wizard lädt beim Öffnen jetzt zusätzlich die bereits gespeicherte
+  Konfiguration direkt vom Server, nicht mehr nur aus dem lokalen
+  Browser-Entwurf — behebt fehlende Werte, wenn der Wizard aus einer
+  anderen Sitzung/App heraus erneut geöffnet wird.
+
 ## 0.1.10
 
 - Wizard-Eingaben gingen bei Neuladen/Navigation verloren, da sie erst
