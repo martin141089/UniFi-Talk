@@ -8,6 +8,30 @@ dieses Projekt folgt [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [0.1.14] - 2026-08-13
+
+### Behoben
+
+- **Live auf der Henschke-Instanz gefunden:** Nach dem Update auf 0.1.13
+  schlug die SSH-Verbindung plötzlich komplett fehl ("not a valid OPENSSH
+  private key file"), obwohl derselbe Schlüssel kurz zuvor noch
+  funktionierte. Ursache: Der gespeicherte private Schlüssel hatte all
+  seine Zeilenumbrüche verloren — vermutlich durch erneutes Speichern
+  über Home Assistants generisches Supervisor-Konfigurationsformular,
+  das `password`-Felder als einzeilige Box darstellt, auch wenn der Wert
+  (ein mehrzeiliger PEM-Schlüssel) das nicht ist. Der Schlüssel wird
+  jetzt beim Add-on-Start automatisch wieder ins korrekte 64-Zeichen-PEM-
+  Format zurückgewrappt, unabhängig davon, wie er zuletzt gespeichert
+  wurde; ergänzend ein deutlicher Hinweis in der Doku, dieses Feld nur
+  über den Wizard und nicht über das native HA-Formular zu bearbeiten.
+- Die Sofia-Config-Suche im Wizard übernahm bei mehreren gefundenen
+  Kandidaten (z. B. "internal" und "external"-Profil) bisher blind den
+  ersten — bei der Henschke-Instanz führte das zur falschen Datei
+  (`internal.xml` statt der zum konfigurierten Profilnamen passenden
+  Datei). Bevorzugt jetzt den Kandidaten, dessen Pfad den konfigurierten
+  Profilnamen enthält, und weist bei mehreren Kandidaten ausdrücklich
+  darauf hin, die Auswahl zu prüfen.
+
 ## [0.1.13] - 2026-08-13
 
 ### Behoben
@@ -246,7 +270,8 @@ Erstes Alpha-Release.
 - Vollständige Testsuite für den Kern-Reconcile-Loop mit In-Memory-Fakes
   (kein echtes Netzwerk/SSH nötig).
 
-[Unreleased]: https://github.com/martin141089/UniFi-Talk/compare/v0.1.13...HEAD
+[Unreleased]: https://github.com/martin141089/UniFi-Talk/compare/v0.1.14...HEAD
+[0.1.14]: https://github.com/martin141089/UniFi-Talk/compare/v0.1.13...v0.1.14
 [0.1.13]: https://github.com/martin141089/UniFi-Talk/compare/v0.1.12...v0.1.13
 [0.1.12]: https://github.com/martin141089/UniFi-Talk/compare/v0.1.11...v0.1.12
 [0.1.11]: https://github.com/martin141089/UniFi-Talk/compare/v0.1.10...v0.1.11

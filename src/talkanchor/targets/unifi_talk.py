@@ -52,6 +52,35 @@ _PARAM_TEMPLATE = re.compile(
     r'(<param\s+name="{param}"\s+value=")[^"]*("\s*/?>)',
 )
 
+_PEM_KEY_RE = re.compile(
+    r"(-----BEGIN [A-Z0-9 ]+ PRIVATE KEY-----)\s*(.*?)\s*(-----END [A-Z0-9 ]+ PRIVATE KEY-----)",
+    re.DOTALL,
+)
+
+
+def normalize_private_key_pem(raw: str) -> str:
+    """Re-wrap a PEM private key whose line breaks got stripped back into
+    proper 64-column PEM format; a no-op for an already well-formed key.
+
+    Generic single-line UI inputs (e.g. Home Assistant's own Supervisor
+    "Configuration" tab renders a `password`-typed schema field as a
+    single-line box, not a textarea) silently flatten a multi-line PEM
+    key into one line when re-saved through them — every following SSH
+    attempt then fails with a paramiko parse error that gives no hint
+    it's a formatting issue. Detect and fix that shape here rather than
+    relying on every place a key gets written to remember to guard
+    against it.
+    """
+    match = _PEM_KEY_RE.search(raw)
+    if not match:
+        return raw
+    header, body, footer = match.groups()
+    body = re.sub(r"\s+", "", body)
+    if not body:
+        return raw
+    wrapped = "\n".join(body[i : i + 64] for i in range(0, len(body), 64))
+    return f"{header}\n{wrapped}\n{footer}\n"
+
 
 def _patch_param(xml_text: str, param_name: str, new_value: str) -> tuple[str, bool]:
     pattern = re.compile(_PARAM_TEMPLATE.pattern.format(param=re.escape(param_name)))

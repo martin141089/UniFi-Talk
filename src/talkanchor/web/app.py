@@ -35,7 +35,7 @@ from talkanchor.sources.cloudflare import CloudflareTunnelSource
 from talkanchor.sources.cloudflare import verify_token as verify_cloudflare_token
 from talkanchor.sources.http_echo import HttpEchoSource
 from talkanchor.targets.base import ConfigTargetError
-from talkanchor.targets.unifi_talk import connect_ssh, discover_sofia_configs, fetch_host_key
+from talkanchor.targets.unifi_talk import connect_ssh, discover_sofia_configs, fetch_host_key, normalize_private_key_pem
 from talkanchor.wizard.writer import build_config_dict, write_config
 
 logger = logging.getLogger("talkanchor.web")
@@ -344,7 +344,7 @@ def create_app(
     async def wizard_ssh_key(body: SSHKeyRequest) -> dict[str, str]:
         key_path = Path(settings.unifi_talk.ssh_key_path).expanduser()
         key_path.parent.mkdir(parents=True, exist_ok=True, mode=0o700)
-        key_path.write_text(body.private_key.strip() + "\n", encoding="utf-8")
+        key_path.write_text(normalize_private_key_pem(body.private_key.strip()) + "\n", encoding="utf-8")
         key_path.chmod(0o600)
         return {"path": str(key_path)}
 

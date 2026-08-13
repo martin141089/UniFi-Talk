@@ -7,7 +7,13 @@ import pytest
 
 from talkanchor.config import UniFiTalkTargetConfig
 from talkanchor.targets.base import ConfigTargetError
-from talkanchor.targets.unifi_talk import UniFiTalkTarget, _patch_param, connect_ssh, discover_sofia_configs
+from talkanchor.targets.unifi_talk import (
+    UniFiTalkTarget,
+    _patch_param,
+    connect_ssh,
+    discover_sofia_configs,
+    normalize_private_key_pem,
+)
 
 
 class _FakeSFTPFile:
@@ -87,6 +93,40 @@ def test_patch_param_missing_param_reports_not_found():
     patched, found = _patch_param(SAMPLE_XML, "does-not-exist", "1.2.3.4")
     assert found is False
     assert patched == SAMPLE_XML
+
+
+def test_normalize_private_key_pem_leaves_well_formed_key_usable():
+    key = paramiko.RSAKey.generate(2048)
+    buf = io.StringIO()
+    key.write_private_key(buf)
+    original = buf.getvalue()
+
+    assert normalize_private_key_pem(original).replace("\n", "") == original.replace("\n", "")
+
+
+def test_normalize_private_key_pem_rewraps_flattened_key(tmp_path):
+    # Live-reproduced bug: a key that worked fine came back from Home
+    # Assistant's Supervisor options with every line break stripped (its
+    # generic Configuration tab renders password-typed fields as a
+    # single-line box), and paramiko then rejects it outright.
+    key = paramiko.RSAKey.generate(2048)
+    buf = io.StringIO()
+    key.write_private_key(buf)
+    well_formed = buf.getvalue()
+    flattened = well_formed.replace("\n", "")
+
+    fixed = normalize_private_key_pem(flattened)
+    assert "\n" in fixed
+
+    key_path = tmp_path / "id_rsa"
+    key_path.write_text(fixed)
+    loaded = paramiko.RSAKey.from_private_key_file(str(key_path))
+    assert loaded.get_base64() == key.get_base64()
+
+
+def test_normalize_private_key_pem_leaves_non_pem_input_untouched():
+    assert normalize_private_key_pem("not a key at all") == "not a key at all"
+    assert normalize_private_key_pem("") == ""
 
 
 def test_apply_dry_run_never_connects(tmp_path):

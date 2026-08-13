@@ -284,17 +284,36 @@ $("discover-btn").addEventListener("click", async () => {
       username: $("udm-user").value.trim() || "root",
     });
     if (!data.candidates.length) {
-      showResult("discover-result", "Keine sofia*.xml gefunden.", false);
+      showResult("discover-result", "Keine passende Config gefunden.", false);
       return;
     }
-    showResult("discover-result", `${data.candidates.length} Kandidat(en) gefunden:`, true);
     const select = $("discover-select");
     select.innerHTML = data.candidates.map((c) => `<option value="${c}">${c}</option>`).join("");
     select.hidden = false;
     select.onchange = () => {
       $("udm-config-path").value = select.value;
     };
-    $("udm-config-path").value = data.candidates[0];
+
+    // FreeSWITCH setups almost always have multiple profiles (internal +
+    // external, at least); blindly taking the first result risks silently
+    // picking the wrong one. Prefer a candidate whose path mentions the
+    // configured profile name — still just a heuristic, so always ask the
+    // user to double-check when there's more than one candidate.
+    const profileName = $("udm-profile").value.trim().toLowerCase();
+    const preferred = profileName && data.candidates.find((c) => c.toLowerCase().includes(profileName));
+    const picked = preferred || data.candidates[0];
+    select.value = picked;
+    $("udm-config-path").value = picked;
+
+    if (data.candidates.length > 1) {
+      showResult(
+        "discover-result",
+        `${data.candidates.length} Kandidaten gefunden, "${picked}" ${preferred ? "passt zum Profilnamen" : "wurde als erstes übernommen"} — bitte in der Liste prüfen, ob das wirklich der richtige ist.`,
+        Boolean(preferred)
+      );
+    } else {
+      showResult("discover-result", `Gefunden: ${picked}`, true);
+    }
   } catch (err) {
     showResult("discover-result", err.message, false);
   }

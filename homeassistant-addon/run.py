@@ -17,6 +17,8 @@ from pathlib import Path
 
 import yaml
 
+from talkanchor.targets.unifi_talk import normalize_private_key_pem
+
 OPTIONS_PATH = Path("/data/options.json")
 CONFIG_PATH = Path("/app/config.yaml")
 DATA_DIR = Path("/data")
@@ -31,7 +33,12 @@ def main() -> None:
     ssh_key_path = ssh_dir / "id_ed25519"
     private_key = options.get("unifi_ssh_private_key", "").strip()
     if private_key:
-        ssh_key_path.write_text(private_key + "\n")
+        # Guards against a flattened-to-one-line key — e.g. if the value
+        # was ever re-saved through Home Assistant's own generic
+        # Supervisor "Configuration" tab, which renders this password-
+        # typed field as a single-line box and silently drops the PEM
+        # line breaks on save.
+        ssh_key_path.write_text(normalize_private_key_pem(private_key) + "\n")
         ssh_key_path.chmod(0o600)
 
     known_hosts_entry = options.get("unifi_ssh_known_hosts_entry", "").strip()

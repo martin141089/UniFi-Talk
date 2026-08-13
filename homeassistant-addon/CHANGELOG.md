@@ -1,5 +1,16 @@
 # TalkAnchor-Add-on-Changelog
 
+## 0.1.14
+
+- SSH schlug nach erneutem Speichern über das native HA-Konfigurations-
+  formular fehl, weil dessen Einzeilen-Textfeld die Zeilenumbrüche des
+  privaten Schlüssels verschluckte. Wird beim Add-on-Start jetzt
+  automatisch repariert (Schlüssel korrekt neu umgebrochen); Doku
+  ergänzt, dieses Feld nur über den Wizard zu bearbeiten.
+- Sofia-Config-Suche übernahm bei mehreren Kandidaten blind den ersten
+  statt den zum konfigurierten Profilnamen passenden — jetzt bevorzugt
+  und mit Hinweis, die Auswahl zu prüfen.
+
 ## 0.1.13
 
 - Live-Fehler behoben: Sofia-Config-Suche traf nur die FreeSWITCH-

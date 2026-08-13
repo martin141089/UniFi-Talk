@@ -44,6 +44,15 @@ die Add-on-Optionen (`hassio_api: true` im Manifest) — das manuelle
 Ausfüllen des Konfigurationsformulars in den HA-Einstellungen ist nicht
 mehr nötig, kann aber weiterhin genutzt werden.
 
+**Ausnahme: `unifi_ssh_private_key` bitte nicht über das generische
+HA-Konfigurationsformular bearbeiten oder erneut speichern.** Home
+Assistants Supervisor-UI zeigt `password`-Felder als einzeilige Boxen an,
+auch wenn der Wert (ein mehrzeiliger PEM-Schlüssel) das nicht ist — beim
+Speichern über dieses Formular gehen die Zeilenumbrüche verloren und die
+SSH-Verbindung schlägt danach fehl. Diesen Wert immer über den
+Setup-Wizard setzen (Knopf "Schlüssel automatisch erzeugen" oder
+"Eigenen Schlüssel einfügen").
+
 ## Konfiguration
 
 Die folgende Tabelle ist zum Nachschlagen gedacht — der Setup-Wizard oben
