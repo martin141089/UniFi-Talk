@@ -68,7 +68,12 @@ def test_check_now_records_history(tmp_path):
     client, _ = make_client(tmp_path)
     response = client.post("/api/check-now")
     assert response.status_code == 200
-    assert response.json()["changed"] is True
+    assert response.json()["started"] is True
+
+    status = client.get("/api/check-now-status").json()
+    assert status["running"] is False
+    assert status["error"] is None
+    assert status["result"]["changed"] is True
 
     history = client.get("/api/history").json()
     assert len(history) == 1

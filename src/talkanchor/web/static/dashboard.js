@@ -61,13 +61,39 @@ async function refreshAll() {
   await Promise.all([refreshStatus(), refreshHistory(), refreshLogs()]);
 }
 
+async function pollCheckNowStatus(maxMs = 300000, intervalMs = 2000) {
+  const start = Date.now();
+  while (Date.now() - start < maxMs) {
+    const res = await fetch("api/check-now-status");
+    const data = await res.json();
+    if (!data.running) return data;
+    await new Promise((r) => setTimeout(r, intervalMs));
+  }
+  return null;
+}
+
 $("check-now-btn").addEventListener("click", async () => {
   $("action-result").textContent = "Prüfe...";
-  const res = await fetch("api/check-now", { method: "POST" });
-  const data = await res.json();
-  $("action-result").textContent = data.changed
-    ? `Änderung erkannt: ${data.checked_ip}`
-    : data.skipped_reason || `Keine Änderung (${data.checked_ip ?? "n/a"})`;
+  try {
+    const startRes = await fetch("api/check-now", { method: "POST" });
+    const startData = await startRes.json();
+    if (startData.already_running) {
+      $("action-result").textContent = "Eine Prüfung läuft bereits – warte auf Ergebnis...";
+    }
+    const status = await pollCheckNowStatus();
+    if (!status) {
+      $("action-result").textContent = "Prüfung läuft weiter im Hintergrund (dauert ungewöhnlich lange) – Verlauf oben aktualisiert sich automatisch.";
+    } else if (status.error) {
+      $("action-result").textContent = `Fehler: ${status.error}`;
+    } else {
+      const data = status.result;
+      $("action-result").textContent = data.changed
+        ? `Änderung erkannt: ${data.checked_ip}`
+        : data.skipped_reason || `Keine Änderung (${data.checked_ip ?? "n/a"})`;
+    }
+  } catch (err) {
+    $("action-result").textContent = `Fehler: ${err.message}`;
+  }
   await refreshAll();
 });
 

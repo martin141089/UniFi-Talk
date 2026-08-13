@@ -8,6 +8,23 @@ dieses Projekt folgt [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [0.1.18] - 2026-08-13
+
+### Behoben
+
+- **Live auf der Henschke-Instanz beobachtet:** "Jetzt Testlauf ausführen"
+  im Wizard warf einen kryptischen Client-Fehler ("The string did not
+  match the expected pattern"), sobald der Health-Check-Timeout hoch genug
+  eingestellt war. Ursache: `/api/check-now` hielt die HTTP-Anfrage
+  synchron offen, bis der komplette Zyklus (SSH-Verbindung, Anwenden,
+  bis zu `health_check_timeout_seconds` Sekunden Health-Check-Polling)
+  fertig war — das überschreitet zuverlässig den Timeout des HA-Ingress-
+  Proxys bzw. des Browsers selbst, die die Verbindung dann kappen und dem
+  Client eine Fehlerseite statt JSON liefern. `/api/check-now` startet den
+  Zyklus jetzt im Hintergrund und antwortet sofort; ein neuer Endpoint
+  `/api/check-now-status` liefert das Ergebnis, sobald es fertig ist.
+  Dashboard und Wizard pollen darauf und zeigen erst dann das Resultat an.
+
 ## [0.1.17] - 2026-08-13
 
 ### Behoben

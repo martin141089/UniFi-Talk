@@ -1,5 +1,15 @@
 # TalkAnchor-Add-on-Changelog
 
+## 0.1.18
+
+- "Jetzt Testlauf ausführen" im Wizard (und "Jetzt prüfen" im Dashboard)
+  brach mit einem kryptischen Browser-Fehler ab, sobald der
+  Health-Check-Timeout hoch genug eingestellt war — die Anfrage lief
+  länger als der Ingress-Proxy/Browser bereit war zu warten, die
+  Verbindung wurde gekappt. Läuft jetzt im Hintergrund; Dashboard/Wizard
+  pollen das Ergebnis, statt auf eine einzelne lang offene Anfrage zu
+  warten.
+
 ## 0.1.17
 
 - Health-Check schlug nach jeder scharfen IP-Änderung fehl, obwohl der

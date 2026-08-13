@@ -169,6 +169,8 @@ def create_app(
     app.state.state_store = state
     app.state.reconciler = active_reconciler
 
+    _check_now_state: dict[str, Any] = {"running": False, "result": None, "error": None}
+
     @app.get("/", response_class=HTMLResponse)
     async def dashboard(request: Request) -> HTMLResponse:
         return templates.TemplateResponse(
@@ -254,16 +256,42 @@ def create_app(
     async def logs() -> list[dict[str, str]]:
         return list(live_log_handler.records)
 
+    async def _run_check_now() -> None:
+        _check_now_state["running"] = True
+        _check_now_state["result"] = None
+        _check_now_state["error"] = None
+        try:
+            outcome = await active_reconciler.run_once()
+            _check_now_state["result"] = {
+                "checked_ip": outcome.checked_ip,
+                "changed": outcome.changed,
+                "rate_limited": outcome.rate_limited,
+                "skipped_reason": outcome.skipped_reason,
+                "event": _event_to_dict(outcome.event) if outcome.event else None,
+            }
+        except Exception as exc:  # noqa: BLE001 - background task, must not vanish silently
+            logger.exception("check-now failed")
+            _check_now_state["error"] = str(exc)
+        finally:
+            _check_now_state["running"] = False
+
     @app.post("/api/check-now")
-    async def check_now() -> dict[str, Any]:
-        outcome = await active_reconciler.run_once()
-        return {
-            "checked_ip": outcome.checked_ip,
-            "changed": outcome.changed,
-            "rate_limited": outcome.rate_limited,
-            "skipped_reason": outcome.skipped_reason,
-            "event": _event_to_dict(outcome.event) if outcome.event else None,
-        }
+    async def check_now(background_tasks: BackgroundTasks) -> dict[str, Any]:
+        # A full cycle (SSH connect + apply + health-check poll, which alone
+        # can take up to health_check_timeout_seconds) regularly outlives
+        # HA Ingress's/the browser's own request timeout, which then kills
+        # the connection and hands the client a non-JSON error page instead
+        # of our response. Running it in the background and letting the
+        # client poll /api/check-now-status avoids holding the request open
+        # that long.
+        if _check_now_state["running"]:
+            return {"started": False, "already_running": True}
+        background_tasks.add_task(_run_check_now)
+        return {"started": True}
+
+    @app.get("/api/check-now-status")
+    async def check_now_status() -> dict[str, Any]:
+        return dict(_check_now_state)
 
     @app.post("/api/rollback")
     async def rollback() -> dict[str, Any]:

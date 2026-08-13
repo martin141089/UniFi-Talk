@@ -378,16 +378,38 @@ $("save-btn").addEventListener("click", async () => {
   }
 });
 
+async function pollCheckNowStatus(maxMs = 300000, intervalMs = 2000) {
+  const start = Date.now();
+  while (Date.now() - start < maxMs) {
+    const res = await fetch("api/check-now-status");
+    const data = await res.json();
+    if (!data.running) return data;
+    await new Promise((r) => setTimeout(r, intervalMs));
+  }
+  return null;
+}
+
 $("check-now-wizard-btn").addEventListener("click", async () => {
   showResult("check-now-wizard-result", "Prüfe...");
   try {
-    const res = await fetch("api/check-now", { method: "POST" });
-    const data = await res.json();
-    showResult(
-      "check-now-wizard-result",
-      data.changed ? `Änderung erkannt: ${data.checked_ip}` : data.skipped_reason || `Keine Änderung (${data.checked_ip ?? "n/a"})`,
-      true
-    );
+    const startRes = await fetch("api/check-now", { method: "POST" });
+    const startData = await startRes.json();
+    if (startData.already_running) {
+      showResult("check-now-wizard-result", "Eine Prüfung läuft bereits – warte auf Ergebnis...");
+    }
+    const status = await pollCheckNowStatus();
+    if (!status) {
+      showResult("check-now-wizard-result", "Prüfung läuft weiter im Hintergrund (dauert ungewöhnlich lange).", true);
+    } else if (status.error) {
+      showResult("check-now-wizard-result", status.error, false);
+    } else {
+      const data = status.result;
+      showResult(
+        "check-now-wizard-result",
+        data.changed ? `Änderung erkannt: ${data.checked_ip}` : data.skipped_reason || `Keine Änderung (${data.checked_ip ?? "n/a"})`,
+        true
+      );
+    }
   } catch (err) {
     showResult("check-now-wizard-result", err.message, false);
   }
