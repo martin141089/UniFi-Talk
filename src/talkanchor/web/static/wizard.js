@@ -174,13 +174,6 @@ function sanitizeCloudflareToken(raw) {
   return trimmed.replace(/\s+/g, "");
 }
 
-$("cf-token-toggle").addEventListener("click", () => {
-  const field = $("cf-token");
-  const revealed = field.type === "text";
-  field.type = revealed ? "password" : "text";
-  $("cf-token-toggle").textContent = revealed ? "Anzeigen" : "Verbergen";
-});
-
 $("cf-test-btn").addEventListener("click", async () => {
   showResult("cf-test-result", "Prüfe...");
   try {

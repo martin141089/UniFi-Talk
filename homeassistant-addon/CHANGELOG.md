@@ -1,5 +1,12 @@
 # TalkAnchor-Add-on-Changelog
 
+## 0.1.15
+
+- Cloudflare-API-Token-Feld im Wizard wurde wiederholt durch ein
+  gespeichertes iOS-Passwort ersetzt (Safari ignoriert
+  `autocomplete="off"` bei `type="password"`). Feld ist jetzt normaler
+  Text statt maskiert — der "Anzeigen"-Knopf entfällt damit.
+
 ## 0.1.14
 
 - SSH schlug nach erneutem Speichern über das native HA-Konfigurations-

@@ -1,6 +1,6 @@
 [project]
 name = "talkanchor"
-version = "0.1.14"
+version = "0.1.15"
 description = "Keeps UniFi Talk anchored to your current dynamic public IP by watching your Cloudflare Tunnel and patching the Sofia SIP config over SSH when it drifts."
 readme = "README.md"
 license = { text = "MIT" }

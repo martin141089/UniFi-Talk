@@ -56,11 +56,12 @@
           <strong>dash.cloudflare.com → dein Profil-Icon → My Profile → API Tokens → Create Token</strong>
           neu erstellst (kurzer String, ca. 40 Zeichen).
         </p>
+        <!-- Deliberately type="text", not "password": iOS Safari ignores
+             autocomplete="off" on password-typed fields and repeatedly
+             offered/inserted an unrelated saved credential here, silently
+             corrupting the token. -->
         <label>Cloudflare API-Token
-          <span class="wizard-input-row">
-            <input type="password" id="cf-token" autocomplete="off" />
-            <button type="button" id="cf-token-toggle" class="secondary small">Anzeigen</button>
-          </span>
+          <input type="text" id="cf-token" autocomplete="off" spellcheck="false" />
         </label>
         <label>Account-ID
           <input type="text" id="cf-account" autocomplete="off" />

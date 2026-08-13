@@ -8,6 +8,20 @@ dieses Projekt folgt [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [0.1.15] - 2026-08-13
+
+### Behoben
+
+- **Live wiederholt beobachtet:** Das Cloudflare-API-Token-Feld im Wizard
+  wurde trotz `autocomplete="off"` mehrfach durch ein unpassendes,
+  gespeichertes Passwort ersetzt (iOS Safari ignoriert `autocomplete="off"`
+  bei `type="password"`-Feldern gezielt und bietet dort eigene
+  Passwort-Vorschläge an). Da das Feld für einen selbst gehosteten
+  Admin-Bereich ohnehin nicht wirklich geheim gehalten werden muss, ist
+  es jetzt ein normales Textfeld (kein `type="password"` mehr, kein
+  „Anzeigen"-Umschalter mehr nötig) — damit greift Safaris
+  Passwort-Vorschlag hier gar nicht erst.
+
 ## [0.1.14] - 2026-08-13
 
 ### Behoben
@@ -270,7 +284,8 @@ Erstes Alpha-Release.
 - Vollständige Testsuite für den Kern-Reconcile-Loop mit In-Memory-Fakes
   (kein echtes Netzwerk/SSH nötig).
 
-[Unreleased]: https://github.com/martin141089/UniFi-Talk/compare/v0.1.14...HEAD
+[Unreleased]: https://github.com/martin141089/UniFi-Talk/compare/v0.1.15...HEAD
+[0.1.15]: https://github.com/martin141089/UniFi-Talk/compare/v0.1.14...v0.1.15
 [0.1.14]: https://github.com/martin141089/UniFi-Talk/compare/v0.1.13...v0.1.14
 [0.1.13]: https://github.com/martin141089/UniFi-Talk/compare/v0.1.12...v0.1.13
 [0.1.12]: https://github.com/martin141089/UniFi-Talk/compare/v0.1.11...v0.1.12
