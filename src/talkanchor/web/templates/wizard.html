@@ -39,28 +39,39 @@
       <p class="muted">
         Primäre IP-Quelle. Token-Scope: <strong>Account → Cloudflare Tunnel → Read</strong>.
       </p>
-      <p class="wizard-warning">
-        ⚠ Nicht der Tunnel-Token aus dem <code>cloudflared tunnel run --token …</code>-Befehl
-        (der beginnt meist mit <code>eyJ…</code>)! Das hier ist ein separater
-        <strong>API-Token</strong>, den du unter
-        <strong>dash.cloudflare.com → dein Profil-Icon → My Profile → API Tokens → Create Token</strong>
-        neu erstellst (kurzer String, ca. 40 Zeichen).
+      <label class="wizard-toggle-row">
+        <input type="checkbox" id="cf-enabled" checked />
+        Cloudflare-Tunnel-Connector-IP als Quelle verwenden
+      </label>
+      <p class="muted">
+        Deaktivieren, falls der Tunnel keine eindeutige IP liefern kann — z. B. bei Multi-WAN-
+        Setups, wo derselbe Tunnel gleichzeitig über mehrere Leitungen verbunden ist. TalkAnchor
+        läuft dann allein mit der Fallback-Quelle (nächster Schritt) weiter.
       </p>
-      <label>Cloudflare API-Token
-        <span class="wizard-input-row">
-          <input type="password" id="cf-token" autocomplete="off" />
-          <button type="button" id="cf-token-toggle" class="secondary small">Anzeigen</button>
-        </span>
-      </label>
-      <label>Account-ID
-        <input type="text" id="cf-account" autocomplete="off" />
-      </label>
-      <label>Tunnel-ID
-        <input type="text" id="cf-tunnel" autocomplete="off" />
-      </label>
-      <div class="wizard-test-row">
-        <button type="button" id="cf-test-btn" class="secondary">Verbindung testen</button>
-        <span class="wizard-result" id="cf-test-result"></span>
+      <div id="cf-fields">
+        <p class="wizard-warning">
+          ⚠ Nicht der Tunnel-Token aus dem <code>cloudflared tunnel run --token …</code>-Befehl
+          (der beginnt meist mit <code>eyJ…</code>)! Das hier ist ein separater
+          <strong>API-Token</strong>, den du unter
+          <strong>dash.cloudflare.com → dein Profil-Icon → My Profile → API Tokens → Create Token</strong>
+          neu erstellst (kurzer String, ca. 40 Zeichen).
+        </p>
+        <label>Cloudflare API-Token
+          <span class="wizard-input-row">
+            <input type="password" id="cf-token" autocomplete="off" />
+            <button type="button" id="cf-token-toggle" class="secondary small">Anzeigen</button>
+          </span>
+        </label>
+        <label>Account-ID
+          <input type="text" id="cf-account" autocomplete="off" />
+        </label>
+        <label>Tunnel-ID
+          <input type="text" id="cf-tunnel" autocomplete="off" />
+        </label>
+        <div class="wizard-test-row">
+          <button type="button" id="cf-test-btn" class="secondary">Verbindung testen</button>
+          <span class="wizard-result" id="cf-test-result"></span>
+        </div>
       </div>
     </section>
 

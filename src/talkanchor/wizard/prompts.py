@@ -51,16 +51,27 @@ def run_wizard(config_path: str = "config.yaml") -> None:
     answers: dict[str, Any] = {}
 
     console.rule("Cloudflare Tunnel (primäre IP-Quelle)")
-    console.print(
-        "Erstelle ein API-Token mit minimalem Scope: [bold]Account -> Cloudflare Tunnel -> Read[/bold]."
-    )
-    answers["cloudflare_api_token"] = questionary.password("Cloudflare API-Token:").ask() or ""
-    answers["cloudflare_account_id"] = questionary.text(
-        "Cloudflare Account-ID:", validate=_non_empty
+    answers["cloudflare_enabled"] = questionary.confirm(
+        "Cloudflare-Tunnel-Connector-IP als Quelle verwenden? (Nein, falls z. B. der Tunnel "
+        "mehrere WAN-Leitungen gleichzeitig bedient und daher keine eindeutige IP liefert — "
+        "dann läuft TalkAnchor nur mit der Fallback-Quelle unten.)",
+        default=True,
     ).ask()
-    answers["cloudflare_tunnel_id"] = questionary.text(
-        "Cloudflare Tunnel-ID:", validate=_non_empty
-    ).ask()
+    if answers["cloudflare_enabled"]:
+        console.print(
+            "Erstelle ein API-Token mit minimalem Scope: [bold]Account -> Cloudflare Tunnel -> Read[/bold]."
+        )
+        answers["cloudflare_api_token"] = questionary.password("Cloudflare API-Token:").ask() or ""
+        answers["cloudflare_account_id"] = questionary.text(
+            "Cloudflare Account-ID:", validate=_non_empty
+        ).ask()
+        answers["cloudflare_tunnel_id"] = questionary.text(
+            "Cloudflare Tunnel-ID:", validate=_non_empty
+        ).ask()
+    else:
+        answers["cloudflare_api_token"] = ""
+        answers["cloudflare_account_id"] = ""
+        answers["cloudflare_tunnel_id"] = ""
 
     console.rule("Fallback IP-Quelle (Plausibilitätsprüfung)")
     answers["http_echo_url"] = questionary.text(
@@ -221,7 +232,8 @@ def _print_summary(config_dict: dict[str, Any]) -> None:
     table.add_column("Wert")
     table.add_row("Dry-Run", "AN (Standard)")
     cf = config_dict["cloudflare"]
-    table.add_row("Cloudflare Account/Tunnel", f"{cf['account_id']} / {cf['tunnel_id']}")
+    cf_value = f"{cf['account_id']} / {cf['tunnel_id']}" if cf["enabled"] else "deaktiviert"
+    table.add_row("Cloudflare Account/Tunnel", cf_value)
     table.add_row("Fallback-Quelle", config_dict["http_echo"]["url"])
     table.add_row("UniFi Host", config_dict["unifi_talk"]["host"])
     table.add_row("Sofia-Profil", config_dict["unifi_talk"]["sofia_profile"])

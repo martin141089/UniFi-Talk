@@ -44,6 +44,7 @@ def main() -> None:
         "min_seconds_between_changes": options.get("min_seconds_between_changes", 300),
         "data_dir": str(DATA_DIR),
         "cloudflare": {
+            "enabled": options.get("cloudflare_enabled", True),
             "api_token": options.get("cloudflare_api_token", ""),
             "account_id": options.get("cloudflare_account_id", ""),
             "tunnel_id": options.get("cloudflare_tunnel_id", ""),

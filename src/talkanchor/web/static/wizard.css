@@ -96,6 +96,15 @@
 }
 .wizard-input-row input { flex: 1; }
 
+.wizard-toggle-row {
+  display: flex !important;
+  align-items: center;
+  gap: 0.6rem;
+  font-weight: 600;
+  margin: 0.8rem 0 0.3rem;
+}
+.wizard-toggle-row input { width: auto; }
+
 .wizard-warning {
   background: rgba(255, 200, 87, 0.1);
   border: 1px solid var(--warning);

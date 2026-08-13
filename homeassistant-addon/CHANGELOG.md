@@ -1,5 +1,13 @@
 # TalkAnchor-Add-on-Changelog
 
+## 0.1.12
+
+- Neuer Schalter "Cloudflare-Tunnel-Connector-IP als Quelle verwenden" im
+  Wizard und als Option (`cloudflare_enabled`). Lässt sich ausschalten,
+  wenn der Tunnel (z. B. bei Multi-WAN) strukturell nie eine eindeutige
+  IP liefern kann — TalkAnchor läuft dann bewusst nur mit der
+  Fallback-Quelle, ohne die Cloudflare-Zugangsdaten löschen zu müssen.
+
 ## 0.1.11
 
 - Wizard lädt beim Öffnen jetzt zusätzlich die bereits gespeicherte

@@ -22,16 +22,19 @@ Unterstrich (`__`) für verschachtelte Felder, z. B.
 
 ## `cloudflare` — primäre IP-Quelle
 
-| Schlüssel | Beschreibung |
-|---|---|
-| `api_token` | Cloudflare-API-Token. Minimaler Scope: **Account → Cloudflare Tunnel → Read**. |
-| `account_id` | Deine Cloudflare-Account-ID. |
-| `tunnel_id` | Die ID des Tunnels, dessen Connector-IP verfolgt werden soll. |
+| Schlüssel | Standard | Beschreibung |
+|---|---|---|
+| `enabled` | `true` | Cloudflare überhaupt als Quelle nutzen. Auf `false` setzen, wenn der Tunnel strukturell nie eine eindeutige IP liefern kann (z. B. ein Tunnel, der gleichzeitig über mehrere WAN-Leitungen verbunden ist) — TalkAnchor läuft dann allein mit `http_echo`, ohne `api_token`/`account_id`/`tunnel_id` löschen zu müssen. |
+| `api_token` | — | Cloudflare-API-Token. Minimaler Scope: **Account → Cloudflare Tunnel → Read**. |
+| `account_id` | — | Deine Cloudflare-Account-ID. |
+| `tunnel_id` | — | Die ID des Tunnels, dessen Connector-IP verfolgt werden soll. |
 
 TalkAnchor ruft `GET /accounts/{account_id}/cfd_tunnel/{tunnel_id}/connections`
 auf und liest die `origin_ip` jedes aktiven Connectors aus. Wenn sich
-Connectors uneinig sind (kann während eines Failovers passieren),
-verweigert TalkAnchor in diesem Zyklus eine Aktion, statt zu raten.
+Connectors uneinig sind (kann während eines Failovers passieren, oder
+dauerhaft bei einem über mehrere WAN-Leitungen verbundenen Tunnel),
+verweigert TalkAnchor in diesem Zyklus eine Aktion, statt zu raten — in
+letzterem Fall hilft nur `enabled: false`.
 
 ## `http_echo` — Fallback-IP-Quelle
 
@@ -40,9 +43,11 @@ verweigert TalkAnchor in diesem Zyklus eine Aktion, statt zu raten.
 | `url` | `https://api.ipify.org?format=json` | Beliebiger „Was ist meine IP"-HTTP-Endpunkt. |
 | `json_field` | `ip` | JSON-Feld, das die IP enthält. Leer lassen, um den gesamten Antworttext als Klartext zu behandeln. |
 
-Beide Quellen müssen bei der aktuellen IP übereinstimmen, bevor TalkAnchor
-handelt — das ist die Plausibilitätsprüfung, die vor einer einzelnen
-fehlerhaften Quelle schützt.
+Sind beide Quellen aktiv (Cloudflare `enabled` und vollständig konfiguriert),
+müssen sie bei der aktuellen IP übereinstimmen, bevor TalkAnchor handelt —
+das ist die Plausibilitätsprüfung, die vor einer einzelnen fehlerhaften
+Quelle schützt. Mit `cloudflare.enabled: false` läuft TalkAnchor bewusst
+nur mit dieser einen Quelle.
 
 ## `unifi_talk` — SSH-Ziel
 

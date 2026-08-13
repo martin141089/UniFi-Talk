@@ -17,6 +17,13 @@ NotifyChannel = Literal["ntfy", "webhook", "email", "none"]
 
 
 class CloudflareSourceConfig(BaseSettings):
+    enabled: bool = Field(
+        default=True,
+        description="Use the Cloudflare Tunnel connector IP as a source at all. Some tunnels "
+        "(e.g. shared with another service, or spanning a multi-WAN setup) can never report a "
+        "single unambiguous IP; disable this to run on http_echo alone instead of permanently "
+        "failing the Cloudflare check.",
+    )
     api_token: SecretStr = Field(
         default=SecretStr(""), description="Cloudflare API token (Zone:Read / Tunnel:Read scope)"
     )

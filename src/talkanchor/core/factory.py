@@ -20,7 +20,7 @@ from talkanchor.targets.unifi_talk import UniFiTalkTarget
 def build_sources(settings: Settings) -> list[IPSource]:
     sources: list[IPSource] = []
     cf = settings.cloudflare
-    if cf.api_token.get_secret_value() and cf.account_id and cf.tunnel_id:
+    if cf.enabled and cf.api_token.get_secret_value() and cf.account_id and cf.tunnel_id:
         sources.append(
             CloudflareTunnelSource(
                 api_token=cf.api_token.get_secret_value(),

@@ -54,6 +54,7 @@ def test_wizard_prefill_returns_saved_settings(tmp_path, monkeypatch):
 
     monkeypatch.setenv("HOME", str(tmp_path))
     settings = Settings(data_dir=str(tmp_path))
+    settings.cloudflare.enabled = False
     settings.cloudflare.api_token = SecretStr("cfut_abc123")
     settings.cloudflare.account_id = "acc-1"
     settings.cloudflare.tunnel_id = "tun-1"
@@ -80,6 +81,7 @@ def test_wizard_prefill_returns_saved_settings(tmp_path, monkeypatch):
     response = client.get("/api/wizard/prefill")
     assert response.status_code == 200
     data = response.json()
+    assert data["cloudflare_enabled"] is False
     assert data["cloudflare_api_token"] == "cfut_abc123"
     assert data["cloudflare_account_id"] == "acc-1"
     assert data["cloudflare_tunnel_id"] == "tun-1"
@@ -269,7 +271,12 @@ def test_wizard_save_uses_supervisor_api_when_token_present(tmp_path, monkeypatc
 
     response = client.post(
         "/api/wizard/save",
-        json={"dry_run": True, "unifi_host": "udm.local", "notify_channel": "none"},
+        json={
+            "dry_run": True,
+            "cloudflare_enabled": False,
+            "unifi_host": "udm.local",
+            "notify_channel": "none",
+        },
     )
     assert response.status_code == 200
     assert response.json()["mode"] == "supervisor"
@@ -277,3 +284,4 @@ def test_wizard_save_uses_supervisor_api_when_token_present(tmp_path, monkeypatc
     # may follow via BackgroundTasks — only the first call is asserted on.
     assert calls[0]["url"] == "http://supervisor/addons/self/options"
     assert calls[0]["json"]["options"]["unifi_host"] == "udm.local"
+    assert calls[0]["json"]["options"]["cloudflare_enabled"] is False

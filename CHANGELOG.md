@@ -8,6 +8,21 @@ dieses Projekt folgt [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [0.1.12] - 2026-08-13
+
+### Hinzugefügt
+
+- Neuer Schalter **"Cloudflare-Tunnel-Connector-IP als Quelle verwenden"**
+  im Setup-Wizard (Schritt 1) und als Konfigurationsoption
+  (`cloudflare_enabled`, Standard: an). Manche Cloudflare-Tunnel können
+  strukturell nie eine eindeutige IP liefern — z. B. wenn derselbe Tunnel
+  gleichzeitig über mehrere WAN-Leitungen verbunden ist (Multi-WAN).
+  Bisher blieb der Cloudflare-Verbindungstest in so einem Fall dauerhaft
+  rot, ohne Möglichkeit, das bewusst zu übergehen, ohne die eingegebenen
+  Zugangsdaten zu löschen. Der neue Schalter lässt Cloudflare komplett
+  aus (TalkAnchor läuft dann allein mit der Fallback-Quelle), ohne Token/
+  Account-/Tunnel-ID zu verlieren.
+
 ## [0.1.11] - 2026-08-13
 
 ### Behoben
@@ -200,7 +215,8 @@ Erstes Alpha-Release.
 - Vollständige Testsuite für den Kern-Reconcile-Loop mit In-Memory-Fakes
   (kein echtes Netzwerk/SSH nötig).
 
-[Unreleased]: https://github.com/martin141089/UniFi-Talk/compare/v0.1.11...HEAD
+[Unreleased]: https://github.com/martin141089/UniFi-Talk/compare/v0.1.12...HEAD
+[0.1.12]: https://github.com/martin141089/UniFi-Talk/compare/v0.1.11...v0.1.12
 [0.1.11]: https://github.com/martin141089/UniFi-Talk/compare/v0.1.10...v0.1.11
 [0.1.10]: https://github.com/martin141089/UniFi-Talk/compare/v0.1.9...v0.1.10
 [0.1.9]: https://github.com/martin141089/UniFi-Talk/compare/v0.1.8...v0.1.9

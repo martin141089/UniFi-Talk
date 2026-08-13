@@ -21,6 +21,7 @@ def build_config_dict(answers: dict[str, Any]) -> dict[str, Any]:
         "min_seconds_between_changes": answers["min_seconds_between_changes"],
         "data_dir": answers.get("data_dir", "./data"),
         "cloudflare": {
+            "enabled": answers.get("cloudflare_enabled", True),
             "api_token": answers["cloudflare_api_token"],
             "account_id": answers["cloudflare_account_id"],
             "tunnel_id": answers["cloudflare_tunnel_id"],

@@ -120,6 +120,7 @@ class WizardSaveRequest(BaseModel):
     dry_run: bool = True
     poll_interval_seconds: int = 300
     min_seconds_between_changes: int = 300
+    cloudflare_enabled: bool = True
     cloudflare_api_token: str = ""
     cloudflare_account_id: str = ""
     cloudflare_tunnel_id: str = ""
@@ -212,6 +213,7 @@ def create_app(
             "dry_run": settings.dry_run,
             "poll_interval_seconds": settings.poll_interval_seconds,
             "min_seconds_between_changes": settings.min_seconds_between_changes,
+            "cloudflare_enabled": settings.cloudflare.enabled,
             "cloudflare_api_token": settings.cloudflare.api_token.get_secret_value(),
             "cloudflare_account_id": settings.cloudflare.account_id,
             "cloudflare_tunnel_id": settings.cloudflare.tunnel_id,
@@ -443,6 +445,7 @@ def create_app(
                 "dry_run": body.dry_run,
                 "poll_interval_seconds": body.poll_interval_seconds,
                 "min_seconds_between_changes": body.min_seconds_between_changes,
+                "cloudflare_enabled": body.cloudflare_enabled,
                 "cloudflare_api_token": body.cloudflare_api_token,
                 "cloudflare_account_id": body.cloudflare_account_id,
                 "cloudflare_tunnel_id": body.cloudflare_tunnel_id,
@@ -485,6 +488,7 @@ def create_app(
             "poll_interval_seconds": body.poll_interval_seconds,
             "min_seconds_between_changes": body.min_seconds_between_changes,
             "data_dir": settings.data_dir,
+            "cloudflare_enabled": body.cloudflare_enabled,
             "cloudflare_api_token": body.cloudflare_api_token,
             "cloudflare_account_id": body.cloudflare_account_id,
             "cloudflare_tunnel_id": body.cloudflare_tunnel_id,

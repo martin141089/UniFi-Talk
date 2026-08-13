@@ -53,7 +53,8 @@ ist der empfohlene Weg, sie auszufüllen.
 |---|---|
 | `dry_run` | Auf `true` lassen, bis ein paar Zyklen im Log geprüft wurden. |
 | `poll_interval_seconds` / `min_seconds_between_changes` | Wie in der eigenständigen Konfiguration — siehe [CONFIGURATION.md](../CONFIGURATION.md). |
-| `cloudflare_api_token` / `cloudflare_account_id` / `cloudflare_tunnel_id` | Cloudflare-Tunnel-Connector-IP-Quelle. Token-Scope: Account → Cloudflare Tunnel → Read. |
+| `cloudflare_enabled` | Cloudflare als IP-Quelle nutzen (Standard: an). Bei Tunneln, die strukturell keine eindeutige IP liefern können (z. B. Multi-WAN-Setups mit mehreren gleichzeitig verbundenen Leitungen), auf `false` setzen — TalkAnchor läuft dann allein mit `http_echo_url`. |
+| `cloudflare_api_token` / `cloudflare_account_id` / `cloudflare_tunnel_id` | Cloudflare-Tunnel-Connector-IP-Quelle. Token-Scope: Account → Cloudflare Tunnel → Read. Nur relevant, wenn `cloudflare_enabled` an ist. |
 | `http_echo_url` | Fallback-IP-Quelle. |
 | `unifi_host` / `unifi_ssh_port` / `unifi_ssh_user` | SSH-Verbindungsdetails zum UDM. |
 | `unifi_ssh_private_key` | Den Inhalt des **privaten** Keys direkt einfügen (mehrzeilig). Nur Key-Auth — es gibt keine Passwort-Option. |

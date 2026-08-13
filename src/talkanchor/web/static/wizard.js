@@ -21,7 +21,7 @@ const DRAFT_FIELD_IDS = [
 ];
 
 function saveDraft() {
-  const draft = { currentStep, hostKeyConfirmed, lastKeyscanEntry };
+  const draft = { currentStep, hostKeyConfirmed, lastKeyscanEntry, "cf-enabled": $("cf-enabled").checked };
   for (const id of DRAFT_FIELD_IDS) {
     const el = $(id);
     if (el) draft[id] = el.value;
@@ -42,10 +42,10 @@ function loadDraft() {
   for (const id of DRAFT_FIELD_IDS) {
     if (draft[id] !== undefined && $(id)) $(id).value = draft[id];
   }
+  if (draft["cf-enabled"] !== undefined) $("cf-enabled").checked = draft["cf-enabled"];
   if (draft.currentStep) currentStep = draft.currentStep;
   if (draft.hostKeyConfirmed) hostKeyConfirmed = draft.hostKeyConfirmed;
   if (draft.lastKeyscanEntry) lastKeyscanEntry = draft.lastKeyscanEntry;
-  $("notify-channel").dispatchEvent(new Event("change"));
 }
 
 function clearDraft() {
@@ -97,11 +97,16 @@ async function prefillFromSettings() {
     const value = data[key];
     if (value !== undefined && value !== "" && $(id)) $(id).value = value;
   }
+  if (data.cloudflare_enabled !== undefined) $("cf-enabled").checked = data.cloudflare_enabled;
   if (data.unifi_ssh_known_hosts_entry) {
     lastKeyscanEntry = data.unifi_ssh_known_hosts_entry;
     hostKeyConfirmed = true;
   }
 }
+
+$("cf-enabled").addEventListener("change", () => {
+  $("cf-fields").hidden = !$("cf-enabled").checked;
+});
 
 function showResult(id, text, ok) {
   const el = $(id);
@@ -310,6 +315,7 @@ function collectAnswers() {
     dry_run: true,
     poll_interval_seconds: Number($("poll-interval").value) || 300,
     min_seconds_between_changes: Number($("min-seconds").value) || 300,
+    cloudflare_enabled: $("cf-enabled").checked,
     cloudflare_api_token: sanitizeCloudflareToken($("cf-token").value),
     cloudflare_account_id: $("cf-account").value.trim(),
     cloudflare_tunnel_id: $("cf-tunnel").value.trim(),
@@ -333,7 +339,7 @@ function collectAnswers() {
 function renderSummary() {
   const a = collectAnswers();
   const rows = [
-    ["Cloudflare Account/Tunnel", `${a.cloudflare_account_id || "–"} / ${a.cloudflare_tunnel_id || "–"}`],
+    ["Cloudflare", a.cloudflare_enabled ? `${a.cloudflare_account_id || "–"} / ${a.cloudflare_tunnel_id || "–"}` : "deaktiviert"],
     ["Fallback-Quelle", a.http_echo_url],
     ["UniFi Host", a.unifi_host || "–"],
     ["SSH-Host-Key übernommen", hostKeyConfirmed ? "ja" : "nein"],
@@ -396,5 +402,7 @@ $("golive-btn").addEventListener("click", async () => {
 (async () => {
   await prefillFromSettings();
   loadDraft();
+  $("notify-channel").dispatchEvent(new Event("change"));
+  $("cf-enabled").dispatchEvent(new Event("change"));
   renderStep();
 })();

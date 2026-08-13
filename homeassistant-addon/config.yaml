@@ -1,5 +1,5 @@
 name: TalkAnchor
-version: "0.1.11"
+version: "0.1.12"
 slug: talkanchor
 description: Hält UniFi Talk verankert an deiner aktuellen dynamischen öffentlichen IP.
 url: https://github.com/martin141089/UniFi-Talk
@@ -19,6 +19,7 @@ options:
   dry_run: true
   poll_interval_seconds: 300
   min_seconds_between_changes: 300
+  cloudflare_enabled: true
   cloudflare_api_token: ""
   cloudflare_account_id: ""
   cloudflare_tunnel_id: ""
@@ -39,6 +40,7 @@ schema:
   dry_run: bool
   poll_interval_seconds: int(30,)
   min_seconds_between_changes: int(0,)
+  cloudflare_enabled: bool
   cloudflare_api_token: password?
   cloudflare_account_id: str?
   cloudflare_tunnel_id: str?

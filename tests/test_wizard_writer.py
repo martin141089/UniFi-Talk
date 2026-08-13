@@ -38,6 +38,20 @@ def test_build_config_dict_roundtrips_through_settings(tmp_path):
     assert settings.dry_run is True
 
 
+def test_build_config_dict_defaults_cloudflare_enabled_true():
+    config_dict = build_config_dict(SAMPLE_ANSWERS)
+    assert config_dict["cloudflare"]["enabled"] is True
+
+
+def test_build_config_dict_respects_cloudflare_enabled_false(tmp_path):
+    answers = {**SAMPLE_ANSWERS, "cloudflare_enabled": False}
+    config_dict = build_config_dict(answers)
+    config_path = write_config(config_dict, tmp_path / "config.yaml")
+
+    settings = load_settings(config_path)
+    assert settings.cloudflare.enabled is False
+
+
 def test_write_config_sets_restrictive_permissions(tmp_path):
     config_dict = build_config_dict(SAMPLE_ANSWERS)
     config_path = write_config(config_dict, tmp_path / "config.yaml")
