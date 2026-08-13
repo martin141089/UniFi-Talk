@@ -40,6 +40,15 @@ class StateStore:
         SQLModel.metadata.create_all(self._engine)
 
     def get_last_known_ip(self) -> str | None:
+        """The IP the target's live config currently reflects.
+
+        Not simply "the newest successful write": a write can succeed and
+        then get rolled back moments later because the post-write health
+        check failed. If we kept treating that write's new_ip as current,
+        the reconciler would see the (still-current) real IP as "unchanged"
+        forever and never retry — the target would stay silently reverted
+        to old_ip with no further attempts to fix it.
+        """
         with Session(self._engine) as session:
             statement = (
                 select(ChangeEvent)
@@ -48,7 +57,9 @@ class StateStore:
                 .limit(1)
             )
             event = session.exec(statement).first()
-            return event.new_ip if event else None
+            if event is None:
+                return None
+            return event.old_ip if event.rolled_back else event.new_ip
 
     def record_change(self, event: ChangeEvent) -> ChangeEvent:
         with Session(self._engine) as session:

@@ -97,6 +97,26 @@ async def test_failed_health_check_triggers_rollback(state):
 
 
 @pytest.mark.asyncio
+async def test_rollback_leaves_old_ip_as_last_known_so_it_gets_retried(state):
+    # Live-reproduced bug: apply() succeeds (the write itself worked) but
+    # the health check then fails and rollback restores old_ip. The next
+    # cycle sees the same detected IP again and must treat that as a
+    # change to retry, not as "already applied" — the live config is back
+    # on old_ip, not new_ip, even though this event's apply_success=True.
+    target = FakeTarget(health_ok=False, rollback_ok=True)
+    source = FakeSource("a", "5.5.5.5")
+    reconciler = make_reconciler(state, sources=[source], target=target, dry_run=False, min_seconds=0)
+
+    first = await reconciler.run_once()
+    assert first.event.rolled_back is True
+    assert target.applied_ips == ["5.5.5.5"]
+
+    second = await reconciler.run_once()
+    assert second.changed is True  # not silently treated as "no change"
+    assert target.applied_ips == ["5.5.5.5", "5.5.5.5"]  # retried
+
+
+@pytest.mark.asyncio
 async def test_failed_apply_is_recorded_without_health_check(state):
     target = FakeTarget(apply_ok=False)
     source = FakeSource("a", "7.7.7.7")

@@ -8,6 +8,22 @@ dieses Projekt folgt [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [0.1.16] - 2026-08-13
+
+### Behoben
+
+- **Live auf der Henschke-Instanz beobachtet:** Der Patch auf die neue IP
+  gelang, der anschließende Health-Check sah aber innerhalb von 30s keine
+  gesunde Registrierung und TalkAnchor rollte korrekt zurück (genau wie
+  vorgesehen). Dabei zeigte sich aber ein Folgefehler: `get_last_known_ip()`
+  zählte den Schreibvorgang trotz Rollback weiterhin als "zuletzt bekannte
+  IP", weil es nur auf `apply_success` prüfte, nicht auf `rolled_back`.
+  Der nächste Zyklus sah dieselbe erkannte IP und hielt sie fälschlich für
+  bereits übernommen — TalkAnchor hätte den zurückgerollten Zustand (mit
+  der alten, ggf. nicht mehr aktuellen IP) nie wieder von selbst korrigiert.
+  Nach einem zurückgerollten Schreibvorgang zählt jetzt wieder die alte IP
+  als aktuell, sodass der nächste Zyklus den Patch-Versuch erneut probiert.
+
 ## [0.1.15] - 2026-08-13
 
 ### Behoben
@@ -284,7 +300,8 @@ Erstes Alpha-Release.
 - Vollständige Testsuite für den Kern-Reconcile-Loop mit In-Memory-Fakes
   (kein echtes Netzwerk/SSH nötig).
 
-[Unreleased]: https://github.com/martin141089/UniFi-Talk/compare/v0.1.15...HEAD
+[Unreleased]: https://github.com/martin141089/UniFi-Talk/compare/v0.1.16...HEAD
+[0.1.16]: https://github.com/martin141089/UniFi-Talk/compare/v0.1.15...v0.1.16
 [0.1.15]: https://github.com/martin141089/UniFi-Talk/compare/v0.1.14...v0.1.15
 [0.1.14]: https://github.com/martin141089/UniFi-Talk/compare/v0.1.13...v0.1.14
 [0.1.13]: https://github.com/martin141089/UniFi-Talk/compare/v0.1.12...v0.1.13

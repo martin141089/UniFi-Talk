@@ -1,5 +1,12 @@
 # TalkAnchor-Add-on-Changelog
 
+## 0.1.16
+
+- Nach einem per Health-Check ausgelösten Rollback hielt TalkAnchor die
+  (verworfene) neue IP fälschlich weiterhin für "bereits übernommen" und
+  hätte den zurückgerollten Zustand nie wieder von selbst korrigiert.
+  Der nächste Zyklus versucht den Patch jetzt wieder erneut.
+
 ## 0.1.15
 
 - Cloudflare-API-Token-Feld im Wizard wurde wiederholt durch ein
