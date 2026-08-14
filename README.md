@@ -86,7 +86,8 @@ eigentliche Mehrwert, nicht nur eine einmalige Reparatur.
 **[Live-Demo →](https://martin141089.github.io/UniFi-Talk/)** (statisch,
 Beispieldaten — kein Backend, wird aus `web-demo/` deployed; setzt voraus,
 dass GitHub Pages einmalig unter *Settings → Pages → Source: GitHub
-Actions* aktiviert wurde).
+Actions* aktiviert wurde) · **[Dokumentation →](https://martin141089.github.io/UniFi-Talk/dokumentation.html)**
+(Problem, Funktionsweise, Sicherheitskonzept und Schnellstart im Überblick).
 
 ## Funktionen
 
