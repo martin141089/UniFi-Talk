@@ -151,6 +151,18 @@ th { color: var(--muted); font-weight: 600; }
 .ok { color: var(--accent); }
 .bad { color: var(--danger); }
 
+button.secondary {
+  padding: 0.5rem 1rem;
+  margin-top: 0.8rem;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--accent);
+  font-weight: 600;
+  cursor: pointer;
+}
+button.secondary:hover { background: var(--border); }
+
 .setup-actions {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));

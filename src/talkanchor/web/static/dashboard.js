@@ -27,9 +27,15 @@ async function refreshStatus() {
   }
 }
 
+const HISTORY_INITIAL_COUNT = 3;
+const HISTORY_PAGE_SIZE = 10;
+const HISTORY_FETCH_LIMIT = 90;
+let historyVisibleCount = HISTORY_INITIAL_COUNT;
+
 async function refreshHistory() {
-  const res = await fetch("api/history?limit=25");
-  const rows = await res.json();
+  const res = await fetch(`api/history?limit=${HISTORY_FETCH_LIMIT}`);
+  const allRows = await res.json();
+  const rows = allRows.slice(0, historyVisibleCount);
   const tbody = document.querySelector("#history-table tbody");
   tbody.innerHTML = "";
   for (const row of rows) {
@@ -46,7 +52,17 @@ async function refreshHistory() {
     `;
     tbody.appendChild(tr);
   }
+
+  const loadMoreBtn = $("history-load-more-btn");
+  const remaining = allRows.length - rows.length;
+  loadMoreBtn.hidden = remaining <= 0;
+  loadMoreBtn.textContent = `Weitere Verläufe laden (${remaining})`;
 }
+
+$("history-load-more-btn").addEventListener("click", () => {
+  historyVisibleCount += HISTORY_PAGE_SIZE;
+  refreshHistory();
+});
 
 async function refreshLogs() {
   const res = await fetch("api/logs");

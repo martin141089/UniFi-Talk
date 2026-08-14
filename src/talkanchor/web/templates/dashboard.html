@@ -46,6 +46,21 @@
     </section>
 
     <section class="panel">
+      <h2>Verlauf</h2>
+      <div class="table-scroll">
+        <table id="history-table">
+          <thead>
+            <tr>
+              <th>Zeit</th><th>Alt → Neu</th><th>Dry-Run</th><th>Anwenden</th><th>Health-Check</th><th>Rollback</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+      <button type="button" id="history-load-more-btn" class="secondary" hidden>Weitere Verläufe laden</button>
+    </section>
+
+    <section class="panel">
       <h2>Diagnose</h2>
       <p class="muted">
         Prüft die <strong>aktuell gespeicherte</strong> Konfiguration erneut.
@@ -69,20 +84,6 @@
           <p class="muted">Prüft die aktuell gespeicherten Cloudflare-Zugangsdaten.</p>
           <pre class="setup-result" id="cf-test-result"></pre>
         </div>
-      </div>
-    </section>
-
-    <section class="panel">
-      <h2>Verlauf</h2>
-      <div class="table-scroll">
-        <table id="history-table">
-          <thead>
-            <tr>
-              <th>Zeit</th><th>Alt → Neu</th><th>Dry-Run</th><th>Anwenden</th><th>Health-Check</th><th>Rollback</th>
-            </tr>
-          </thead>
-          <tbody></tbody>
-        </table>
       </div>
     </section>
 

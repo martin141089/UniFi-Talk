@@ -12,6 +12,11 @@ from pathlib import Path
 
 from sqlmodel import Field, Session, SQLModel, create_engine, select
 
+# Keep the change-event history from growing forever: past this many rows,
+# record_change() prunes the oldest ones. Generous enough to cover weeks of
+# normal (rate-limited) operation while keeping the dashboard/DB small.
+RETENTION_LIMIT = 90
+
 
 class ChangeEvent(SQLModel, table=True):
     __tablename__ = "change_events"
@@ -80,7 +85,23 @@ class StateStore:
             session.add(event)
             session.commit()
             session.refresh(event)
+            self._prune(session)
             return event
+
+    def _prune(self, session: Session) -> None:
+        """Delete the oldest rows once the history exceeds RETENTION_LIMIT."""
+        cutoff = session.exec(
+            select(ChangeEvent.id)
+            .order_by(ChangeEvent.created_at.desc())  # type: ignore[attr-defined]
+            .offset(RETENTION_LIMIT)
+            .limit(1)
+        ).first()
+        if cutoff is None:
+            return
+        old = session.exec(select(ChangeEvent).where(ChangeEvent.id <= cutoff)).all()  # type: ignore[operator]
+        for event in old:
+            session.delete(event)
+        session.commit()
 
     def update_event(self, event: ChangeEvent) -> ChangeEvent:
         with Session(self._engine) as session:

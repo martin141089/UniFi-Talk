@@ -1,201 +1,141 @@
 # TalkAnchor-Add-on-Changelog
 
+## 0.2.3
+
+- Dashboard-Verlauf zeigt nur noch die letzten 3 Einträge mit „Weitere
+  Verläufe laden"-Button; Historie wird automatisch auf 90 Einträge
+  begrenzt.
+- Reihenfolge im Dashboard: „Verlauf" steht jetzt vor „Diagnose".
+
 ## 0.2.2
 
-- Health-Check schlug weiterhin fehl: `sofia status profile <profil>
-  gateway` ist kein gültiger fs_cli-Befehl. Gateway-Registrierungen gibt
-  es nur unskopiert über `sofia status gateway` — wird jetzt verwendet.
-- Verlaufstabelle im Dashboard und Wizard-Zusammenfassung liefen auf
-  schmalen Bildschirmen über den Rand bzw. erforderten seitliches
-  Scrollen. Verlauf wird auf dem Handy jetzt als Kartenliste dargestellt,
-  eine versehentlich zu breit geratene CSS-Regel in der
-  Wizard-Zusammenfassung korrigiert.
+- Health-Check nutzte einen fs_cli-Befehl, der so nicht existiert.
+  Gateway-Registrierungen werden jetzt korrekt über `sofia status
+  gateway` abgefragt.
+- Verlauf und Wizard-Zusammenfassung liefen auf schmalen Bildschirmen
+  über den Rand — Verlauf wird auf dem Handy jetzt als Kartenliste
+  dargestellt.
 
 ## 0.2.1
 
-- Logo in der Dokumentation (Reiter „Dokumentation" im Add-on) erschien
-  nicht — Home Assistants Doku-Viewer stellt kein `<picture>`/`<source>`
-  dar und lud das Bild nicht über einen Pfad außerhalb des Add-on-Ordners.
-  Jetzt ein einfaches Bild aus dem Add-on-Ordner selbst.
+- Logo in der Dokumentation (Reiter „Dokumentation") wurde von Home
+  Assistants Doku-Viewer nicht angezeigt.
 
 ## 0.2.0
 
-- Logo/Icon repariert: `icon.png` war in der Add-on-Übersicht nicht
-  zentriert und hatte einen weißen statt transparenten Hintergrund;
-  `logo.png` bestand größtenteils aus leerem Platz. Beide neu und korrekt
-  aus den SVG-Quellen erzeugt; Logo erscheint jetzt auch in dieser
-  Dokumentation.
+- Logo/Icon repariert: korrekt zentriert, transparenter Hintergrund
+  statt weißer Fläche.
 - Alle vom Add-on erzeugten Meldungen (Anwenden/Health-Check/Rollback,
-  Benachrichtigungen, Log-Zeilen) sind jetzt durchgängig auf Deutsch statt
-  bisher Englisch.
-- Dokumentation ausführlicher und einsteigerfreundlicher überarbeitet.
-- Dashboard-Verlaufstabelle und Wizard-Formulare auf schmalen
-  Handy-Bildschirmen verbessert (kein Überlaufen mehr über den
-  Bildschirmrand, Formularfelder brechen sauber um).
+  Benachrichtigungen, Log-Zeilen) jetzt durchgängig auf Deutsch.
+- Dokumentation ausführlicher und einsteigerfreundlicher.
+- Dashboard und Wizard-Formulare für schmale Handy-Bildschirme
+  verbessert.
 
 ## 0.1.19
 
-- Nach einem fehlgeschlagenen scharfen Versuch (Rollback) und einer
-  danach zwischendurch als Dry-Run gespeicherten Konfiguration hielt
-  TalkAnchor die simulierte IP fälschlich für bereits auf dem Gerät
-  übernommen — der nächste scharfe Zyklus hätte nie mehr korrigierend
-  eingegriffen. Dry-Run-Speicherungen zählen jetzt nicht mehr als
-  "bereits angewendet".
+- Ein Dry-Run-Speichervorgang nach einem zurückgerollten scharfen
+  Zyklus wurde fälschlich als bereits übernommen gewertet und hätte den
+  nötigen Korrekturversuch dauerhaft unterdrückt.
 
 ## 0.1.18
 
-- "Jetzt Testlauf ausführen" im Wizard (und "Jetzt prüfen" im Dashboard)
-  brach mit einem kryptischen Browser-Fehler ab, sobald der
-  Health-Check-Timeout hoch genug eingestellt war — die Anfrage lief
-  länger als der Ingress-Proxy/Browser bereit war zu warten, die
-  Verbindung wurde gekappt. Läuft jetzt im Hintergrund; Dashboard/Wizard
-  pollen das Ergebnis, statt auf eine einzelne lang offene Anfrage zu
-  warten.
+- „Jetzt Testlauf ausführen" bzw. „Jetzt prüfen" liefen im Hintergrund
+  weiter statt die Verbindung offen zu halten — verhindert
+  Verbindungsabbrüche bei hohem Health-Check-Timeout.
 
 ## 0.1.17
 
-- Health-Check schlug nach jeder scharfen IP-Änderung fehl, obwohl der
-  Patch selbst erfolgreich war — auch mit korrektem Profilnamen und 90s
-  Timeout. Ursache: Das Profil ist ein reines Trunk-Profil ohne
-  eingehende SIP-Endpunkt-Registrierungen (`sofia status profile
-  <profil>` zeigt dauerhaft `REGISTRATIONS: 0`); die eigentlichen
-  `REGED`-Zustände stehen unter den Gateway-Registrierungen zum
-  SIP-Provider. Health-Check prüft jetzt `sofia status profile <profil>
-  gateway` statt `... reg`.
+- Health-Check fragte Endpunkt- statt Gateway-Registrierungen ab und
+  wurde bei reinen Trunk-Profilen nie gesund.
 
 ## 0.1.16
 
 - Nach einem per Health-Check ausgelösten Rollback hielt TalkAnchor die
-  (verworfene) neue IP fälschlich weiterhin für "bereits übernommen" und
-  hätte den zurückgerollten Zustand nie wieder von selbst korrigiert.
-  Der nächste Zyklus versucht den Patch jetzt wieder erneut.
+  verworfene IP fälschlich für bereits übernommen.
 
 ## 0.1.15
 
-- Cloudflare-API-Token-Feld im Wizard wurde wiederholt durch ein
-  gespeichertes iOS-Passwort ersetzt (Safari ignoriert
-  `autocomplete="off"` bei `type="password"`). Feld ist jetzt normaler
-  Text statt maskiert — der "Anzeigen"-Knopf entfällt damit.
+- Cloudflare-API-Token-Feld im Wizard ist kein maskiertes Passwortfeld
+  mehr (iOS Safari ersetzte es trotz `autocomplete="off"` wiederholt
+  durch ein gespeichertes Passwort).
 
 ## 0.1.14
 
-- SSH schlug nach erneutem Speichern über das native HA-Konfigurations-
-  formular fehl, weil dessen Einzeilen-Textfeld die Zeilenumbrüche des
-  privaten Schlüssels verschluckte. Wird beim Add-on-Start jetzt
-  automatisch repariert (Schlüssel korrekt neu umgebrochen); Doku
-  ergänzt, dieses Feld nur über den Wizard zu bearbeiten.
-- Sofia-Config-Suche übernahm bei mehreren Kandidaten blind den ersten
-  statt den zum konfigurierten Profilnamen passenden — jetzt bevorzugt
-  und mit Hinweis, die Auswahl zu prüfen.
+- Privater SSH-Schlüssel verlor beim Speichern über das native
+  HA-Konfigurationsformular seine Zeilenumbrüche; wird jetzt beim
+  Add-on-Start automatisch repariert.
+- Sofia-Config-Suche wählte bei mehreren Treffern blind den ersten
+  statt des passenden.
 
 ## 0.1.13
 
-- Live-Fehler behoben: Sofia-Config-Suche traf nur die FreeSWITCH-
-  Loader-Config statt der eigentlichen Profildatei mit den IP-Parametern
-  — Anwenden schlug deshalb fehl ("Parameter(s) ... not found"). Die
-  Suche prüft jetzt zuerst den Dateiinhalt statt nur den Dateinamen.
-  Bitte im Wizard "Sofia-Config-Pfad suchen" erneut ausführen.
-- Fehlgeschlagenes Anwenden erzeugte unnötig ein Backup, bevor der
-  eigentliche Fehler erkannt wurde — jetzt erst unmittelbar vor dem
-  Schreibvorgang.
-- Wiederkehrender Traceback beim Neustart behoben (Scheduler-Shutdown
-  lief nach dem Schließen der Event-Loop statt davor).
+- Sofia-Config-Suche fand nur die FreeSWITCH-Loader-Datei statt der
+  eigentlichen Profildatei; sucht jetzt nach Dateiinhalt statt Namen.
+- Fehlgeschlagenes Anwenden legte trotzdem ein Backup an.
+- Wiederkehrender Traceback beim Neustart behoben.
 
 ## 0.1.12
 
-- Neuer Schalter "Cloudflare-Tunnel-Connector-IP als Quelle verwenden" im
-  Wizard und als Option (`cloudflare_enabled`). Lässt sich ausschalten,
-  wenn der Tunnel (z. B. bei Multi-WAN) strukturell nie eine eindeutige
-  IP liefern kann — TalkAnchor läuft dann bewusst nur mit der
-  Fallback-Quelle, ohne die Cloudflare-Zugangsdaten löschen zu müssen.
+- Schalter „Cloudflare-Tunnel-Connector-IP als Quelle verwenden"
+  (`cloudflare_enabled`) für Tunnel ohne eindeutige IP (z. B. Multi-WAN).
 
 ## 0.1.11
 
-- Wizard lädt beim Öffnen jetzt zusätzlich die bereits gespeicherte
-  Konfiguration direkt vom Server, nicht mehr nur aus dem lokalen
-  Browser-Entwurf — behebt fehlende Werte, wenn der Wizard aus einer
-  anderen Sitzung/App heraus erneut geöffnet wird.
+- Wizard lädt beim Öffnen zusätzlich die bereits gespeicherte
+  Konfiguration direkt vom Server.
 
 ## 0.1.10
 
-- Wizard-Eingaben gingen bei Neuladen/Navigation verloren, da sie erst
-  beim finalen Speichern an den Server geschickt wurden. Alle Felder
-  werden jetzt laufend im Browser zwischengespeichert und beim erneuten
-  Öffnen automatisch wiederhergestellt.
+- Wizard-Eingaben werden laufend im Browser zwischengespeichert und bei
+  erneutem Öffnen automatisch wiederhergestellt.
 
 ## 0.1.9
 
-- Klarere Fehlermeldung, wenn UniFi die SSH-Authentifizierung ablehnt:
-  vorher zeigte Paramiko irreführend einen "falsches Schlüsselformat"-
-  Fehler (z. B. "encountered RSA key, expected OPENSSH key"), obwohl der
-  Schlüssel technisch in Ordnung war — das eigentliche Problem ist fast
-  immer, dass der öffentliche Schlüssel nicht korrekt bei UniFi hinterlegt
-  wurde. Wird jetzt erkannt und klar benannt.
+- Klarere Fehlermeldung, wenn UniFi die SSH-Authentifizierung ablehnt
+  (statt Paramikos irreführender „falsches Schlüsselformat"-Meldung).
 
 ## 0.1.8
 
-- Neuer Knopf "Schlüssel automatisch erzeugen" im SSH-Schritt des
-  Wizards: erzeugt den Schlüssel serverseitig (kein Terminal mehr nötig),
-  zeigt nur die öffentliche Zeile zum Einfügen bei UniFi. Manuelles
-  Einfügen eines eigenen Schlüssels bleibt als aufklappbare
-  "fortgeschritten"-Option erhalten.
+- Knopf „Schlüssel automatisch erzeugen" im SSH-Schritt des Wizards —
+  kein Terminal mehr nötig.
 
 ## 0.1.7
 
-- Warnhinweis direkt am Cloudflare-Token-Feld im Wizard: der Tunnel-
-  Connector-Token aus `cloudflared tunnel run --token …` (beginnt meist
-  mit `eyJ…`) ist NICHT das gesuchte API-Token. Erklärt den Unterschied
-  und verlinkt den richtigen Weg (My Profile → API Tokens → Create
-  Token).
+- Warnhinweis am Cloudflare-Token-Feld: der Tunnel-Connector-Token ist
+  nicht dasselbe wie das benötigte API-Token.
 
 ## 0.1.6
 
-- "Anzeigen"-Knopf neben dem Cloudflare-Token-Feld im Wizard, um die
-  Eingabe bei Bedarf im Klartext zu prüfen (das Feld war zuvor immer
-  maskiert, obwohl `paste`-Fehler unsichtbar blieben). Zusätzlich zeigt
-  die Fehlermeldung bei einer abgelehnten Verbindung jetzt sicher Länge,
-  Anfang/Ende und eventuelle nicht-druckbare Zeichen des empfangenen
-  Tokens.
+- „Anzeigen"-Knopf am Cloudflare-Token-Feld sowie eine sichere Kurzform
+  des empfangenen Tokens in der Fehlermeldung.
 
 ## 0.1.5
 
-- Cloudflare-Token-Feld im Wizard erkennt jetzt automatisch, wenn versehentlich
-  mehr als der reine Token eingefügt wurde (z. B. Cloudflares eigenes
-  curl-Beispiel drumherum) und extrahiert nur den Token daraus; verbleibender
-  Leerraum/Zeilenumbrüche werden zusätzlich entfernt.
+- Cloudflare-Token-Feld erkennt und entfernt automatisch ein
+  versehentlich mitkopiertes `Bearer <token>`-Präfix.
 
 ## 0.1.4
 
-- Cloudflare-Verbindungstest im Setup-Wizard liefert jetzt eine genaue
-  Diagnose statt der rohen Cloudflare-Fehlermeldung: unterscheidet
-  "Token selbst ungültig" (inkl. Zeichenlänge zur Copy-Paste-Prüfung) von
-  "Token gültig, aber kein Zugriff auf Account-/Tunnel-ID".
+- Cloudflare-Verbindungstest unterscheidet jetzt zwischen ungültigem
+  Token und gültigem Token ohne Zugriff auf Account/Tunnel.
 
 ## 0.1.3
 
-- Dashboard und Setup-Wizard waren unter Ingress komplett ungestylt und
-  der Wizard-Button/API-Aufrufe liefen ins Leere (404), weil alle
-  CSS-/JS-/API-Pfade absolut waren. Jetzt über `X-Ingress-Path` und
-  relative Pfade korrekt behoben.
+- Dashboard und Wizard waren unter Ingress ungestylt (absolute statt
+  relative Asset-/API-Pfade).
 
 ## 0.1.2
 
-- Geführter Web-Setup-Wizard (`/wizard`, Button im Dashboard): führt
-  Schritt für Schritt durch Cloudflare, SSH-Einrichtung (inkl.
-  Host-Key-Abruf und Sofia-Config-Discovery) und Benachrichtigungen und
-  schreibt die Konfiguration am Ende direkt in die Add-on-Optionen
-  (Supervisor-API, `hassio_api: true`), inklusive automatischem Neustart.
-  Ersetzt den bisherigen „Setup-Helfer" als primären Einrichtungsweg.
-- Dashboard-Bereich „Diagnose" (vormals „Setup-Helfer") zum erneuten
-  Prüfen der bereits gespeicherten Konfiguration.
+- Geführter Web-Setup-Wizard (`/wizard`, Button im Dashboard), schreibt
+  direkt in die Add-on-Optionen.
+- Dashboard-Bereich „Diagnose" (vormals „Setup-Helfer").
 
 ## 0.1.1
 
-- Setup-Helfer im Dashboard (SSH-Host-Key abrufen, Sofia-Config-Pfad
-  suchen, Cloudflare-Verbindung testen) als Ersatz für die SSH-Schritte
-  des CLI-Wizards, den das Add-on nicht ausführen kann.
-- Options-Schema-Fix: Felder mit leerem Standardwert sind jetzt korrekt
-  optional statt fälschlich verpflichtend.
+- Setup-Helfer im Dashboard (SSH-Host-Key, Sofia-Config-Pfad,
+  Cloudflare-Verbindungstest).
+- Options-Schema-Fix: leere Standardwerte machten Felder fälschlich zu
+  Pflichtfeldern.
 
 ## 0.1.0
 

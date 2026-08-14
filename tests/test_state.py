@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from talkanchor.core.state import ChangeEvent
+from talkanchor.core.state import RETENTION_LIMIT, ChangeEvent
 
 
 def test_get_last_known_ip_returns_none_when_no_events(state):
@@ -35,3 +35,14 @@ def test_get_last_known_ip_ignores_dry_run_events_by_default(state):
     state.record_change(ChangeEvent(old_ip="1.1.1.1", new_ip="2.2.2.2", dry_run=True, apply_success=True))
     assert state.get_last_known_ip() is None
     assert state.get_last_known_ip(include_dry_run=True) == "2.2.2.2"
+
+
+def test_record_change_prunes_oldest_events_past_retention_limit(state):
+    for i in range(RETENTION_LIMIT + 10):
+        state.record_change(ChangeEvent(old_ip=None, new_ip=f"10.0.0.{i}", dry_run=True, apply_success=True))
+
+    events = state.recent_events(limit=RETENTION_LIMIT + 50)
+    assert len(events) == RETENTION_LIMIT
+    # the newest events survive, the oldest ones were pruned
+    assert events[0].new_ip == f"10.0.0.{RETENTION_LIMIT + 9}"
+    assert events[-1].new_ip == "10.0.0.10"

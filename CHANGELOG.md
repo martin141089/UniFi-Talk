@@ -8,384 +8,207 @@ dieses Projekt folgt [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [0.2.3] - 2026-08-14
+
+### Hinzugefügt
+
+- Dashboard-Verlauf zeigt nur noch die letzten 3 Einträge, mit „Weitere
+  Verläufe laden"-Button zum Nachladen.
+- Änderungshistorie wird automatisch auf die letzten 90 Einträge begrenzt.
+
+### Geändert
+
+- Reihenfolge im Dashboard: „Verlauf" steht jetzt vor „Diagnose".
+- Changelog aufgeräumt: knappere, sachliche Einträge statt
+  ausführlicher Fehlerbeschreibungen.
+
 ## [0.2.2] - 2026-08-14
 
 ### Behoben
 
-- **Live auf der Henschke-Instanz beobachtet: Health-Check schlug weiter
-  fehl.** Der in 0.1.17 eingeführte Befehl `sofia status profile <profil>
-  gateway` ist gar kein gültiges fs_cli-Subkommando — nur `sofia status
-  profile <profil> reg` ist profilbezogen, Gateway-Registrierungen gibt es
-  ausschließlich unskopiert über `sofia status gateway` (listet die
-  Gateways aller Profile). Health-Check nutzt jetzt `sofia status
-  gateway`; über `expected_registrations` lässt sich das bei mehreren
-  Profilen mit Gateways weiter eingrenzen.
-- Mobile Kartenansicht für Dashboard-Verlauf und Wizard-Zusammenfassung:
-  Auf schmalen Bildschirmen musste man in der Verlaufstabelle seitlich
-  scrollen; jetzt wird jede Zeile als eigene Karte mit Label/Wert
-  dargestellt, kein Scrollen mehr nötig.
-- Eine generische CSS-Regel für die Dashboard-Tabelle (`min-width: 560px`
-  auf allen `<table>`-Elementen) hatte auch die Wizard-Zusammenfassung
-  betroffen und die gesamte Wizard-Seite auf schmalen Bildschirmen über
-  den Rand hinauslaufen lassen. Auf die Verlaufstabelle eingegrenzt.
+- Health-Check nutzte einen fs_cli-Befehl, der so nicht existiert
+  (`sofia status profile <profil> gateway`); Gateway-Registrierungen
+  werden nur über das unskopierte `sofia status gateway` gemeldet.
+- Verlaufstabelle im Dashboard und Wizard-Zusammenfassung liefen auf
+  schmalen Bildschirmen über den Rand.
 
 ## [0.2.1] - 2026-08-13
 
 ### Behoben
 
-- **Live in der Home-Assistant-App beobachtet:** Das Logo in `DOCS.md` und
-  der Add-on-README erschien nicht — Home Assistants eigener
-  In-App-Doku-Viewer kann kein `<picture>`/`<source>` (zeigt es als reinen
-  Text) und lädt Bilder offenbar nicht über einen `../`-Pfad außerhalb des
-  Add-on-Ordners (kaputtes Bild-Icon). Ersetzt durch ein einfaches
-  Markdown-Bild (`![TalkAnchor](wordmark.png)`) mit einer neuen, lokal im
-  Add-on-Ordner liegenden PNG-Version des Wordmarks — funktioniert sowohl
-  im HA-Doku-Viewer als auch auf GitHub.
+- Logo in der Add-on-Dokumentation wurde von Home Assistants
+  In-App-Doku-Viewer nicht angezeigt (kein `<picture>`-Support, keine
+  Bildpfade außerhalb des Add-on-Ordners).
 
 ## [0.2.0] - 2026-08-13
 
 ### Geändert
 
-- **Logo/Icon im Home-Assistant-Add-on repariert.** `icon.png` war nicht
-  zentriert (56px toter Rand nur unten/rechts) und hatte einen weißen statt
-  transparenten Hintergrund; `logo.png` bestand größtenteils aus leerem
-  Platz. Beide Dateien werden jetzt sauber und korrekt zentriert aus den
-  vorhandenen SVG-Quellen erzeugt.
-- Logo (Wordmark) wird jetzt auch in der Add-on-Dokumentation (`DOCS.md`,
-  `homeassistant-addon/README.md`) angezeigt — vorher nur in der
-  Haupt-README.
-- **Alle nutzersichtbaren Backend-Texte auf Deutsch umgestellt:**
-  Apply-/Health-Check-/Rollback-Meldungen, Benachrichtigungstitel und
-  -texte sowie die zugehörigen Log-Zeilen (sichtbar u. a. im Live-Log des
-  Dashboards und in Push-/Webhook-Benachrichtigungen) waren bisher
-  durchgängig Englisch, obwohl Oberfläche und Dokumentation längst Deutsch
-  sind. Betrifft `targets/unifi_talk.py`, `core/reconciler.py`,
-  `sources/cloudflare.py`, `sources/http_echo.py`. Eine restliche englische
-  Meldung im Wizard-Zusammenfassungsfeld „Benachrichtigung" (`none` statt
-  „Keine") ebenfalls behoben.
-- README.md und die Add-on-Doku (`DOCS.md`) ausführlicher und
-  einsteigerfreundlicher überarbeitet: erklärt jetzt in einfachen Worten,
-  welches Problem TalkAnchor löst und wie, mit Inhaltsverzeichnis in der
-  README und einem Verweis auf den jeweils anderen Betriebsweg
-  (eigenständig vs. Home-Assistant-Add-on).
-- Mobile-Ansicht von Dashboard und Wizard verbessert: Die Verlaufstabelle
-  im Dashboard lief auf schmalen Bildschirmen über den Rand hinaus (jetzt
-  in einem eigenen scrollbaren Container statt die ganze Seite zu
-  verbreitern); zweispaltige Formularfelder im Wizard (SSH-Port/-Benutzer
-  u. a.) brechen unter 480px jetzt auf eine Spalte um statt gequetscht zu
-  werden; Kopfzeile bricht bei Bedarf um, statt abgeschnitten zu werden.
+- Logo/Icon im Home-Assistant-Add-on: korrekt zentriert, transparenter
+  Hintergrund statt weißer Fläche; jetzt auch in der Add-on-Dokumentation
+  sichtbar.
+- Alle nutzersichtbaren Meldungen (Anwenden/Health-Check/Rollback,
+  Benachrichtigungen, Log-Zeilen) durchgängig auf Deutsch.
+- README und Add-on-Dokumentation ausführlicher und
+  einsteigerfreundlicher, mit Inhaltsverzeichnis.
+- Dashboard und Wizard für schmale Bildschirme optimiert.
 
 ## [0.1.19] - 2026-08-13
 
 ### Behoben
 
-- **Live auf der Henschke-Instanz beobachtet:** Nach mehreren fehlgeschlagenen
-  scharfen Anwendungsversuchen (Health-Check-Fehler, Rollback) wurde die
-  Konfiguration einmal per Wizard als Dry-Run gespeichert. Der darauffolgende
-  Dry-Run-Zyklus verbuchte seine simulierte IP fälschlich als "vom Ziel
-  bereits übernommen" — `get_last_known_ip()` filterte nicht nach
-  `dry_run`. Da ein Dry-Run nie tatsächlich schreibt, hätte TalkAnchor beim
-  nächsten scharfen Zyklus fälschlich angenommen, die echte Sofia-Config sei
-  schon korrekt, obwohl sie noch auf der alten IP stand — und den nötigen
-  Korrektur-Versuch stillschweigend nie mehr unternommen.
-  `get_last_known_ip()` ignoriert Dry-Run-Events jetzt standardmäßig; nur
-  während der Reconciler selbst im Dry-Run läuft, zählen sie weiterhin (damit
-  ein reiner Dry-Run-Betrieb nicht bei jedem Zyklus erneut "Änderung erkannt"
-  meldet). Betrifft ebenso `last_change_at()` (Rate-Limit-Uhr).
+- Ein Dry-Run-Speichervorgang nach einem zurückgerollten scharfen Zyklus
+  wurde fälschlich als bereits übernommene Änderung gewertet und hätte
+  den nötigen Korrekturversuch dauerhaft unterdrückt.
 
 ## [0.1.18] - 2026-08-13
 
-### Behoben
+### Geändert
 
-- **Live auf der Henschke-Instanz beobachtet:** "Jetzt Testlauf ausführen"
-  im Wizard warf einen kryptischen Client-Fehler ("The string did not
-  match the expected pattern"), sobald der Health-Check-Timeout hoch genug
-  eingestellt war. Ursache: `/api/check-now` hielt die HTTP-Anfrage
-  synchron offen, bis der komplette Zyklus (SSH-Verbindung, Anwenden,
-  bis zu `health_check_timeout_seconds` Sekunden Health-Check-Polling)
-  fertig war — das überschreitet zuverlässig den Timeout des HA-Ingress-
-  Proxys bzw. des Browsers selbst, die die Verbindung dann kappen und dem
-  Client eine Fehlerseite statt JSON liefern. `/api/check-now` startet den
-  Zyklus jetzt im Hintergrund und antwortet sofort; ein neuer Endpoint
-  `/api/check-now-status` liefert das Ergebnis, sobald es fertig ist.
-  Dashboard und Wizard pollen darauf und zeigen erst dann das Resultat an.
+- `/api/check-now` läuft jetzt im Hintergrund statt die Anfrage bis zum
+  Ende des Health-Checks offen zu halten — verhindert Verbindungsabbrüche
+  bei hohem `health_check_timeout_seconds` durch Proxy/Browser-Timeouts.
+  Dashboard und Wizard pollen das Ergebnis über einen neuen
+  `/api/check-now-status`-Endpoint.
 
 ## [0.1.17] - 2026-08-13
 
 ### Behoben
 
-- **Live auf der Henschke-Instanz beobachtet:** Der Health-Check schlug
-  nach jeder scharfen IP-Änderung weiterhin fehl — auch mit dem korrekten
-  Profilnamen `external_talk` und 90s Timeout. Ursache: `external_talk`
-  ist ein reines Trunk-Profil ohne eingehende SIP-Endpunkt-Registrierungen
-  (`sofia status profile external_talk` zeigt dauerhaft
-  `REGISTRATIONS: 0`). Der Health-Check fragte bisher
-  `sofia status profile <profile> reg` ab — das prüft Endpunkt-
-  Registrierungen, nicht die ausgehenden Gateway-Registrierungen zum
-  SIP-Provider (hier: Deutsche Telekom). Die tatsächlichen `REGED`-Zustände
-  stehen unter den Gateways. Health-Check fragt jetzt
-  `sofia status profile <profile> gateway` ab.
+- Health-Check fragte Endpunkt-Registrierungen statt der tatsächlich
+  relevanten Gateway-Registrierungen zum SIP-Provider ab und wurde bei
+  reinen Trunk-Profilen nie gesund.
 
 ## [0.1.16] - 2026-08-13
 
 ### Behoben
 
-- **Live auf der Henschke-Instanz beobachtet:** Der Patch auf die neue IP
-  gelang, der anschließende Health-Check sah aber innerhalb von 30s keine
-  gesunde Registrierung und TalkAnchor rollte korrekt zurück (genau wie
-  vorgesehen). Dabei zeigte sich aber ein Folgefehler: `get_last_known_ip()`
-  zählte den Schreibvorgang trotz Rollback weiterhin als "zuletzt bekannte
-  IP", weil es nur auf `apply_success` prüfte, nicht auf `rolled_back`.
-  Der nächste Zyklus sah dieselbe erkannte IP und hielt sie fälschlich für
-  bereits übernommen — TalkAnchor hätte den zurückgerollten Zustand (mit
-  der alten, ggf. nicht mehr aktuellen IP) nie wieder von selbst korrigiert.
-  Nach einem zurückgerollten Schreibvorgang zählt jetzt wieder die alte IP
-  als aktuell, sodass der nächste Zyklus den Patch-Versuch erneut probiert.
+- Nach einem per Health-Check ausgelösten Rollback hielt TalkAnchor die
+  verworfene neue IP fälschlich für bereits übernommen und hätte den
+  zurückgerollten Zustand nie von selbst korrigiert.
 
 ## [0.1.15] - 2026-08-13
 
-### Behoben
+### Geändert
 
-- **Live wiederholt beobachtet:** Das Cloudflare-API-Token-Feld im Wizard
-  wurde trotz `autocomplete="off"` mehrfach durch ein unpassendes,
-  gespeichertes Passwort ersetzt (iOS Safari ignoriert `autocomplete="off"`
-  bei `type="password"`-Feldern gezielt und bietet dort eigene
-  Passwort-Vorschläge an). Da das Feld für einen selbst gehosteten
-  Admin-Bereich ohnehin nicht wirklich geheim gehalten werden muss, ist
-  es jetzt ein normales Textfeld (kein `type="password"` mehr, kein
-  „Anzeigen"-Umschalter mehr nötig) — damit greift Safaris
-  Passwort-Vorschlag hier gar nicht erst.
+- Cloudflare-API-Token-Feld im Wizard ist kein maskiertes Passwortfeld
+  mehr (iOS Safari ersetzte es trotz `autocomplete="off"` wiederholt
+  durch ein gespeichertes Passwort).
 
 ## [0.1.14] - 2026-08-13
 
 ### Behoben
 
-- **Live auf der Henschke-Instanz gefunden:** Nach dem Update auf 0.1.13
-  schlug die SSH-Verbindung plötzlich komplett fehl ("not a valid OPENSSH
-  private key file"), obwohl derselbe Schlüssel kurz zuvor noch
-  funktionierte. Ursache: Der gespeicherte private Schlüssel hatte all
-  seine Zeilenumbrüche verloren — vermutlich durch erneutes Speichern
-  über Home Assistants generisches Supervisor-Konfigurationsformular,
-  das `password`-Felder als einzeilige Box darstellt, auch wenn der Wert
-  (ein mehrzeiliger PEM-Schlüssel) das nicht ist. Der Schlüssel wird
-  jetzt beim Add-on-Start automatisch wieder ins korrekte 64-Zeichen-PEM-
-  Format zurückgewrappt, unabhängig davon, wie er zuletzt gespeichert
-  wurde; ergänzend ein deutlicher Hinweis in der Doku, dieses Feld nur
-  über den Wizard und nicht über das native HA-Formular zu bearbeiten.
-- Die Sofia-Config-Suche im Wizard übernahm bei mehreren gefundenen
-  Kandidaten (z. B. "internal" und "external"-Profil) bisher blind den
-  ersten — bei der Henschke-Instanz führte das zur falschen Datei
-  (`internal.xml` statt der zum konfigurierten Profilnamen passenden
-  Datei). Bevorzugt jetzt den Kandidaten, dessen Pfad den konfigurierten
-  Profilnamen enthält, und weist bei mehreren Kandidaten ausdrücklich
-  darauf hin, die Auswahl zu prüfen.
+- Privater SSH-Schlüssel verlor beim Speichern über Home Assistants
+  generisches Konfigurationsformular seine Zeilenumbrüche und wird jetzt
+  beim Add-on-Start automatisch repariert.
+- Sofia-Config-Suche im Wizard wählte bei mehreren Treffern blind den
+  ersten statt des zum konfigurierten Profilnamen passenden.
 
 ## [0.1.13] - 2026-08-13
 
 ### Behoben
 
-- **Live-Fehler auf der Henschke-Instanz gefunden und behoben:** Nach
-  einer echten IP-Änderung schlug das Anwenden fehl mit *"Parameter(s)
-  ['ext-sip-ip', 'ext-rtp-ip'] not found in
-  /etc/freeswitch/autoload_configs/sofia.conf.xml"*. Ursache: Die
-  Sofia-Config-Suche im Wizard fand Kandidaten per Dateiname
-  (`sofia*.xml`) und traf damit nur FreeSWITCH's generische
-  Loader-Config, die selbst nie die IP-Parameter enthält — diese liegen
-  in einer separaten, beliebig benannten Profildatei (z. B.
-  `sip_profiles/external_talk.xml`), die die Loader-Config nur einbindet.
-  Die Suche durchsucht Dateien jetzt zuerst nach **Inhalt** (welche XML-
-  Datei enthält tatsächlich `ext-sip-ip`?) statt nur nach Namen; die alte
-  Namenssuche bleibt als Fallback. **Wer betroffen war:** Bitte im Wizard
-  bei "Sofia-Config-Pfad suchen" erneut suchen (jetzt korrekt) oder unter
-  UniFi Talk (SSH) den Pfad manuell prüfen — die zuletzt erkannte
-  IP-Änderung wurde nicht angewendet, UniFi Talk hatte also
-  möglicherweise noch die alte IP eingetragen.
-- Ein fehlgeschlagenes Anwenden legte trotzdem ein Remote-/Lokal-Backup
-  an, bevor der eigentliche Fehler (fehlende Parameter) erkannt wurde —
-  bei wiederholten Fehlversuchen (z. B. bei flatternder IP) sammelten
-  sich so nutzlose Backup-Dateien auf dem begrenzten Flash-Speicher der
-  UDM an. Backup wird jetzt erst unmittelbar vor dem tatsächlichen
-  Schreibvorgang angelegt.
-- Wiederkehrender `RuntimeError: Event loop is closed`-Traceback beim
-  Neustart des `talkanchor run`-Dienstes (u. a. nach jedem
-  Wizard-Speichern im Add-on) behoben — der Scheduler wurde nach dem
-  Schließen der Event-Loop statt davor heruntergefahren.
+- Sofia-Config-Suche fand nur FreeSWITCHs generische Loader-Datei statt
+  der eigentlichen Profildatei mit den IP-Parametern; sucht jetzt zuerst
+  nach Dateiinhalt statt nur nach Dateiname.
+- Fehlgeschlagenes Anwenden legte trotzdem ein Backup an.
+- Wiederkehrender Traceback beim Neustart des Diensts behoben.
 
 ## [0.1.12] - 2026-08-13
 
 ### Hinzugefügt
 
-- Neuer Schalter **"Cloudflare-Tunnel-Connector-IP als Quelle verwenden"**
-  im Setup-Wizard (Schritt 1) und als Konfigurationsoption
-  (`cloudflare_enabled`, Standard: an). Manche Cloudflare-Tunnel können
-  strukturell nie eine eindeutige IP liefern — z. B. wenn derselbe Tunnel
-  gleichzeitig über mehrere WAN-Leitungen verbunden ist (Multi-WAN).
-  Bisher blieb der Cloudflare-Verbindungstest in so einem Fall dauerhaft
-  rot, ohne Möglichkeit, das bewusst zu übergehen, ohne die eingegebenen
-  Zugangsdaten zu löschen. Der neue Schalter lässt Cloudflare komplett
-  aus (TalkAnchor läuft dann allein mit der Fallback-Quelle), ohne Token/
-  Account-/Tunnel-ID zu verlieren.
+- Schalter „Cloudflare-Tunnel-Connector-IP als Quelle verwenden"
+  (`cloudflare_enabled`) für Tunnel, die strukturell keine eindeutige IP
+  liefern können (z. B. Multi-WAN).
 
 ## [0.1.11] - 2026-08-13
 
 ### Behoben
 
-- Die localStorage-Autospeicherung aus 0.1.10 half nur innerhalb
-  desselben Browsers/Tabs — live bestätigt: Werte, die erfolgreich
-  gespeichert wurden (in der Add-on-Konfigurationsansicht sichtbar),
-  fehlten trotzdem beim erneuten Öffnen des Wizards (z. B. aus einer
-  anderen Ingress-Sitzung/App heraus). Der Wizard lädt beim Start jetzt
-  zusätzlich die bereits gespeicherte Konfiguration direkt vom Server
-  (`GET /api/wizard/prefill`) als Grundlage; ein vorhandener,
-  ungespeicherter lokaler Entwurf überschreibt das anschließend nur dort,
-  wo tatsächlich neuer eingegeben wurde.
+- Wizard lädt beim Öffnen zusätzlich die bereits gespeicherte
+  Konfiguration direkt vom Server statt sich nur auf den lokalen
+  Browser-Entwurf zu verlassen.
 
 ## [0.1.10] - 2026-08-13
 
 ### Hinzugefügt
 
-- Der Wizard verlor bisher alle eingegebenen Werte (Cloudflare-Token, IDs,
-  UniFi-Host, ...), sobald die Seite neu geladen wurde oder man zwischen
-  Schritten navigierte, ohne vorher explizit zu speichern — Werte landeten
-  serverseitig erst beim finalen "Speichern"/"GO LIVE". Alle Formularfelder
-  werden jetzt bei jeder Änderung automatisch im Browser (localStorage)
-  zwischengespeichert und bei erneutem Öffnen des Wizards wiederhergestellt
-  (inkl. aktuellem Schritt und Host-Key-Bestätigungsstatus). Der
-  Zwischenstand wird erst nach erfolgreichem "GO LIVE" gelöscht.
+- Wizard-Eingaben werden laufend im Browser zwischengespeichert und bei
+  erneutem Öffnen automatisch wiederhergestellt.
 
 ## [0.1.9] - 2026-08-13
 
 ### Behoben
 
-- Die Sofia-Config-Suche schlug live mit "encountered RSA key, expected
-  OPENSSH key" fehl, obwohl der neu erzeugte RSA-Schlüssel selbst
-  einwandfrei war. Ursache: Paramiko probiert für dieselbe Schlüsseldatei
-  nacheinander RSA-, ECDSA- und Ed25519-Klassen durch; lehnt der Server
-  die Public-Key-Authentifizierung ab (z. B. weil der öffentliche
-  Schlüssel nicht korrekt auf dem UniFi-Gerät hinterlegt wurde), bleibt
-  am Ende nur die komplett irreführende Formatfehler-Meldung der
-  *letzten* durchprobierten Klasse übrig — hat mit dem eigentlichen
-  Problem nichts zu tun. `connect_ssh()` erkennt dieses Muster jetzt und
-  gibt stattdessen eine klare Meldung aus: Authentifizierung wurde
-  abgelehnt, bitte prüfen, ob der öffentliche Schlüssel vollständig und
-  korrekt bei UniFi hinterlegt ist (die rohe Paramiko-Meldung bleibt für
-  Debugging-Zwecke erhalten).
+- Irreführende Paramiko-Fehlermeldung bei abgelehnter SSH-Authentifizierung
+  ("encountered RSA key, expected OPENSSH key") durch eine klare Meldung
+  ersetzt.
 
 ## [0.1.8] - 2026-08-13
 
 ### Hinzugefügt
 
-- Der SSH-Schritt im Setup-Wizard verlangte bisher, dass man sich selbst
-  (z. B. per Terminal-Add-on) einen passphrasefreien Schlüssel erzeugt,
-  den öffentlichen Teil manuell bei UniFi hinterlegt und den privaten Teil
-  zurück in den Wizard einfügt — für die meisten Nutzer zu viele manuelle
-  Schritte über mehrere Apps hinweg. Der Wizard kann den Schlüssel jetzt
-  auf Knopfdruck selbst erzeugen (RSA 3072, ohne Passphrase — TalkAnchor
-  läuft unbeaufsichtigt und könnte ohnehin nicht danach fragen) und
-  schreibt ihn direkt an den richtigen Ort; man bekommt nur noch die
-  öffentliche Zeile zum Einfügen bei UniFi zu sehen. Manuelles Einfügen
-  eines eigenen Schlüssels bleibt unter "Eigenen Schlüssel einfügen
-  (fortgeschritten)" weiterhin möglich.
+- Knopf „Schlüssel automatisch erzeugen" im SSH-Schritt des Wizards —
+  kein Terminal mehr nötig, nur die öffentliche Zeile zum Einfügen bei
+  UniFi wird angezeigt.
 
 ## [0.1.7] - 2026-08-13
 
 ### Behoben
 
-- Der neue "Anzeigen"-Knopf aus 0.1.6 löste das Rätsel sofort: der
-  eingefügte Wert begann mit `eyJhIjoi…` — das ist gar kein
-  Cloudflare-API-Token, sondern der Base64-kodierte **Tunnel-Connector-
-  Token** aus dem `cloudflared tunnel run --token …`-Befehl auf der
-  Tunnel-Erstellungsseite. Beide werden von Cloudflare "Token" genannt,
-  dienen aber komplett unterschiedlichen Zwecken (Tunnel-Authentifizierung
-  vs. REST-API-Zugriff). Der Wizard warnt jetzt direkt am Cloudflare-
-  Token-Feld explizit davor und verlinkt den korrekten Weg (My Profile →
-  API Tokens → Create Token).
+- Warnhinweis am Cloudflare-Token-Feld: der Tunnel-Connector-Token ist
+  nicht dasselbe wie das benötigte API-Token.
 
 ## [0.1.6] - 2026-08-13
 
 ### Hinzugefügt
 
-- Die 0.1.5-Bereinigung griff auf dem echten Gerät nicht: der Token blieb
-  weiterhin bei 248 statt 40 Zeichen, enthielt also weder ein `Bearer `-
-  Präfix noch Leerraum, den man hätte abschneiden können. Da das Feld als
-  `type="password"` maskiert war, konnte niemand sehen, was tatsächlich
-  eingefügt wurde. Zwei Diagnose-Werkzeuge dafür: ein "Anzeigen"-Knopf
-  neben dem Cloudflare-Token-Feld im Wizard, der die Eingabe temporär im
-  Klartext zeigt, sowie eine serverseitige, sichere Kurzform des
-  empfangenen Tokens in der Fehlermeldung (Länge, erste/letzte 6 Zeichen,
-  Hinweis auf nicht-druckbare Zeichen) — ohne den Token vollständig
-  preiszugeben.
+- „Anzeigen"-Knopf am Cloudflare-Token-Feld sowie eine sichere
+  Kurzform des empfangenen Tokens in der Fehlermeldung zur
+  Copy-Paste-Diagnose.
 
 ## [0.1.5] - 2026-08-13
 
 ### Behoben
 
-- Der neue Diagnose-Hinweis aus 0.1.4 zeigte live auf einem echten Gerät
-  sofort die Ursache: ein eingefügter Cloudflare-Token war 248 statt der
-  üblichen 40 Zeichen lang und wurde von Cloudflare mit "Invalid format
-  for Authorization header" abgelehnt — typischerweise weil beim Kopieren
-  mehr als der Token selbst erfasst wird (z. B. Cloudflares eigenes
-  curl-Beispiel mit `Authorization: Bearer <token>` drumherum). Der Wizard
-  erkennt jetzt ein eingebettetes `Bearer <token>`-Muster und extrahiert
-  daraus automatisch nur den Token; verbleibender Text wird zusätzlich von
-  jeglichem Leerraum/Zeilenumbrüchen bereinigt, bevor er gesendet wird.
+- Cloudflare-Token-Feld erkennt und entfernt automatisch ein
+  versehentlich mitkopiertes `Bearer <token>`-Präfix.
 
 ## [0.1.4] - 2026-08-13
 
 ### Hinzugefügt
 
-- Der Cloudflare-Verbindungstest im Setup-Wizard unterscheidet jetzt klar
-  zwischen zwei Fehlerursachen: Cloudflare lehnt den API-Token selbst ab
-  (per `/user/tokens/verify` geprüft, inkl. Zeichenlänge des empfangenen
-  Tokens als Copy-Paste-Sanity-Check) oder der Token ist gültig, hat aber
-  keinen Zugriff auf die angegebene Account-/Tunnel-ID. Vorher zeigte der
-  Wizard nur die rohe Cloudflare-Fehlermeldung (z. B. Code 9106) ohne
-  diese Einordnung.
+- Cloudflare-Verbindungstest im Wizard unterscheidet jetzt zwischen
+  ungültigem Token und gültigem Token ohne Zugriff auf Account/Tunnel.
 
 ## [0.1.3] - 2026-08-13
 
 ### Behoben
 
-- Dashboard und Setup-Wizard waren unter Home Assistants Ingress-Proxy
-  komplett ungestylt und der Wizard-Link/API-Aufrufe liefen ins Leere:
-  alle CSS-/JS-/API-Pfade waren absolut (`/static/...`, `/api/...`), was
-  unter dem Ingress-Pfadpräfix (`/api/hassio_ingress/<token>/...`) nicht
-  auflöst. Jetzt setzt das Backend `<base href>` anhand des von Home
-  Assistant gesendeten `X-Ingress-Path`-Headers, alle Links/Requests sind
-  relativ. Außerhalb von Ingress (Standalone/Docker) unverändert.
+- Dashboard und Wizard waren unter Home Assistants Ingress-Proxy
+  ungestylt (absolute statt relative Asset-/API-Pfade).
 
 ## [0.1.2] - 2026-08-12
 
 ### Hinzugefügt
 
-- Geführter Web-Setup-Wizard (`/wizard`), der den CLI-Wizard für
-  Umgebungen ohne Terminal spiegelt: Schritte für Cloudflare, Fallback-
-  Quelle, UniFi-SSH (inkl. Host-Key-Abruf mit Bestätigung und
-  SSH-basierter Sofia-Config-Discovery) und Benachrichtigungen, jeweils
-  inline testbar, mit abschließender Zusammenfassung, Dry-Run-Testlauf
-  und explizit bestätigtem Scharfschalten. Schreibt im eigenständigen
-  Betrieb direkt in `config.yaml` (Hot-Reload ohne Neustart) und im
-  Home-Assistant-Add-on über die Supervisor-API in die Add-on-Optionen
-  (automatischer Neustart zur Übernahme). Ersetzt den bisherigen
-  „Setup-Helfer"-Bereich als primären Einrichtungsweg; dieser bleibt als
-  „Diagnose"-Bereich für bereits konfigurierte Deployments erhalten.
+- Geführter Web-Setup-Wizard (`/wizard`) als Pendant zum CLI-Wizard für
+  Umgebungen ohne Terminal (insbesondere das Home-Assistant-Add-on).
 
 ## [0.1.1] - 2026-08-12
 
 ### Hinzugefügt
 
-- Dashboard-Bereich „Setup-Helfer": SSH-Host-Key abrufen, Sofia-Config-Pfad
-  per SSH suchen und die Cloudflare-Verbindung testen — als Web-Ersatz für
-  die SSH-Schritte des CLI-Wizards dort, wo kein Terminal zur Verfügung
-  steht (insbesondere im Home-Assistant-Add-on).
+- Dashboard-Bereich „Setup-Helfer" (SSH-Host-Key, Sofia-Config-Pfad,
+  Cloudflare-Verbindungstest) als Web-Ersatz für die SSH-Schritte des
+  CLI-Wizards.
 
 ### Behoben
 
-- Home-Assistant-Add-on-Repository lag zwei statt eine Ebene tief und
-  wurde vom Supervisor nicht gefunden ("is not a valid app repository").
-- Add-on-Options-Schema markierte Felder mit leerem Standardwert
-  fälschlich als Pflichtfelder und blockierte dadurch das Speichern der
-  Konfiguration.
+- Home-Assistant-Add-on-Repository wurde vom Supervisor nicht gefunden.
+- Options-Schema markierte optionale Felder fälschlich als Pflichtfelder.
 
 ## [0.1.0] - 2026-08-12
 
@@ -393,32 +216,30 @@ Erstes Alpha-Release.
 
 ### Hinzugefügt
 
-- Reconcile-Loop mit zwei IP-Quellen: Cloudflare-Tunnel-Connector-IP
-  (primär) wird gegen einen konfigurierbaren HTTP-Echo-Fallback
-  gegengeprüft, beide müssen übereinstimmen, bevor gehandelt wird.
-- UniFi-Talk-SSH-Zieladapter: Auth nur per Key mit Host-Key-Prüfung,
-  zeitgestempelte Remote- und lokale Backups vor jedem Schreibzugriff,
-  Sofia-XML-Patching, `fs_cli` reloadxml/Profil-Neustart,
-  `sofia status`-Health-Check-Polling mit automatischem Rollback bei
-  Fehlschlag, sowie Rate-Limiting gegen flatternde IPs.
+- Reconcile-Loop mit zwei IP-Quellen (Cloudflare-Tunnel-Connector-IP +
+  HTTP-Echo-Fallback), die vor jeder Aktion übereinstimmen müssen.
+- UniFi-Talk-SSH-Zieladapter: Key-Auth mit Host-Key-Prüfung, Backups vor
+  jedem Schreibzugriff, Sofia-XML-Patching, Health-Check mit
+  automatischem Rollback, Rate-Limiting.
 - Dry-Run-Modus, standardmäßig aktiv.
-- Austauschbare Benachrichtigungs-Adapter: ntfy, generischer Webhook,
-  E-Mail.
-- Interaktiver Setup-Wizard (`talkanchor setup`) mit SSH-basierter
-  Sofia-Config-Erkennung und expliziter zweiter Bestätigung vor dem
-  Scharfschalten.
+- Austauschbare Benachrichtigungs-Adapter: ntfy, Webhook, E-Mail.
+- Interaktiver Setup-Wizard (`talkanchor setup`).
 - `talkanchor`-CLI: `setup`, `check`, `run`, `web`, `rollback`.
 - Lokales Web-Dashboard: aktuelle IP, Health-Status, Änderungshistorie,
-  Live-Log, manuelle Jetzt-prüfen-/Rollback-auf-Backup-Aktionen.
-- Plugin-Architektur (`IPSource`-, `ConfigTarget`-, `Notifier`-Protokolle),
-  sodass UniFi Talk ein Referenz-Ziel ist, nicht das einzig mögliche.
-- Docker-Image + Compose-Datei; Multi-Arch-Veröffentlichung (amd64/arm64)
-  zu GHCR bei getaggten Releases.
+  Live-Log, manuelle Aktionen.
+- Plugin-Architektur (`IPSource`, `ConfigTarget`, `Notifier`).
+- Docker-Image + Compose-Datei, Multi-Arch-Veröffentlichung zu GHCR.
 - Home-Assistant-Add-on-Wrapper.
-- Vollständige Testsuite für den Kern-Reconcile-Loop mit In-Memory-Fakes
-  (kein echtes Netzwerk/SSH nötig).
+- Vollständige Testsuite mit In-Memory-Fakes.
 
-[Unreleased]: https://github.com/martin141089/UniFi-Talk/compare/v0.1.16...HEAD
+[Unreleased]: https://github.com/martin141089/UniFi-Talk/compare/v0.2.3...HEAD
+[0.2.3]: https://github.com/martin141089/UniFi-Talk/compare/v0.2.2...v0.2.3
+[0.2.2]: https://github.com/martin141089/UniFi-Talk/compare/v0.2.1...v0.2.2
+[0.2.1]: https://github.com/martin141089/UniFi-Talk/compare/v0.2.0...v0.2.1
+[0.2.0]: https://github.com/martin141089/UniFi-Talk/compare/v0.1.19...v0.2.0
+[0.1.19]: https://github.com/martin141089/UniFi-Talk/compare/v0.1.18...v0.1.19
+[0.1.18]: https://github.com/martin141089/UniFi-Talk/compare/v0.1.17...v0.1.18
+[0.1.17]: https://github.com/martin141089/UniFi-Talk/compare/v0.1.16...v0.1.17
 [0.1.16]: https://github.com/martin141089/UniFi-Talk/compare/v0.1.15...v0.1.16
 [0.1.15]: https://github.com/martin141089/UniFi-Talk/compare/v0.1.14...v0.1.15
 [0.1.14]: https://github.com/martin141089/UniFi-Talk/compare/v0.1.13...v0.1.14
