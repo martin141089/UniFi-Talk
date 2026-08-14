@@ -79,7 +79,7 @@ Alle `poll_interval_seconds` läuft `Reconciler.run_once()`:
      patcht `ext-sip-ip`/`ext-rtp-ip` und führt `fs_cli -x "reloadxml"` +
      `fs_cli -x "sofia profile <profile> restart"` aus.
 4. Bei einem scharfen (nicht-Dry-Run-)Apply fragt `target.health_check()`
-   `sofia status profile <profile> gateway` ab, bis Registrierungen `REGED`
+   `sofia status gateway` ab, bis Registrierungen `REGED`
    zeigen oder `health_check_timeout_seconds` abgelaufen ist.
 5. Das Ergebnis wird in SQLite festgehalten und über den konfigurierten
    `Notifier` versendet — Erfolg, Fehler oder ein

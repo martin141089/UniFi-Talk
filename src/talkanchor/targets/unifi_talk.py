@@ -326,9 +326,13 @@ class UniFiTalkTarget:
             deadline = time.monotonic() + cfg.health_check_timeout_seconds
             last_output = ""
             while time.monotonic() < deadline:
-                status, out, _err = self._run(
-                    client, f'fs_cli -x "sofia status profile {shlex.quote(cfg.sofia_profile)} gateway"'
-                )
+                # "sofia status profile <name> gateway" is not a real fs_cli
+                # subcommand (only "... reg" is profile-scoped) — gateway
+                # registrations are only ever listed via the unscoped
+                # "sofia status gateway", which lists all profiles' gateways.
+                # Use expected_registrations to narrow this down if more than
+                # one profile has gateways.
+                status, out, _err = self._run(client, 'fs_cli -x "sofia status gateway"')
                 last_output = out
                 if status == 0 and self._registrations_ok(out, cfg.expected_registrations):
                     return HealthCheckResult(

@@ -104,7 +104,38 @@ main { padding: 1.5rem; max-width: 1100px; margin: 0 auto; }
 
 .table-scroll { overflow-x: auto; }
 
-table { width: 100%; min-width: 560px; border-collapse: collapse; font-size: 0.9rem; }
+table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
+#history-table { min-width: 560px; }
+
+/* Below ~700px a 6-column table never fits comfortably, scrollable or
+   not — turn each row into its own stacked card (label + value per line)
+   instead of asking for horizontal scrolling on a phone. */
+@media (max-width: 700px) {
+  .table-scroll { overflow-x: visible; }
+  #history-table { min-width: 0; }
+  #history-table thead { display: none; }
+  #history-table, #history-table tbody, #history-table tr, #history-table td { display: block; width: 100%; }
+  #history-table tr {
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 0.6rem 0.8rem;
+    margin-bottom: 0.6rem;
+  }
+  #history-table td {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 0.3rem 0;
+    border-bottom: none;
+    text-align: right;
+  }
+  #history-table td::before {
+    content: attr(data-label);
+    color: var(--muted);
+    font-weight: 600;
+    text-align: left;
+  }
+}
 th, td { text-align: left; padding: 0.5rem; border-bottom: 1px solid var(--border); }
 th { color: var(--muted); font-weight: 600; }
 

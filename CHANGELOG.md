@@ -8,6 +8,27 @@ dieses Projekt folgt [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [0.2.2] - 2026-08-14
+
+### Behoben
+
+- **Live auf der Henschke-Instanz beobachtet: Health-Check schlug weiter
+  fehl.** Der in 0.1.17 eingeführte Befehl `sofia status profile <profil>
+  gateway` ist gar kein gültiges fs_cli-Subkommando — nur `sofia status
+  profile <profil> reg` ist profilbezogen, Gateway-Registrierungen gibt es
+  ausschließlich unskopiert über `sofia status gateway` (listet die
+  Gateways aller Profile). Health-Check nutzt jetzt `sofia status
+  gateway`; über `expected_registrations` lässt sich das bei mehreren
+  Profilen mit Gateways weiter eingrenzen.
+- Mobile Kartenansicht für Dashboard-Verlauf und Wizard-Zusammenfassung:
+  Auf schmalen Bildschirmen musste man in der Verlaufstabelle seitlich
+  scrollen; jetzt wird jede Zeile als eigene Karte mit Label/Wert
+  dargestellt, kein Scrollen mehr nötig.
+- Eine generische CSS-Regel für die Dashboard-Tabelle (`min-width: 560px`
+  auf allen `<table>`-Elementen) hatte auch die Wizard-Zusammenfassung
+  betroffen und die gesamte Wizard-Seite auf schmalen Bildschirmen über
+  den Rand hinauslaufen lassen. Auf die Verlaufstabelle eingegrenzt.
+
 ## [0.2.1] - 2026-08-13
 
 ### Behoben

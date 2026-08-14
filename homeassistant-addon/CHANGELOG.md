@@ -1,5 +1,16 @@
 # TalkAnchor-Add-on-Changelog
 
+## 0.2.2
+
+- Health-Check schlug weiterhin fehl: `sofia status profile <profil>
+  gateway` ist kein gültiger fs_cli-Befehl. Gateway-Registrierungen gibt
+  es nur unskopiert über `sofia status gateway` — wird jetzt verwendet.
+- Verlaufstabelle im Dashboard und Wizard-Zusammenfassung liefen auf
+  schmalen Bildschirmen über den Rand bzw. erforderten seitliches
+  Scrollen. Verlauf wird auf dem Handy jetzt als Kartenliste dargestellt,
+  eine versehentlich zu breit geratene CSS-Regel in der
+  Wizard-Zusammenfassung korrigiert.
+
 ## 0.2.1
 
 - Logo in der Dokumentation (Reiter „Dokumentation" im Add-on) erschien

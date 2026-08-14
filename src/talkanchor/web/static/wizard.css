@@ -201,6 +201,7 @@ button.secondary:disabled { opacity: 0.4; cursor: not-allowed; }
 
 .wizard-summary {
   width: 100%;
+  table-layout: fixed;
   border-collapse: collapse;
   font-size: 0.85rem;
   margin-bottom: 1.2rem;
@@ -208,8 +209,21 @@ button.secondary:disabled { opacity: 0.4; cursor: not-allowed; }
 .wizard-summary td {
   padding: 0.4rem 0.6rem;
   border-bottom: 1px solid var(--border);
+  word-break: break-word;
 }
 .wizard-summary td:first-child { color: var(--muted); width: 40%; }
+
+@media (max-width: 480px) {
+  .wizard-summary, .wizard-summary tbody, .wizard-summary tr, .wizard-summary td { display: block; width: 100%; }
+  .wizard-summary tr { border-bottom: 1px solid var(--border); padding: 0.4rem 0; }
+  .wizard-summary td { border-bottom: none; padding: 0.15rem 0; }
+  .wizard-summary td:first-child {
+    width: 100%;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+  }
+}
 
 .wizard-final-actions button {
   display: block;

@@ -35,14 +35,14 @@ async function refreshHistory() {
   for (const row of rows) {
     const tr = document.createElement("tr");
     tr.innerHTML = `
-      <td>${fmtTime(row.created_at)}</td>
-      <td>${row.old_ip ?? "–"} → ${row.new_ip}</td>
-      <td>${row.dry_run ? "ja" : "nein"}</td>
-      <td class="${row.apply_success ? "ok" : "bad"}">${row.apply_success ? "OK" : "Fehler"}</td>
-      <td class="${row.health_ok ? "ok" : row.health_ok === false ? "bad" : ""}">${
+      <td data-label="Zeit">${fmtTime(row.created_at)}</td>
+      <td data-label="Alt → Neu">${row.old_ip ?? "–"} → ${row.new_ip}</td>
+      <td data-label="Dry-Run">${row.dry_run ? "ja" : "nein"}</td>
+      <td data-label="Anwenden" class="${row.apply_success ? "ok" : "bad"}">${row.apply_success ? "OK" : "Fehler"}</td>
+      <td data-label="Health-Check" class="${row.health_ok ? "ok" : row.health_ok === false ? "bad" : ""}">${
         row.health_ok === null ? "–" : row.health_ok ? "OK" : "Fehler"
       }</td>
-      <td>${row.rolled_back ? "ja" : "–"}</td>
+      <td data-label="Rollback">${row.rolled_back ? "ja" : "–"}</td>
     `;
     tbody.appendChild(tr);
   }
