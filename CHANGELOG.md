@@ -8,6 +8,19 @@ dieses Projekt folgt [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [0.2.1] - 2026-08-13
+
+### Behoben
+
+- **Live in der Home-Assistant-App beobachtet:** Das Logo in `DOCS.md` und
+  der Add-on-README erschien nicht — Home Assistants eigener
+  In-App-Doku-Viewer kann kein `<picture>`/`<source>` (zeigt es als reinen
+  Text) und lädt Bilder offenbar nicht über einen `../`-Pfad außerhalb des
+  Add-on-Ordners (kaputtes Bild-Icon). Ersetzt durch ein einfaches
+  Markdown-Bild (`![TalkAnchor](wordmark.png)`) mit einer neuen, lokal im
+  Add-on-Ordner liegenden PNG-Version des Wordmarks — funktioniert sowohl
+  im HA-Doku-Viewer als auch auf GitHub.
+
 ## [0.2.0] - 2026-08-13
 
 ### Geändert

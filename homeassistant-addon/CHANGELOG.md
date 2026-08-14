@@ -1,5 +1,12 @@
 # TalkAnchor-Add-on-Changelog
 
+## 0.2.1
+
+- Logo in der Dokumentation (Reiter „Dokumentation" im Add-on) erschien
+  nicht — Home Assistants Doku-Viewer stellt kein `<picture>`/`<source>`
+  dar und lud das Bild nicht über einen Pfad außerhalb des Add-on-Ordners.
+  Jetzt ein einfaches Bild aus dem Add-on-Ordner selbst.
+
 ## 0.2.0
 
 - Logo/Icon repariert: `icon.png` war in der Add-on-Übersicht nicht
